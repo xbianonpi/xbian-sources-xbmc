@@ -348,7 +348,7 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
 
   DestroyDispmaxWindow();
 
-  if(!m_fixedMode && GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
+  if(GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
   {
     if (res.dwFlags & (D3DPRESENTFLAG_MODE3DSBS|D3DPRESENTFLAG_MODE3DTB))
     {
@@ -396,6 +396,33 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS) ? " SBS":"",
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DTB) ? " TB":"");
     }
+
+    m_desktopRes = res;
+  }
+  else if(!GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
+  {
+    sem_init(&m_tv_synced, 0, 0);
+    m_DllBcmHost->vc_tv_register_callback(CallbackTvServiceCallback, this);
+
+    SDTV_OPTIONS_T options;
+    options.aspect = get_sdtv_aspect_from_display_aspect((float)res.iScreenWidth / (float)res.iScreenHeight);
+
+    int success = m_DllBcmHost->vc_tv_sdtv_power_on((SDTV_MODE_T)GETFLAGS_MODE(res.dwFlags), &options);
+
+    if (success == 0)
+    {
+      CLog::Log(LOGDEBUG, "EGL set SDTV mode (%d,%d)=%d\n",
+                          GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success);
+
+      sem_wait(&m_tv_synced);
+    }
+    else
+    {
+      CLog::Log(LOGERROR, "EGL failed to set SDTV mode (%d,%d)=%d\n",
+                          GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success);
+    }
+    m_DllBcmHost->vc_tv_unregister_callback(CallbackTvServiceCallback);
+    sem_destroy(&m_tv_synced);
 
     m_desktopRes = res;
   }
@@ -596,9 +623,6 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
     AddUniqueResolution(m_desktopRes, resolutions);
     CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
   }
-
-  if(resolutions.size() < 2)
-    m_fixedMode = true;
 
   DLOG("CEGLNativeTypeRaspberryPI::ProbeResolutions\n");
   return true;
