@@ -82,6 +82,9 @@ public:
   void VSyncCallback();
   int GetMBox() { return m_mb; }
 
+  void SuspendVideoOutput();
+  void ResumeVideoOutput();
+
 private:
   DllBcmHost *m_DllBcmHost;
   bool       m_initialized;
