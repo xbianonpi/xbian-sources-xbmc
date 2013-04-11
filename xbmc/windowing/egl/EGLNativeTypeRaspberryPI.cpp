@@ -64,10 +64,11 @@ using namespace PERIPHERALS;
 # define DLOG(fmt, args...)
 #endif
 
-static void SetResolutionString(RESOLUTION_INFO &res);
 #if defined(TARGET_RASPBERRY_PI)
+static void SetResolutionString(RESOLUTION_INFO &res);
 static float get_display_aspect_ratio(HDMI_ASPECT_T aspect);
 static float get_display_aspect_ratio(SDTV_ASPECT_T aspect);
+static SDTV_ASPECT_T get_sdtv_aspect_from_display_aspect(float display_aspect);
 #endif
 
 CEGLNativeTypeRaspberryPI::CEGLNativeTypeRaspberryPI()
