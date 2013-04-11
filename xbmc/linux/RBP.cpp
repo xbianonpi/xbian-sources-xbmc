@@ -500,4 +500,18 @@ void CRBP::uninit_cursor()
   mailbox_set_cursor_position(m_mb, 0, 0, 0);
 }
 
+void CRBP::SuspendVideoOutput()
+{
+  CLog::Log(LOGDEBUG, "Raspberry PI suspending video output\n");
+  char response[80];
+  m_DllBcmHost->vc_gencmd(response, sizeof response, "display_power 0");
+}
+
+void CRBP::ResumeVideoOutput()
+{
+  char response[80];
+  m_DllBcmHost->vc_gencmd(response, sizeof response, "display_power 1");
+  CLog::Log(LOGDEBUG, "Raspberry PI resuming video output\n");
+}
+
 #endif
