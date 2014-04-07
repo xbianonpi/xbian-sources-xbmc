@@ -46,6 +46,8 @@
 #define LOGEPG        (1 << (LOGMASKBIT + 16))
 #define LOGANNOUNCE   (1 << (LOGMASKBIT + 17))
 #define LOGOMXPLAYER  (1 << (LOGMASKBIT + 24))
+#define LOGDUMPVIDEO  (1 << (LOGMASKBIT + 25))
+#define LOGDUMPAUDIO  (1 << (LOGMASKBIT + 26))
 
 #include "utils/params_check_macros.h"
 
