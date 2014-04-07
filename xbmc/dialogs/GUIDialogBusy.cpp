@@ -86,7 +86,11 @@ bool CGUIDialogBusy::WaitOnEvent(CEvent &event, unsigned int displaytime /* = 10
         dialog->Open();
       }
 
+#ifdef TARGET_RASPBERRY_PI
+      while (!event.Wait(100ms))
+#else
       while (!event.Wait(1ms))
+#endif
       {
         if (level == dialog->m_waiters)
           dialog->ProcessRenderLoop(false);
