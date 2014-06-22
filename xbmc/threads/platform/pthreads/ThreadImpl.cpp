@@ -142,6 +142,9 @@ int CThread::GetNormalPriority(void)
 
 bool CThread::SetPriority(const int iPriority)
 {
+#if 1
+  bool bReturn = true;
+#else
   bool bReturn = false;
 
   // wait until thread is running, it needs to get its lwp id
@@ -192,6 +195,7 @@ bool CThread::SetPriority(const int iPriority)
     else
       if (logger) logger->Log(LOGERROR, "%s: error %s", __FUNCTION__, strerror(errno));
   }
+#endif
 #endif
 
   return bReturn;
