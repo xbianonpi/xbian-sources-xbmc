@@ -243,13 +243,13 @@ namespace PERIPHERALS
       strHexString = StringUtils::Format("%04X", iVal);
     };
 
-    static void UeventToName(CStdString &uevent, CStdString &name)
+    static void UeventToName(std::string &uevent, std::string &name)
     {
       std::vector<std::string> data = StringUtils::Split(uevent, "\n");
       for (size_t i = 0; i < data.size(); i++)
         if (StringUtils::StartsWith(data[i], "OF_NAME="))
           name = data[i].substr(8, data[i].length());
-    }
+    };
   };
 
   class PeripheralScanResult
