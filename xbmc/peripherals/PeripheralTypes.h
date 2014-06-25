@@ -144,7 +144,7 @@ namespace PERIPHERALS
         return PERIPHERAL_TUNER;
       else if (strTypeLowerCase == "imon")
         return PERIPHERAL_IMON;
-      else if (strTypeLowerCase.Equals("video"))
+      else if (strTypeLowerCase == "video")
         return PERIPHERAL_VIDEO;
 
       return PERIPHERAL_UNKNOWN;
@@ -186,7 +186,7 @@ namespace PERIPHERALS
         return PERIPHERAL_BUS_IMX;
       else if (strTypeLowerCase == "cec")
         return PERIPHERAL_BUS_CEC;
-      else if (strTypeLowerCase.Equals("platform"))
+      else if (strTypeLowerCase == "platform")
         return PERIPHERAL_BUS_PLATFORM;
 
       return PERIPHERAL_BUS_UNKNOWN;
@@ -209,13 +209,13 @@ namespace PERIPHERALS
       strHexString = StringUtils::Format("%04X", iVal);
     };
 
-    static void UeventToName(CStdString &uevent, CStdString &name)
+    static void UeventToName(std::string &uevent, std::string &name)
     {
       std::vector<std::string> data = StringUtils::Split(uevent, "\n");
       for (size_t i = 0; i < data.size(); i++)
         if (StringUtils::StartsWith(data[i], "OF_NAME="))
           name = data[i].substr(8, data[i].length());
-    }
+    };
   };
 
   class PeripheralScanResult
