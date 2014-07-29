@@ -35,6 +35,7 @@
 #include "settings/AdvancedSettings.h"
 #include "cores/VideoRenderers/RenderFlags.h"
 
+#include "Application.h"
 
 CBaseRenderer::CBaseRenderer()
 {
@@ -236,6 +237,51 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
 
   int curr_diff = std::abs((int) m_sourceWidth - curr.iScreenWidth);
   int loop_diff = 0;
+
+  // CHANGERESOLUTION
+  if (CSettings::Get().GetBool("videoplayer.adjustresolution") || bRelaxPixelRatio)
+  {
+    bool i_found = false;
+
+    if (!bRelaxPixelRatio && !i_found && fRefreshRate != trunc(fRefreshRate))
+      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+      {
+        const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+        if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
+        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+          continue;
+
+        current = (RESOLUTION)i;
+        curr    = info;
+        i_found = true;
+
+        if (info.iScreenWidth == m_sourceWidth && info.iScreenHeight == m_sourceHeight)
+          break;
+      }
+
+    for (size_t i = (int)RES_DESKTOP; !i_found && i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    {
+      const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+      if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
+      ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) >
+          pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2)
+      ||  info.iScreen != curr.iScreen
+      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
+      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001))
+        {
+        /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
+               info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
+                    m_iFlags & D3DPRESENTFLAG_MODEMASK); */
+          continue;
+        }
+
+      current = (RESOLUTION)i;
+      curr    = info;
+    }
+  }
+>>>>>>> adjust resolution on play.
 
   // Find closest refresh rate
   for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)

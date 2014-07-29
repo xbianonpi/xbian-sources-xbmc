@@ -6709,7 +6709,12 @@ msgctxt "#13557"
 msgid "Skip delay"
 msgstr ""
 
-#empty strings from id 13558 to 13599
+#: system/settings/settings.xml
+msgctxt "#13558"
+msgid "Adjust display resolution"
+msgstr ""
+
+#empty strings from id 13559 to 13599
 
 #: system/settings/darwin.xml
 msgctxt "#13600"
@@ -15937,7 +15942,11 @@ msgctxt "#36171"
 msgid "Select the zoom level that 4:3 videos are shown on widescreen displays."
 msgstr ""
 
-#empty string with id 36172
+#. Description of setting "Videos -> Playback -> Adjust display resolution" with label #13558
+#: system/settings/settings.xml
+msgctxt "#36172"
+msgid "Allow the resolution of the display to be changed so that it best matches the video resolution."
+msgstr ""
 
 #. Description of setting "Appearance -> International -> Short date format" with label #14109
 #: system/settings/settings.xml

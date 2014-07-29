@@ -30,6 +30,7 @@
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "settings/DisplaySettings.h"
+#include "cores/VideoRenderers/RenderManager.h"
 #include "guilib/DispResource.h"
 #include "threads/SingleLock.h"
 #ifdef HAS_IMXVPU
@@ -419,7 +420,8 @@ void CWinSystemEGL::UpdateResolutions()
        resDesktop.iScreenWidth == resolutions[i].iScreenWidth &&
        resDesktop.iScreenHeight == resolutions[i].iScreenHeight &&
        (resDesktop.dwFlags & D3DPRESENTFLAG_MODEMASK) == (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) &&
-       fabs(resDesktop.fRefreshRate - resolutions[i].fRefreshRate) < FLT_EPSILON)
+       fabs(resDesktop.fRefreshRate - resolutions[i].fRefreshRate) < FLT_EPSILON &&
+       fabs(resDesktop.fPixelRatio - resolutions[i].fPixelRatio) < FLT_EPSILON)
     {
       ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
@@ -436,6 +438,19 @@ void CWinSystemEGL::UpdateResolutions()
     RESOLUTION_INFO desktop = CDisplaySettings::GetInstance().GetResolutionInfo(RES_DESKTOP);
     CDisplaySettings::GetInstance().GetResolutionInfo(RES_DESKTOP) = CDisplaySettings::GetInstance().GetResolutionInfo(ResDesktop);
     CDisplaySettings::GetInstance().GetResolutionInfo(ResDesktop) = desktop;
+    return;
+  }
+
+  // if new screen doesn't provide resolution we need, we try to find closest to previous
+  float weight;
+  ResDesktop = CBaseRenderer::FindClosestResolution(g_application.m_res.fRefreshRate, 1.0f, (RESOLUTION)0, weight,
+                               g_application.m_res.iWidth, g_application.m_res.iHeight, g_application.m_res.dwFlags, true);
+
+  if (ResDesktop != RES_INVALID)
+  {
+    CLog::Log(LOGNOTICE, "New screen doesn't provide previous resolution. Will change to %d", ResDesktop);
+    CDisplaySettings::GetInstance().SetCurrentResolution(ResDesktop, true);
+    g_application.m_res = CDisplaySettings::GetInstance().GetResolutionInfo(CDisplaySettings::GetInstance().GetDisplayResolution());
   }
 }
 
