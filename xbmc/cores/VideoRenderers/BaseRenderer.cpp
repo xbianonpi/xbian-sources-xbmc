@@ -34,6 +34,7 @@
 #include "settings/AdvancedSettings.h"
 #include "cores/VideoRenderers/RenderFlags.h"
 
+#include "Application.h"
 
 CBaseRenderer::CBaseRenderer()
 {
@@ -221,11 +222,45 @@ void CBaseRenderer::FindResolutionFromFpsMatch(float fps, float& weight)
 
 RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight)
 {
-  RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
+  return FindClosestResolution(fps, multiplier, current, weight, m_sourceWidth, m_sourceHeight, m_iFlags);
+}
+
+RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight,
+                                                unsigned int m_sourceWidth, unsigned int m_sourceHeight, unsigned m_iFlags, bool bRelaxPixelRatio)
+{
+  RESOLUTION_INFO curr = g_application.m_res;
 
   float fRefreshRate = fps;
 
   float last_diff = fRefreshRate;
+
+  // CHANGERESOLUTION
+  if (g_advancedSettings.m_adjustResolutionVideoMatch || bRelaxPixelRatio)
+  {
+    for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    {
+      const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+      if ((fRefreshRate != trunc(fRefreshRate)) && fabs(info.fRefreshRate - fRefreshRate) > 0.001)
+        continue;
+
+      if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
+      ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) >
+          pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2)
+      ||  info.iScreen != curr.iScreen
+      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
+      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001))
+        {
+          /*CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
+               info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
+                    m_iFlags & D3DPRESENTFLAG_MODEMASK);*/
+          continue;
+        }
+
+      current = (RESOLUTION)i;
+      curr    = info;
+    }
+  }
 
   // Find closest refresh rate
   for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
