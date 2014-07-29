@@ -26,6 +26,8 @@
 #include "settings/DisplaySettings.h"
 #include <cstdlib>
 
+#include "Application.h"
+
 RESOLUTION_INFO::RESOLUTION_INFO(int width, int height, float aspect, const std::string &mode) :
   strMode(mode)
 {
@@ -191,7 +193,7 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, bool is3
   }
 }
 
-RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is3D, float multiplier, RESOLUTION current, float& weight)
+RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is3D, float multiplier, RESOLUTION current, float& weight, bool bRelaxPixelRatio)
 {
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
   RESOLUTION orig_res  = CDisplaySettings::GetInstance().GetCurrentResolution();
@@ -207,6 +209,50 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is
 
   int curr_diff = std::abs(width - curr.iScreenWidth);
   int loop_diff = 0;
+
+  // CHANGERESOLUTION
+  if (CSettings::Get().GetBool("videoplayer.adjustresolution") || bRelaxPixelRatio)
+  {
+    bool i_found = false;
+
+    if (!bRelaxPixelRatio && !i_found && fRefreshRate != trunc(fRefreshRate))
+      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+      {
+        const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+        if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
+        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+          continue;
+
+        current = (RESOLUTION)i;
+        curr    = info;
+        i_found = true;
+
+        if (info.iScreenWidth == width)
+          break;
+      }
+
+    for (size_t i = (int)RES_DESKTOP; !i_found && i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    {
+      const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+      if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
+      ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) >
+          pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2)
+      ||  info.iScreen != curr.iScreen
+      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
+      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001))
+        {
+        /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
+               info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
+                    m_iFlags & D3DPRESENTFLAG_MODEMASK); */
+          continue;
+        }
+
+      current = (RESOLUTION)i;
+      curr    = info;
+    }
+  }
 
   // Find closest refresh rate
   for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
