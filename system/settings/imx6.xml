@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <settings>
+  <section id="videos">
+    <category id="videoplayer">
+      <group id="3">
+        <setting id="videoplayer.adjustresolution">
+          <default>true</default>
+        </setting>
+        <setting id="videoplayer.adjustresolutioninterlaced">
+          <default>false</default>
+        </setting>
+      </group>
+    </category>
+  </section>
   <section id="system">
     <category id="videoscreen">
       <group id="1">
