@@ -34,6 +34,7 @@
 #include "settings/AdvancedSettings.h"
 #include "cores/VideoRenderers/RenderFlags.h"
 
+#include "Application.h"
 
 CBaseRenderer::CBaseRenderer()
 {
@@ -221,11 +222,34 @@ void CBaseRenderer::FindResolutionFromFpsMatch(float fps, float& weight)
 
 RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight)
 {
-  RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
+  RESOLUTION_INFO curr = g_application.m_res;
 
   float fRefreshRate = fps;
 
   float last_diff = fRefreshRate;
+
+  // CHANGERESOLUTION
+  if (g_advancedSettings.m_adjustResolutionVideoMatch)
+  {
+    for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    {
+      const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+
+      if (abs(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight) > abs(curr.iScreenHeight*curr.iScreenWidth - m_sourceWidth*m_sourceHeight)
+      ||  info.iScreen != curr.iScreen
+      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
+      ||  fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+        {
+          CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
+               info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
+                    m_iFlags & D3DPRESENTFLAG_MODEMASK);
+          continue;
+        }
+
+      current = (RESOLUTION)i;
+      curr    = info;
+    }
+  }
 
   // Find closest refresh rate
   for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
