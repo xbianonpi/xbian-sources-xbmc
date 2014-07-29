@@ -2,10 +2,18 @@
 <settings>
   <section id="player">
     <category id="videoplayer">
+      <group id="2">
+        <setting id="videoplayer.adjustresolution">
+          <default>true</default>
+        </setting>
+        <setting id="videoplayer.adjustresolutioninterlaced">
+          <default>false</default>
+        </setting>
+      </group>
       <group id="3">
         <setting id="videoplayer.limitguiupdate" type="integer" label="38013" help="38014">
           <level>2</level>
-          <default>10</default>
+          <default>5</default>
           <constraints>
             <minimum label="38015">0</minimum> <!-- Unlimited -->
             <step>5</step>
