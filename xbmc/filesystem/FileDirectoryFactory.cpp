@@ -39,6 +39,7 @@
 #include "playlists/PlayListFactory.h"
 #include "Directory.h"
 #include "File.h"
+#include "settings/Settings.h"
 #include "FileItem.h"
 #include "utils/StringUtils.h"
 #include "URL.h"
@@ -112,6 +113,8 @@ IFileDirectory* CFileDirectoryFactory::Create(const CURL& url, CFileItem* pItem,
     return NULL;
   }
 #endif
+  if (CSettings::Get().GetBool("filelists.browsearchives"))
+  {
   if (url.IsFileType("zip"))
   {
     CURL zipURL = URIUtils::CreateArchivePath("zip", url);
@@ -184,6 +187,7 @@ IFileDirectory* CFileDirectoryFactory::Create(const CURL& url, CFileItem* pItem,
 #endif
     }
     return NULL;
+  }
   }
   if (url.IsFileType("xsp"))
   { // XBMC Smart playlist - just XML renamed to XSP
