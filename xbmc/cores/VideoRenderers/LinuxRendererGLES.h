@@ -145,6 +145,7 @@ public:
   virtual void         ReorderDrawPoints();
   virtual void         ReleaseBuffer(int idx);
   virtual void         SetBufferSize(int numBuffers) { m_NumYV12Buffers = numBuffers; }
+  virtual unsigned int GetMaxBufferSize() { return NUM_BUFFERS; }
   virtual bool         IsGuiLayer();
 
   virtual void RenderUpdate(bool clear, DWORD flags = 0, DWORD alpha = 255);
