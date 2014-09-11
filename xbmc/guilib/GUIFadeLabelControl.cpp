@@ -10,6 +10,7 @@
 
 #include "GUIMessage.h"
 #include "utils/Random.h"
+#include "Application.h"
 
 using namespace KODI::GUILIB;
 
@@ -105,7 +106,7 @@ void CGUIFadeLabelControl::Process(unsigned int currentTime, CDirtyRegionList &d
     MarkDirtyRegion();
   }
 
-  if (m_infoLabels.size() > 1 || !m_shortText)
+  if ((m_infoLabels.size() > 1 || !m_shortText) && !g_application.ScreenSaverDisablesAutoScrolling())
   { // have scrolling text
     bool moveToNextLabel = false;
     if (!m_scrollOut)
