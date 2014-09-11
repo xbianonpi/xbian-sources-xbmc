@@ -5917,3 +5917,10 @@ void CApplication::CloseNetworkShares()
   CSFTPSessionManager::DisconnectAllSessions();
 #endif
 }
+
+bool CApplication::ScreenSaverDisablesAutoScrolling()
+{
+  return IsInScreenSaver() && m_screenSaver &&
+    (m_screenSaver->ID() == "screensaver.xbmc.builtin.black" ||
+     m_screenSaver->ID() == "screensaver.xbmc.builtin.dim");
+}

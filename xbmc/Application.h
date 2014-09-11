@@ -385,6 +385,8 @@ public:
   void SetCecStandby(bool status, bool force = false);
   bool GetCecStandby() { return m_cecStandby; }
 
+  bool ScreenSaverDisablesAutoScrolling();
+
 protected:
   virtual bool OnSettingsSaving() const;
 
