@@ -22120,6 +22120,36 @@ msgid "This category provides access to the windows for source management and li
 msgstr ""
 
 #. Description of setting "Videos... with label #14242
+#. Description of setting "System -> Audio Ouput -> A/V sync method" with label #38200
+#: system/settings/settings.xml
+msgctxt "#38200"
+msgid "PLL adjustment to maintain audio/video sync"
+msgstr ""
+
+#. Description of setting "Videos -> Playback -> A/V sync method" with label #38201
+#: system/settings/settings.xml
+msgctxt "#38201"
+msgid "Allows sync adjustment without resampling. Lower the settings if you get audio/video dropouts."
+msgstr ""
+
+msgctxt "#38202"
+msgid "Off"
+msgstr ""
+
+msgctxt "#38203"
+msgid "Low"
+msgstr ""
+
+msgctxt "#38204"
+msgid "Medium"
+msgstr ""
+
+msgctxt "#38205"
+msgid "High"
+msgstr ""
+
+msgctxt "#38206"
+msgid "Max"
 #: system/settings/settings.xml
 msgctxt "#39005"
 msgid "This provides access to where video sources can be added and otherwise managed."
