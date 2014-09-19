@@ -16224,3 +16224,10 @@ msgstr ""
 msgctxt "#38121"
 msgid "This option supports 8 channel DTS HD decoding, but may use more CPU. It is only available when DTS and DTS-HD audio passthrough is disabled"
 msgstr ""
+
+#. Description of setting "Videos -> Playback -> A/V sync method" with label #13500
+#: system/settings/settings.xml
+msgctxt "#38006"
+msgid "Audio has to stay in sync, this can either be done by resampling, or adjusting the PLL"
+msgstr ""
+
