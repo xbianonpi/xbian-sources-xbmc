@@ -82,6 +82,7 @@
 #include "utils/SystemInfo.h"
 #include "utils/Weather.h"
 #include "utils/XBMCTinyXML.h"
+#include "utils/SeekHandler.h"
 #include "view/ViewStateSettings.h"
 #include "windowing/WindowingFactory.h"
 
@@ -246,6 +247,7 @@ void CSettings::Uninitialize()
   m_settingsManager->UnregisterSettingOptionsFiller("stereoscopicmodes");
   m_settingsManager->UnregisterSettingOptionsFiller("preferedstereoscopicviewmodes");
   m_settingsManager->UnregisterSettingOptionsFiller("monitors");
+  m_settingsManager->UnregisterSettingOptionsFiller("videoseeksteps");
   m_settingsManager->UnregisterSettingOptionsFiller("shutdownstates");
   m_settingsManager->UnregisterSettingOptionsFiller("startupwindows");
   m_settingsManager->UnregisterSettingOptionsFiller("streamlanguages");
@@ -264,6 +266,7 @@ void CSettings::Uninitialize()
   m_settingsManager->UnregisterCallback(&g_advancedSettings);
   m_settingsManager->UnregisterCallback(&CMediaSettings::Get());
   m_settingsManager->UnregisterCallback(&CDisplaySettings::Get());
+  m_settingsManager->UnregisterCallback(&CSeekHandler::Get());
   m_settingsManager->UnregisterCallback(&CStereoscopicsManager::Get());
   m_settingsManager->UnregisterCallback(&g_application);
   m_settingsManager->UnregisterCallback(&g_audioManager);
@@ -595,6 +598,7 @@ void CSettings::InitializeOptionFillers()
   m_settingsManager->RegisterSettingOptionsFiller("stereoscopicmodes", CDisplaySettings::SettingOptionsStereoscopicModesFiller);
   m_settingsManager->RegisterSettingOptionsFiller("preferedstereoscopicviewmodes", CDisplaySettings::SettingOptionsPreferredStereoscopicViewModesFiller);
   m_settingsManager->RegisterSettingOptionsFiller("monitors", CDisplaySettings::SettingOptionsMonitorsFiller);
+  m_settingsManager->RegisterSettingOptionsFiller("videoseeksteps", CSeekHandler::SettingOptionsSeekStepsFiller);
   m_settingsManager->RegisterSettingOptionsFiller("shutdownstates", CPowerManager::SettingOptionsShutdownStatesFiller);
   m_settingsManager->RegisterSettingOptionsFiller("startupwindows", ADDON::CSkinInfo::SettingOptionsStartupWindowsFiller);
   m_settingsManager->RegisterSettingOptionsFiller("streamlanguages", CLangInfo::SettingOptionsStreamLanguagesFiller);
@@ -690,7 +694,11 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert("videoscreen.monitor");
   settingSet.insert("videoscreen.preferedstereoscopicmode");
   m_settingsManager->RegisterCallback(&CDisplaySettings::Get(), settingSet);
-  m_settingsManager->RegisterCallback(&g_application, settingSet);
+
+  settingSet.clear();
+  settingSet.insert("videoplayer.seekdelay");
+  settingSet.insert("videoplayer.seeksteps");
+  m_settingsManager->RegisterCallback(&CSeekHandler::Get(), settingSet);
 
   settingSet.clear();
   settingSet.insert("videoscreen.stereoscopicmode");
