@@ -5028,6 +5028,11 @@ bool CApplication::NotifyActionListeners(const CAction &action) const
 
 bool CApplication::ScreenSaverDisablesAutoScrolling()
 {
+  // This 'if' clause is completely unnecessary, but by not touching the 'return'
+  // below this patch becomes more easily maintainable.
+  if (GetCecStandby())
+    return true;
+
   bool onBlackDimScreenSaver = IsInScreenSaver() && m_screenSaver &&
     (m_screenSaver->ID() == "screensaver.xbmc.builtin.black" ||
      m_screenSaver->ID() == "screensaver.xbmc.builtin.dim");
