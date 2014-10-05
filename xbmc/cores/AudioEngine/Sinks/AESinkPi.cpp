@@ -27,7 +27,6 @@ using namespace std::chrono_literals;
 #define CLASSNAME "CAESinkPi"
 
 #define NUM_OMX_BUFFERS 2
-#define AUDIO_PLAYBUFFER (0.1) // 100ms
 
 static const unsigned int PassthroughSampleRates[] = { 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 176400, 192000 };
 
@@ -35,6 +34,7 @@ CAEDeviceInfo CAESinkPi::m_info;
 
 CAESinkPi::CAESinkPi() :
     m_sinkbuffer_sec_per_byte(0),
+    m_latency(0),
     m_Initialized(false),
     m_submitted(0),
     m_omx_output(NULL),
@@ -202,6 +202,9 @@ bool CAESinkPi::Initialize(AEAudioFormat &format, std::string &device)
   m_initDevice = device;
   m_initFormat = format;
 
+  m_latency = CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt("audiooutput.latency") * 1e-3;
+  m_latency = std::max(m_latency, 50e-3);
+
   const std::string audioDevice = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_AUDIOOUTPUT_AUDIODEVICE);
 
   if (m_passthrough || audioDevice == "PI:HDMI")
@@ -227,7 +230,7 @@ bool CAESinkPi::Initialize(AEAudioFormat &format, std::string &device)
   unsigned int sample_size = CAEUtil::DataFormatToBits(format.m_dataFormat) >> 3;
   format.m_frameSize     = sample_size * channels;
   format.m_sampleRate    = std::max(8000U, std::min(192000U, format.m_sampleRate));
-  format.m_frames        = format.m_sampleRate * AUDIO_PLAYBUFFER / NUM_OMX_BUFFERS;
+  format.m_frames        = format.m_sampleRate * m_latency / NUM_OMX_BUFFERS;
 
   m_format = format;
   m_sinkbuffer_sec_per_byte = 1.0 / (double)(m_format.m_frameSize * m_format.m_sampleRate);
@@ -445,7 +448,7 @@ void CAESinkPi::GetDelay(AEDelayStatus& status)
 
 double CAESinkPi::GetCacheTotal()
 {
-  return AUDIO_PLAYBUFFER;
+  return m_latency;
 }
 
 unsigned int CAESinkPi::AddPackets(uint8_t **data, unsigned int frames, unsigned int offset)
@@ -498,8 +501,8 @@ unsigned int CAESinkPi::AddPackets(uint8_t **data, unsigned int frames, unsigned
   m_submitted++;
   GetDelay(status);
   delay = status.GetDelay();
-  if (delay > AUDIO_PLAYBUFFER)
-    KODI::TIME::Sleep(static_cast<int>(1000.0f * (delay - AUDIO_PLAYBUFFER)));
+  if (delay > m_latency)
+    KODI::TIME::Sleep(std::chrono::milliseconds(static_cast<int>(1000.0 * (delay - m_latency))));
   return frames;
 }
 
