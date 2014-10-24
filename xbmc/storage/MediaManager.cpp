@@ -680,6 +680,9 @@ std::vector<std::string> CMediaManager::GetDiskUsage()
 void CMediaManager::OnStorageAdded(const std::string &label, const std::string &path)
 {
 #ifdef HAS_DVD_DRIVE
+  if (path == "/run/btrfs-snap" || path == "/tmp/btrfs-snap")
+    return;
+
   if (CSettings::GetInstance().GetInt(CSettings::SETTING_AUDIOCDS_AUTOACTION) != AUTOCD_NONE || CSettings::GetInstance().GetBool(CSettings::SETTING_DVDS_AUTORUN))
     if (CSettings::GetInstance().GetInt(CSettings::SETTING_AUDIOCDS_AUTOACTION) == AUTOCD_RIP)
       CJobManager::GetInstance().AddJob(new CAutorunMediaJob(label, path), this, CJob::PRIORITY_LOW);
