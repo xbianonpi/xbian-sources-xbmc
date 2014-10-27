@@ -106,6 +106,7 @@ void CRBP::LogFirmwareVerison()
   response[sizeof(response) - 1] = '\0';
   CLog::Log(LOGNOTICE, "Raspberry PI firmware version: %s", response);
   CLog::Log(LOGNOTICE, "ARM mem: %dMB GPU mem: %dMB MPG2:%d WVC1:%d", m_arm_mem, m_gpu_mem, m_codec_mpg2_enabled, m_codec_wvc1_enabled);
+  CLog::Log(LOGNOTICE, "cacheMemBufferSize: %dMB",  g_advancedSettings.m_cacheMemBufferSize >> 20);
   m_DllBcmHost->vc_gencmd(response, sizeof response, "get_config int");
   response[sizeof(response) - 1] = '\0';
   CLog::Log(LOGNOTICE, "Config:\n%s", response);
