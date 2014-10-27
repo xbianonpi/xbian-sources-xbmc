@@ -43,6 +43,9 @@
 #if defined(TARGET_DARWIN_IOS)
 #include "osx/DarwinUtils.h"
 #endif
+#if defined(TARGET_RASPBERRY_PI)
+#include "linux/RBP.h"
+#endif
 
 using namespace ADDON;
 using namespace XFILE;
@@ -350,7 +353,12 @@ void CAdvancedSettings::Initialize()
   m_bPVRAutoScanIconsUserSet       = false;
   m_iPVRNumericChannelSwitchTimeout = 1000;
 
+#ifdef TARGET_RASPBERRY_PI
+  // want default to be memory dependent, but interface to gpu not available yet, so set in RBP.cpp
+  m_cacheMemBufferSize = ~0;
+#else
   m_cacheMemBufferSize = 1024 * 1024 * 20;
+#endif
   m_networkBufferMode = 0; // Default (buffer all internet streams/filesystems)
   // the following setting determines the readRate of a player data
   // as multiply of the default data read rate
@@ -405,7 +413,9 @@ void CAdvancedSettings::Initialize()
   #endif
 
   m_userAgent = g_sysinfo.GetUserAgent();
-
+#ifdef TARGET_RASPBERRY_PI
+  g_RBP.InitializeSettings();
+#endif
   m_initialized = true;
 }
 
