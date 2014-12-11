@@ -11054,7 +11054,7 @@ msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#20433"
-msgid "Extract thumbnails and video information"
+msgid "Extract video information from files"
 msgstr ""
 
 #: xbmc/dialogs/GUIDialogSmartPlaylistRule.cpp
@@ -14631,7 +14631,7 @@ msgstr ""
 #. Description of setting "Videos -> File lists -> Extract thumbnails and video information" with label #20433
 #: system/settings/settings.xml
 msgctxt "#36178"
-msgid "Extract thumbnails and metadata information such as codec and aspect ratio from videos."
+msgid "Extract metadata information such as codec and aspect ratio from videos."
 msgstr ""
 
 #. Description of setting "Videos -> File lists -> Replace file names with library titles" with label #20419
@@ -14643,7 +14643,7 @@ msgstr ""
 #. Description of setting "Videos -> File lists -> Extract thumbnails and video information" with label #20433
 #: system/settings/settings.xml
 msgctxt "#36180"
-msgid "Extract thumbnails and information, such as codecs and aspect ratio, to display in library mode."
+msgid "Extract thumbnails, to display in library Mode."
 msgstr ""
 
 #: system/settings/settings.xml
@@ -16757,4 +16757,9 @@ msgstr ""
 #: system/settings/settings.xml
 msgctxt "#38121"
 msgid "Enables decoding of high quality DTS-HD audio streams. Note: This increases CPU load and is only available when DTS and DTS-HD audio passthrough are disabled."
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#38103"
+msgid "Extract thumbnails from video files"
 msgstr ""
