@@ -24,7 +24,6 @@
 #include "cores/dvdplayer/DVDCodecs/Overlay/contrib/cc_decoder708.h"
 #include "utils/log.h"
 
-<<<<<<< HEAD
 #include <algorithm>
 
 class CBitstream
@@ -74,8 +73,6 @@ private:
   bool m_error;
 };
 
-=======
->>>>>>> f3701a5... dvdplayer: add support for closed captions
 class CCaptionBlock
 {
 public:
@@ -83,10 +80,7 @@ public:
   {
     m_data = (uint8_t*)malloc(size);
     m_size = size;
-<<<<<<< HEAD
     m_pts = 0.0; //silence coverity uninitialized warning, is set elsewhere
-=======
->>>>>>> f3701a5... dvdplayer: add support for closed captions
   }
   virtual ~CCaptionBlock()
   {
@@ -102,19 +96,12 @@ bool reorder_sort (CCaptionBlock *lhs, CCaptionBlock *rhs)
   return (lhs->m_pts > rhs->m_pts);
 }
 
-<<<<<<< HEAD
 CDVDDemuxCC::CDVDDemuxCC(AVCodecID codec)
 {
   m_hasData = false;
   m_curPts = 0.0;
   m_ccDecoder = NULL;
   m_codec = codec;
-=======
-CDVDDemuxCC::CDVDDemuxCC()
-{
-  m_hasData = false;
-  m_ccDecoder = NULL;
->>>>>>> f3701a5... dvdplayer: add support for closed captions
 }
 
 CDVDDemuxCC::~CDVDDemuxCC()
@@ -160,7 +147,6 @@ DemuxPacket* CDVDDemuxCC::Read(DemuxPacket *pSrcPacket)
   {
     if ((startcode & 0xffffff00) == 0x00000100)
     {
-<<<<<<< HEAD
       if (m_codec == AV_CODEC_ID_MPEG2VIDEO)
       {
         int scode = startcode & 0xFF;
@@ -269,34 +255,6 @@ DemuxPacket* CDVDDemuxCC::Read(DemuxPacket *pSrcPacket)
               cc->m_pts = pSrcPacket->pts;
               m_ccTempBuffer.push_back(cc);
             }
-=======
-      int scode = startcode & 0xFF;
-      if (scode == 0x00)
-      {
-        if (len > 4)
-        {
-          uint8_t *buf = pSrcPacket->pData + p;
-          picType = (buf[1] & 0x38) >> 3;
-        }
-      }
-      else if (scode == 0xb2) // user data
-      {
-        uint8_t *buf = pSrcPacket->pData + p;
-        if (len >= 6 &&
-            buf[0] == 'G' && buf[1] == 'A' && buf[2] == '9' && buf[3] == '4' &&
-            buf[4] == 3 && (buf[5] & 0x40))
-        {
-          int cc_count = buf[5] & 0x1f;
-          if (cc_count > 0 && len >= 7 + cc_count * 3)
-          {
-            CCaptionBlock *cc = new CCaptionBlock(cc_count * 3);
-            memcpy(cc->m_data, buf+7, cc_count * 3);
-            cc->m_pts = pSrcPacket->pts;
-            if (picType == 1 || picType == 2)
-              m_ccTempBuffer.push_back(cc);
-            else
-              m_ccReorderBuffer.push_back(cc);
->>>>>>> f3701a5... dvdplayer: add support for closed captions
           }
         }
       }
@@ -321,7 +279,6 @@ void CDVDDemuxCC::Handler(int service, void *userdata)
 {
   CDVDDemuxCC *ctx = (CDVDDemuxCC*)userdata;
 
-<<<<<<< HEAD
   unsigned int idx;
 
   // switch back from 608 fallback if we got 708
@@ -341,9 +298,6 @@ void CDVDDemuxCC::Handler(int service, void *userdata)
       return;
   }
 
-=======
-  int idx;
->>>>>>> f3701a5... dvdplayer: add support for closed captions
   for (idx = 0; idx < ctx->m_streamdata.size(); idx++)
   {
     if (ctx->m_streamdata[idx].service == service)
@@ -362,14 +316,11 @@ void CDVDDemuxCC::Handler(int service, void *userdata)
     data.streamIdx = idx;
     data.service = service;
     ctx->m_streamdata.push_back(data);
-<<<<<<< HEAD
 
     if (service == 0)
       ctx->m_ccDecoder->m_seen608 = true;
     else
       ctx->m_ccDecoder->m_seen708 = true;
-=======
->>>>>>> f3701a5... dvdplayer: add support for closed captions
   }
 
   ctx->m_streamdata[idx].pts = ctx->m_curPts;
@@ -418,16 +369,11 @@ DemuxPacket* CDVDDemuxCC::Decode()
 
   if (m_hasData)
   {
-<<<<<<< HEAD
     for (unsigned int i=0; i<m_streamdata.size(); i++)
-=======
-    for (int i=0; i<m_streamdata.size(); i++)
->>>>>>> f3701a5... dvdplayer: add support for closed captions
     {
       if (m_streamdata[i].hasData)
       {
         int service = m_streamdata[i].service;
-<<<<<<< HEAD
 
         char *data;
         int len;
@@ -446,24 +392,14 @@ DemuxPacket* CDVDDemuxCC::Decode()
         pPacket->iSize = len;
         memcpy(pPacket->pData, data, pPacket->iSize);
 
-=======
-        pPacket = CDVDDemuxUtils::AllocateDemuxPacket(m_ccDecoder->m_cc708decoders[service].textlen);
-        pPacket->iSize = m_ccDecoder->m_cc708decoders[service].textlen;
-        memcpy(pPacket->pData, m_ccDecoder->m_cc708decoders[service].text, pPacket->iSize);
->>>>>>> f3701a5... dvdplayer: add support for closed captions
         pPacket->iStreamId = i;
         pPacket->pts = m_streamdata[i].pts;
         pPacket->duration = 0;
         m_streamdata[i].hasData = false;
         break;
       }
-<<<<<<< HEAD
       m_hasData = false;
     }
-=======
-    }
-    m_hasData = false;
->>>>>>> f3701a5... dvdplayer: add support for closed captions
   }
   return pPacket;
 }

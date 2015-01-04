@@ -1021,6 +1021,15 @@ bool CDVDPlayer::IsValidStream(CCurrentStream& stream)
 
     return true;
   }
+  if (source == STREAM_SOURCE_VIDEOMUX)
+  {
+    CDemuxStream* st = m_pCCDemuxer->GetStream(stream.id);
+    if (st == NULL || st->disabled)
+      return false;
+    if (st->type != stream.type)
+      return false;
+    return true;
+  }
 
   return false;
 }
