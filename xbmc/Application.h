@@ -66,6 +66,7 @@ class CPlayerController;
 #include "threads/Thread.h"
 
 #include "ApplicationPlayer.h"
+#include "interfaces/IActionListener.h"
 
 #include "guilib/Resolution.h"
 
@@ -382,6 +383,17 @@ public:
 
   bool ScreenSaverDisablesAutoScrolling();
 
+  /*!
+   \brief Register an action listener.
+   \param listener The listener to register
+   */
+  void RegisterActionListener(IActionListener *listener);
+  /*!
+   \brief Unregister an action listener.
+   \param listener The listener to unregister
+   */
+  void UnregisterActionListener(IActionListener *listener);
+
 protected:
   virtual bool OnSettingsSaving() const;
 
@@ -394,6 +406,13 @@ protected:
 
   bool LoadSkin(const CStdString& skinID);
   bool LoadSkin(const boost::shared_ptr<ADDON::CSkinInfo>& skin);
+  
+  /*!
+   \brief Delegates the action to all registered action handlers.
+   \param action The action
+   \return true, if the action was taken by one of the action listener.
+   */
+  bool NotifyActionListeners(const CAction &action) const;
 
   bool m_skinReverting;
 
@@ -504,6 +523,11 @@ protected:
 #endif
 
   ReplayGainSettings m_replayGainSettings;
+  
+  std::vector<IActionListener *> m_actionListeners;
+  
+private:
+  CCriticalSection                m_critSection;                 /*!< critical section for all changes to this class, except for changes to triggers */
 };
 
 XBMC_GLOBAL_REF(CApplication,g_application);
