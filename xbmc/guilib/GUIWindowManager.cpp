@@ -636,8 +636,6 @@ bool CGUIWindowManager::Render()
       CGUITexture::DrawQuad(*i, 0x4c00ff00);
   }
 
-  RenderEx();
-
   return hasRendered;
 }
 
