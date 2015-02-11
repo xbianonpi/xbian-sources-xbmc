@@ -2258,7 +2258,7 @@ void CApplication::Render()
 
   {
     // Less fps in DPMS
-    bool lowfps = m_dpmsIsActive || g_Windowing.EnableFrameLimiter();
+    bool lowfps = g_Windowing.EnableFrameLimiter();
 
     m_bPresentFrame = false;
     if (!extPlayerActive && g_graphicsContext.IsFullScreenVideo() && !m_pPlayer->IsPausedPlayback())
@@ -4562,6 +4562,7 @@ bool CApplication::ToggleDPMS(bool manual)
     {
       m_dpmsIsActive = false;
       m_dpmsIsManual = false;
+      SetRenderGUI(true);
       CAnnouncementManager::Get().Announce(GUI, "xbmc", "OnDPMSDeactivated");
       return m_dpms->DisablePowerSaving();
     }
@@ -4571,6 +4572,7 @@ bool CApplication::ToggleDPMS(bool manual)
       {
         m_dpmsIsActive = true;
         m_dpmsIsManual = manual;
+        SetRenderGUI(false);
         CAnnouncementManager::Get().Announce(GUI, "xbmc", "OnDPMSActivated");
         return true;
       }
