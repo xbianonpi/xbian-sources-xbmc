@@ -1459,7 +1459,9 @@ bool CDVDDemuxFFmpeg::SeekChapter(int chapter, double* startpts)
       return false;
 
     if(startpts)
-      *startpts = DVD_NOPTS_VALUE;
+    {
+      *startpts = DVD_SEC_TO_TIME(ich->GetChapterPos(chapter));
+    }
 
     Flush();
     return true;
