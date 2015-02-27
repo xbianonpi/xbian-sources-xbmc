@@ -239,7 +239,7 @@ bool CEGLNativeTypeIMX::FindMatchingResolution(const RESOLUTION_INFO &res, const
   {
     if(resolutions[i].iScreenWidth == res.iScreenWidth &&
        resolutions[i].iScreenHeight == res.iScreenHeight &&
-       resolutions[i].fRefreshRate == res.fRefreshRate)
+       resolutions[i].fRefreshRate == res.fRefreshRate && (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) == (res.dwFlags & D3DPRESENTFLAG_MODEMASK))
     {
        return true;
     }
@@ -262,7 +262,8 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
   RESOLUTION_INFO res;
   for (size_t i = 0; i < probe_str.size(); i++)
   {
-    if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:"))
+    if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:") &&
+       !StringUtils::StartsWith(probe_str[i], "H:") && !StringUtils::StartsWith(probe_str[i], "T:"))
       continue;
 
     if(ModeToResolution(probe_str[i], &res))
@@ -353,8 +354,17 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->dwFlags = 0;
   res->fPixelRatio = 1.0f;
 
-  if (StringUtils::StartsWith(mode, "U:"))
+  if (StringUtils::StartsWith(mode, "U:")) {
     res->dwFlags |= D3DPRESENTFLAG_WIDESCREEN;
+  } else if (StringUtils::StartsWith(mode, "H:")) {
+    res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
+    res->fPixelRatio = 2.0f;
+  } else if (StringUtils::StartsWith(mode, "T:")) {
+    res->dwFlags |= D3DPRESENTFLAG_MODE3DTB;
+    res->fPixelRatio = 0.5f;
+  } else if (StringUtils::StartsWith(mode, "F:")) {
+    return false;
+  }
 
   CRegExp split(true);
   split.RegComp("([0-9]+)x([0-9]+)([pi])-([0-9]+)");
@@ -379,6 +389,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->fPixelRatio  *= (float)m_init.fPixelRatio / ((float)res->iScreenWidth/(float)res->iScreenHeight);
   res->strMode       = StringUtils::Format("%dx%d @ %.2f%s %s- Full Screen (%.3f)", res->iScreenWidth, res->iScreenHeight, res->fRefreshRate,
                                            res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
+                                           res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "3DSBS " : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "3DTB " : "",
                                            res->fPixelRatio);
   res->strId         = mode;
 
