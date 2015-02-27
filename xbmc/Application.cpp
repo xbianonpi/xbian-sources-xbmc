@@ -27,6 +27,8 @@
 #include "utils/Splash.h"
 #include "LangInfo.h"
 #include "utils/Screenshot.h"
+#include <sys/ioctl.h>
+#include <linux/vt.h>
 #include "Util.h"
 #include "URL.h"
 #include "guilib/TextureManager.h"
@@ -279,6 +281,7 @@ CApplication::CApplication(void)
   m_cecStandby = false;
   m_cecStandbyRun = 0;
   m_res.strMode = "";
+  m_ourVT = -1;
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -4225,6 +4228,59 @@ void CApplication::ShowAppMigrationMessage()
   }
 }
 
+void CApplication::ChangeVT(int newVT)
+{
+  std::string cmd = StringUtils::Format("sudo /sbin/start xbian-chvt TTYNR=%d", newVT);
+  CLog::Log(LOGINFO,"%s : activating tty%d", __FUNCTION__, newVT);
+  system(cmd.c_str());
+}
+
+void CApplication::checkVTchange()
+{
+  struct vt_stat vts;
+  static int last_active;
+
+  int cur_tty = open("/dev/tty0", O_RDONLY | O_NONBLOCK | O_NOCTTY);
+  if(cur_tty < 0 || ioctl(cur_tty, VT_GETSTATE, &vts) < 0)
+    goto out;
+
+  if (m_ourVT < 0)
+    m_ourVT = vts.v_active;
+
+  if (last_active != vts.v_active)
+  {
+    // We are back home
+    if (m_ourVT == vts.v_active)
+    {
+      CLog::Log(LOGDEBUG,"%s : our VT active again", __func__);
+      CWinEvents::Stop(false);
+      SetRenderGUI(true);
+      g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+    }
+
+    else
+    {
+      CLog::Log(LOGDEBUG,"%s : out VT being deactivated", __func__);
+      CWinEvents::Stop(true);
+      {
+        CDirtyRegionList dirty;
+        CSingleLock lock(g_graphicsContext);
+        g_graphicsContext.Clear();
+        g_renderManager.FrameFinish();
+        g_graphicsContext.Flip(dirty);
+        SetRenderGUI(false);
+        lock.unlock();
+      }
+    }
+  }
+
+  last_active = vts.v_active;
+
+out:
+  if (cur_tty > -1)
+    close(cur_tty);
+}
+
 void CApplication::Process()
 {
   MEASURE_FUNCTION;
@@ -4262,6 +4318,9 @@ void CApplication::Process()
 
   // update sound
   m_pPlayer->DoAudioWork();
+
+  if(!g_application.m_bInitializing)
+    checkVTchange();
 
   // do any processing that isn't needed on each run
   if( m_slowTimer.GetElapsedMilliseconds() > 500 )
