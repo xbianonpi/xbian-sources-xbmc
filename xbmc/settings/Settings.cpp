@@ -1050,6 +1050,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_3DLUT);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_DISPLAYPROFILE);
   m_settingsManager->RegisterCallback(&CDisplaySettings::GetInstance(), settingSet);
+  m_settingsManager->RegisterCallback(&g_application, settingSet);
   
   settingSet.clear();
   settingSet.insert(CSettings::SETTING_VIDEOPLAYER_SEEKDELAY);
