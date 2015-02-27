@@ -21,6 +21,7 @@
 #include "system.h"
 #include "ApplicationMessenger.h"
 #include "Application.h"
+#include "stdlib.h"
 
 #include "LangInfo.h"
 #include "PlayListPlayer.h"

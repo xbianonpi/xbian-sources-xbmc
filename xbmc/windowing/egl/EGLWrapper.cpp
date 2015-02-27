@@ -77,6 +77,7 @@ bool CEGLWrapper::Initialize(const std::string &implementation)
 {
   CEGLNativeType *nativeGuess = NULL;
 
+  system("/usr/bin/splash --force -b");
   // Try to create each backend in sequence and go with the first one
   // that we know will work
   if ((nativeGuess = CreateEGLNativeType<CEGLNativeTypeWayland>(implementation)) ||
