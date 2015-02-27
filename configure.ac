@@ -755,6 +755,19 @@ case $use_platform in
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
      ;;
+  cubox-i)
+     target_platform="cubox-i"
+     use_static_ffmpeg=yes
+     use_joystick=no
+     use_sdl=no
+     use_hardcoded_tables="yes"
+     CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     use_cpu=cortex-a9
+     use_x11=no
+     use_neon=yes
+     ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi2
      use_neon=yes
@@ -889,8 +902,8 @@ elif test "$use_arch" = "arm"; then
         use_cpu=cortex-a8])
   else
     if test "$use_neon" = "yes"; then 
-      CFLAGS="$CFLAGS -mfpu=neon -mvectorize-with-neon-quad"
-      CXXFLAGS="$CXXFLAGS -mfpu=neon -mvectorize-with-neon-quad"
+      CFLAGS="$CFLAGS -mfpu=neon -funsafe-math-optimizations -mvectorize-with-neon-quad"
+      CXXFLAGS="$CXXFLAGS -mfpu=neon -funsafe-math-optimizations -mvectorize-with-neon-quad"
     fi
   fi
 fi
@@ -1059,6 +1072,15 @@ else
   AC_MSG_RESULT($wayland_disabled)
 fi
 
+# i.MX6
+AC_MSG_CHECKING([for i.MX framebuffer support])
+AC_CHECK_HEADER([linux/mxcfb.h], have_imxfb=yes,have_imxfb=no)
+AC_MSG_RESULT($have_imxfb)
+if test "x$have_imxfb" = "xyes"; then
+  AC_DEFINE([HAS_IMXFB], [1], [Whether i.MX framebuffer support is enabled.])
+  AC_SUBST([USE_IMXFB], 1)
+fi
+
 # Checks for platforms libraries.
 if test "$use_gles" = "yes"; then
   use_gl="no"
@@ -1073,6 +1095,10 @@ if test "$use_gles" = "yes"; then
       AC_DEFINE([HAVE_LIBGLESV2],[1],["Define to 1 if you have the `GLESv2' library (-lGLESv2)."])
       AC_MSG_RESULT(== WARNING: OpenGLES support is assumed.)
       LIBS="$LIBS -L/opt/vc/lib -lEGL -lGLESv2 -lbcm_host -lvcos -lvchiq_arm -lmmal -lmmal_core -lmmal_util"
+    elif test "$target_platform" = "cubox-i"; then
+      AC_DEFINE([HAVE_LIBEGL],[1],["Define to 1 if you have the `EGL' library (-lEGL)."])
+      AC_DEFINE([HAVE_LIBGLESV2],[1],["Define to 1 if you have the `GLESv2' library (-lGLESv2)."])
+      LIBS="$LIBS -lEGL -lGLESv2 -lGAL "
     else
       AC_CHECK_LIB([EGL],   [main],, AC_MSG_ERROR($missing_library))
       AC_CHECK_LIB([GLESv2],[main],, AC_MSG_ERROR($missing_library))
