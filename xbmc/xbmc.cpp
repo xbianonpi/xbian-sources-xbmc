@@ -20,6 +20,8 @@
 
 #include "Application.h"
 #include "settings/AdvancedSettings.h"
+#include "stdlib.h"
+#include <sys/stat.h>
 
 #ifdef TARGET_RASPBERRY_PI
 #include "linux/RBP.h"
@@ -43,6 +45,14 @@
 extern "C" int XBMC_Run(bool renderGUI)
 {
   int status = -1;
+  bool showXBMCSplash = true;
+  std::string filename = "/usr/bin/splash";
+  struct stat buf;
+  if (stat(filename.c_str(), &buf) != -1)
+  {
+    system("/usr/bin/splash --force -i -m 'starting xbmc...'");
+    showXBMCSplash = false;
+  }
 
   if (!g_advancedSettings.Initialized())
   {
@@ -80,7 +90,7 @@ extern "C" int XBMC_Run(bool renderGUI)
   g_RBP.LogFirmwareVerison();
 #endif
 
-  if (renderGUI && !g_application.CreateGUI())
+  if (renderGUI && !g_application.CreateGUI(showXBMCSplash))
   {
     CMessagePrinter::DisplayError("ERROR: Unable to create GUI. Exiting");
     return status;

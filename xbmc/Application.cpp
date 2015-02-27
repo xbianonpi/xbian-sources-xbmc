@@ -706,7 +706,7 @@ bool CApplication::Create()
   return true;
 }
 
-bool CApplication::CreateGUI()
+bool CApplication::CreateGUI(bool showXBMCSplash)
 {
   m_renderGUI = true;
 #ifdef HAS_SDL
@@ -802,7 +802,7 @@ bool CApplication::CreateGUI()
   if (sav_res)
     CDisplaySettings::GetInstance().SetCurrentResolution(RES_DESKTOP, true);
 
-  if (g_advancedSettings.m_splashImage)
+  if (g_advancedSettings.m_splashImage && showXBMCSplash)
     CSplash::GetInstance().Show();
 
   // The key mappings may already have been loaded by a peripheral
