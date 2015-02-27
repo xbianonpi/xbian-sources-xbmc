@@ -62,6 +62,9 @@ CUPowerSyscall::CUPowerSyscall()
 
   m_lowBattery = false;
 
+  m_CanPowerdown = true;
+  m_CanReboot    = true;
+
   dbus_error_init (&m_error);
   // TODO: do not use dbus_connection_pop_message() that requires the use of a
   // private connection
@@ -82,9 +85,6 @@ CUPowerSyscall::CUPowerSyscall()
     dbus_connection_unref(m_connection);
     m_connection = NULL;
   }
-
-  m_CanPowerdown = false;
-  m_CanReboot    = false;
 
   UpdateCapabilities();
 
@@ -262,8 +262,13 @@ bool CUPowerSyscall::PumpPowerEvents(IPowerEventsCallback *callback)
 
 void CUPowerSyscall::UpdateCapabilities()
 {
+#if defined(HAS_IMXVPU) || defined(TARGET_RASPBERRY_PI)
+  m_CanSuspend   = false;
+  m_CanHibernate = false;
+#else
   m_CanSuspend   = CDBusUtil::GetVariant("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", "CanSuspend").asBoolean(false);
   m_CanHibernate = CDBusUtil::GetVariant("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", "CanHibernate").asBoolean(false);
+#endif
 }
 
 #endif
