@@ -75,7 +75,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
 	cd $(PLATFORM); patch -p3 < ../ffmpeg_Speed_up_wtv_index_creation.patch
 	cd $(PLATFORM); patch -p1 < ../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
-	cd $(PLATFORM); patch -p1 < ../hevcdsp_ARM_NEON_optimized_epel_functions.patch
+	cd $(PLATFORM); patch -p1 --dry-run < ../hevcdsp_ARM_NEON_optimized_epel_functions.patch
 	cd $(PLATFORM); patch -p1 < ../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
 	cd $(PLATFORM); patch -p1 < ../0001-avcodec-add-libdcadec-decoder.patch
 	cd $(PLATFORM); patch -p1 < ../0002-avcodec-Fix-libdcadec-include-dir.patch
