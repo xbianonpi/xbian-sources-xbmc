@@ -48,6 +48,7 @@ class CLinuxResourceCounter;
 #define CPU_FEATURE_3DNOWEXT 1 << 9
 #define CPU_FEATURE_ALTIVEC  1 << 10
 #define CPU_FEATURE_NEON     1 << 11
+#define CPU_FEATURE_THUMB    1 << 12
 
 struct CoreInfo
 {
