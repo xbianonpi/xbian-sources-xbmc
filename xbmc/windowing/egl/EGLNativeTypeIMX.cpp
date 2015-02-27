@@ -406,6 +406,9 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   std::string fromMode = StringUtils::Mid(mode, 2);
   StringUtils::Trim(fromMode);
 
+  if (StringUtils::StartsWith(mode, "U:"))
+    res->dwFlags = D3DPRESENTFLAG_WIDESCREEN;
+
   CRegExp split(true);
   split.RegComp("([0-9]+)x([0-9]+)([pi])-([0-9]+)");
   if (split.RegFind(fromMode) < 0)
@@ -421,7 +424,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iScreenWidth = w;
   res->iScreenHeight= h;
   res->fRefreshRate = r;
-  res->dwFlags = p[0] == 'p' ? D3DPRESENTFLAG_PROGRESSIVE : D3DPRESENTFLAG_INTERLACED;
+  res->dwFlags |= p[0] == 'p' ? D3DPRESENTFLAG_PROGRESSIVE : D3DPRESENTFLAG_INTERLACED;
 
   res->iScreen       = 0;
   res->bFullScreen   = true;
