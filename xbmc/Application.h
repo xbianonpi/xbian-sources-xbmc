@@ -140,7 +140,7 @@ public:
   virtual bool Create();
   virtual bool Cleanup();
 
-  bool CreateGUI();
+  bool CreateGUI(bool showXBMCSplash);
   bool InitWindow();
   bool DestroyWindow();
   void StartServices();

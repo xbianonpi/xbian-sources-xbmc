@@ -891,7 +891,7 @@ bool CApplication::Create()
   return true;
 }
 
-bool CApplication::CreateGUI()
+bool CApplication::CreateGUI(bool showXBMCSplash)
 {
   m_renderGUI = true;
 #ifdef HAS_SDL
@@ -987,7 +987,7 @@ bool CApplication::CreateGUI()
   if (sav_res)
     CDisplaySettings::Get().SetCurrentResolution(RES_DESKTOP, true);
 
-  if (g_advancedSettings.m_splashImage)
+  if (g_advancedSettings.m_splashImage && showXBMCSplash)
   {
     CStdString strUserSplash = "special://home/media/Splash.png";
     if (CFile::Exists(strUserSplash))
