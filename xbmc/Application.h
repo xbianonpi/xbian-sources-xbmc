@@ -68,6 +68,8 @@ class CPlayerController;
 #include "ApplicationPlayer.h"
 #include "interfaces/IActionListener.h"
 
+#include "guilib/Resolution.h"
+
 class CSeekHandler;
 class CKaraokeLyricsManager;
 class CInertialScrollingHandler;
@@ -297,6 +299,7 @@ public:
   inline bool IsInScreenSaver() { return m_bScreenSave; };
   inline bool IsDPMSActive() { return m_dpmsIsActive; };
   int m_iScreenSaveLock; // spiff: are we checking for a lock? if so, ignore the screensaver state, if -1 we have failed to input locks
+  RESOLUTION_INFO m_res;
 
   bool m_bPlaybackStarting;
   typedef enum
@@ -384,6 +387,9 @@ public:
    */
   void UnregisterActionListener(IActionListener *listener);
 
+  void SetCecStandby(bool status, bool force = false);
+  bool GetCecStandby() { return m_cecStandby; }
+
 protected:
   virtual bool OnSettingsSaving() const;
 
@@ -407,6 +413,8 @@ protected:
   bool m_skinReverting;
 
   bool m_loggingIn;
+  bool m_cecStandby;
+  int m_cecStandbyRun;
 
 #if defined(TARGET_DARWIN_IOS)
   friend class CWinEventsIOS;

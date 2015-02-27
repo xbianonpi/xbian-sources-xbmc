@@ -276,6 +276,9 @@ CApplication::CApplication(void)
   m_ePlayState = PLAY_STATE_NONE;
   m_skinReverting = false;
   m_loggingIn = false;
+  m_cecStandby = false;
+  m_cecStandbyRun = 0;
+  m_res.strMode = "";
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -338,7 +341,10 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
   {
     case XBMC_QUIT:
       if (!g_application.m_bStop)
+      {
         CApplicationMessenger::Get().Quit();
+        g_application.SetCecStandby(false);
+      }
       break;
     case XBMC_VIDEORESIZE:
       if (g_windowManager.Initialized() &&
@@ -810,6 +816,8 @@ bool CApplication::CreateGUI()
             info.iHeight,
             info.strMode.c_str());
 
+  m_res = info;
+  CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
   g_windowManager.Initialize();
 
   return true;
@@ -1419,6 +1427,11 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, "musicplayer.replaygainavoidclipping"))
     m_replayGainSettings.bAvoidClipping = ((CSettingBool*)setting)->GetValue();
+
+  if (StringUtils::EqualsNoCase(settingId, "videoscreen.screenmode") || StringUtils::EqualsNoCase(settingId, "videoscreen.resolution")) {
+    m_res = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
+    CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
+  }
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)
@@ -1874,6 +1887,34 @@ float CApplication::GetDimScreenSaverLevel() const
   return 100.0f;
 }
 
+void CApplication::SetCecStandby(bool status, bool force)
+{
+  if (force && m_cecStandbyRun++ == 0)
+    return;
+
+  if (status == m_cecStandby && !force)
+    return;
+
+  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d, csr %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave, m_cecStandbyRun);
+
+  m_cecStandby = status;
+  if (g_application.m_bStop)
+    return;
+
+  SetRenderGUI(!status);
+  if (!status)
+  {
+    if (!force && IsInScreenSaver())
+      WakeUpScreenSaverAndDPMS();
+
+    g_Windowing.UpdateResolutions();
+    g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+  }
+  else
+    if (!force && !IsInScreenSaver())
+      ActivateScreenSaver();
+}
+
 void CApplication::Render()
 {
   // do not render if we are stopped or in background
@@ -1927,6 +1968,8 @@ void CApplication::Render()
           ResetScreenSaver();  // Prevent screensaver dimming the screen
           singleFrameTime = 1000;  // 1 fps, high wakeup latency but v.low CPU usage
         }
+        else if (m_cecStandby)
+          singleFrameTime = 750;
         else if (lowfps)
           singleFrameTime = 200;  // 5 fps, <=200 ms latency to wake up
       }
@@ -4226,6 +4269,12 @@ void CApplication::Process()
   {
     m_slowTimer.Reset();
     ProcessSlow();
+
+    if (m_cecStandbyRun > 0 && !(m_cecStandbyRun++ % 4))
+    {
+      SetCecStandby(false, true);
+      m_cecStandbyRun = -1;
+    }
   }
 
   g_cpuInfo.getUsedPercentage(); // must call it to recalculate pct values
