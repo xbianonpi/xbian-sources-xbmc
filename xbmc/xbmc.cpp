@@ -27,6 +27,8 @@
 #include "linux/RBP.h"
 #endif
 
+#include "utils/log.h"
+
 extern "C" int XBMC_Run(bool renderGUI)
 {
   int status = -1;
@@ -73,6 +75,9 @@ extern "C" int XBMC_Run(bool renderGUI)
     fprintf(stderr, "ERROR: Unable to Initialize. Exiting\n");
     return status;
   }
+
+  CLog::Log(LOGNOTICE, "XBian: notifying Upstart that i'm well");
+  system("sudo /sbin/start -n -q xbmc-loaded");
 
   try
   {
