@@ -7,7 +7,7 @@ VERSION = v0.12
 
 all:
 	@$(MAKE) -C wiiuse_$(VERSION)/src $@
-	$(CXX) $(CFLAGS) -I./wiiuse_$(VERSION)/src WiiUse_WiiRemote.cpp $(OBJS) -o $(BIN)
+	$(CXX) $(CFLAGS) -I./wiiuse_$(VERSION)/src WiiUse_WiiRemote.cpp $(OBJS) -o $(BIN) -l bluetooth
 wiiuse:
 	@$(MAKE) -C wiiuse_$(VERSION)/src
 clean:
