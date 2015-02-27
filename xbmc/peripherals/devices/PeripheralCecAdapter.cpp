@@ -170,6 +170,9 @@ void CPeripheralCecAdapter::Announce(AnnouncementFlag flag, const char *sender, 
     {
       ActivateSource();
     }
+    // if we disable render on TV power on/off events, we have to enable it again screensaver off
+    // to get screen updates for VNC sessions
+    g_application.SetCecStandby(false);
   }
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && m_bIsReady)
   {
@@ -177,8 +180,10 @@ void CPeripheralCecAdapter::Announce(AnnouncementFlag flag, const char *sender, 
     if ((!g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPaused()) && m_configuration.bPowerOffScreensaver == 1)
     {
       // only power off when we're the active source
-      if (m_cecAdapter->IsLibCECActiveSource())
+      if (m_cecAdapter->IsLibCECActiveSource()) {
         StandbyDevices();
+        //g_application.SetCecStandby(true);
+      }
     }
   }
   else if (flag == System && !strcmp(sender, "xbmc") && !strcmp(message, "OnSleep"))
@@ -629,6 +634,10 @@ int CPeripheralCecAdapter::CecCommand(void *cbParam, const cec_command command)
           CApplicationMessenger::Get().Suspend();
         else if (adapter->m_configuration.bShutdownOnStandby == 1)
           CApplicationMessenger::Get().Shutdown();
+      }
+      if (command.initiator == CECDEVICE_TV)
+      {
+        g_application.SetCecStandby(true);
       }
       break;
     case CEC_OPCODE_SET_MENU_LANGUAGE:
@@ -1174,6 +1183,9 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
         CApplicationMessenger::Get().MediaPause();
     }
   }
+
+  if (activated != 1)
+    g_application.SetCecStandby(true);
 }
 
 int CPeripheralCecAdapter::CecLogMessage(void *cbParam, const cec_log_message message)
@@ -1596,6 +1608,8 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
 
   CSingleLock lock(m_critSection);
   m_bIsUpdating = false;
+
+  g_application.SetCecStandby(false, true);
   return true;
 }
 
