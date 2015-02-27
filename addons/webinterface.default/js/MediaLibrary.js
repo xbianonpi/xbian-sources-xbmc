@@ -228,12 +228,12 @@ MediaLibrary.prototype = {
             {'playerid': player, 'to': 'previous'}
           );
         case 'forward':
-          return this.rpcCall('Player.SetSpeed',
-            {'playerid': player, 'speed': 'increment'}
+          return this.rpcCall('Player.Seek',
+            {'playerid': player, 'speed': 'smallforward'}
           );
         case 'rewind':
-          return this.rpcCall('Player.SetSpeed',
-            {'playerid': player, 'speed': 'decrement'}
+          return this.rpcCall('Player.Seek',
+            {'playerid': player, 'speed': 'smallbackward'}
           );
       }
     }
