@@ -1034,6 +1034,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_MONITOR);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_PREFEREDSTEREOSCOPICMODE);
   m_settingsManager->RegisterCallback(&CDisplaySettings::GetInstance(), settingSet);
+  m_settingsManager->RegisterCallback(&g_application, settingSet);
   
   settingSet.clear();
   settingSet.insert(CSettings::SETTING_VIDEOPLAYER_SEEKDELAY);

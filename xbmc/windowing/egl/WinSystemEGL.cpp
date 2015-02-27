@@ -18,6 +18,7 @@
  *
  */
 #include "system.h"
+#include "Application.h"
 
 #ifdef HAS_EGL
 
@@ -373,14 +374,6 @@ void CWinSystemEGL::UpdateResolutions()
     }
   }
 
-  /* ProbeResolutions includes already all resolutions.
-   * Only get desktop resolution so we can replace xbmc's desktop res
-   */
-  if (m_egl->GetNativeResolution(&curDisplay))
-    resDesktop = curDisplay;
-
-
-  RESOLUTION ResDesktop = RES_INVALID;
   RESOLUTION res_index  = RES_DESKTOP;
 
   for (size_t i = 0; i < resolutions.size(); i++)
@@ -405,6 +398,22 @@ void CWinSystemEGL::UpdateResolutions()
       resolutions[i].dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
       resolutions[i].fRefreshRate);
 
+    res_index = (RESOLUTION)((int)res_index + 1);
+  }
+
+  /* ProbeResolutions includes already all resolutions.
+   * Only get desktop resolution so we can replace xbmc's desktop res
+   */
+  if (!g_application.m_res.strMode.empty())
+    resDesktop = g_application.m_res;
+  else if (CDisplaySettings::Get().GetDisplayResolution() != RES_DESKTOP)
+    resDesktop = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
+  else if (m_egl->GetNativeResolution(&curDisplay))
+    resDesktop = curDisplay;
+
+  RESOLUTION ResDesktop = RES_INVALID;
+
+  for (size_t i = 0; i < resolutions.size(); i++)
     if(resDesktop.iWidth == resolutions[i].iWidth &&
        resDesktop.iHeight == resolutions[i].iHeight &&
        resDesktop.iScreenWidth == resolutions[i].iScreenWidth &&
@@ -412,11 +421,8 @@ void CWinSystemEGL::UpdateResolutions()
        (resDesktop.dwFlags & D3DPRESENTFLAG_MODEMASK) == (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) &&
        fabs(resDesktop.fRefreshRate - resolutions[i].fRefreshRate) < FLT_EPSILON)
     {
-      ResDesktop = res_index;
+      ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
-
-    res_index = (RESOLUTION)((int)res_index + 1);
-  }
 
   // swap desktop index for desktop res if available
   if (ResDesktop != RES_INVALID)
