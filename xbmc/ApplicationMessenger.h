@@ -92,6 +92,7 @@ namespace MUSIC_INFO
 #define TMSG_CECACTIVATESOURCE    317
 #define TMSG_CECSTANDBY           318
 #define TMSG_SETVIDEORESOLUTION   319
+#define TMSG_CHANGEVT             320
 
 #define TMSG_NETWORKMESSAGE         500
 
@@ -204,6 +205,7 @@ public:
   void Restart();
   void RestartApp();
   void Reset();
+  void ChangeVT(int newVT);
   void InhibitIdleShutdown(bool inhibit);
   void ActivateScreensaver();
   void SwitchToFullscreen(); //

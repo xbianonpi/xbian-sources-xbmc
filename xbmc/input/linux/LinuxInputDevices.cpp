@@ -1093,6 +1093,17 @@ void CLinuxInputDevices::InitAvailable()
   }
 }
 
+void CLinuxInputDevices::Close()
+{
+  CSingleLock lock(m_devicesListLock);
+
+  for (size_t i = 0; i < m_devices.size(); i++)
+  {
+    delete m_devices[i];
+  }
+  m_devices.clear();
+}
+
 /*
  * Check for hot plugged devices.
  */

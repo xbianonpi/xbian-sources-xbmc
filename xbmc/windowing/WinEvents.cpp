@@ -58,6 +58,7 @@
 static WinEventsType    g_imp;
 static CCriticalSection g_lock;
 static bool             g_init  = false;
+static bool             g_suspend = false;
 
 void Init()
 {
@@ -69,8 +70,23 @@ void Init()
   }
 }
 
+void CWinEvents::Stop(bool suspend)
+{
+  CSingleLock lock(g_lock);
+
+  if (suspend == g_suspend)
+    return;
+
+  g_suspend = suspend;
+  if (suspend)
+    g_imp.CloseDevices();
+}
+
 void CWinEvents::MessagePush(XBMC_Event* ev)
 {
+  if (g_suspend)
+    return;
+
   if (!g_init)
     Init();
   g_imp.MessagePush(ev);
@@ -78,6 +94,9 @@ void CWinEvents::MessagePush(XBMC_Event* ev)
 
 bool CWinEvents::MessagePump()
 {
+  if (g_suspend)
+    return false;
+
   if (!g_init)
     Init();
   return g_imp.MessagePump();
