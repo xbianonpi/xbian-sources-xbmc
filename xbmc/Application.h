@@ -150,7 +150,7 @@ public:
   bool Create();
   virtual bool Cleanup() override;
 
-  bool CreateGUI();
+  bool CreateGUI(bool showXBMCSplash);
   bool InitWindow(RESOLUTION res = RES_INVALID);
   bool DestroyWindow();
   void StartServices();

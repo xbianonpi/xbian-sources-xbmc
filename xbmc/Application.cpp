@@ -698,7 +698,7 @@ bool CApplication::Create()
   return true;
 }
 
-bool CApplication::CreateGUI()
+bool CApplication::CreateGUI(bool showXBMCSplash)
 {
   m_frameMoveGuard.lock();
 
@@ -785,7 +785,8 @@ bool CApplication::CreateGUI()
   if (sav_res)
     CDisplaySettings::GetInstance().SetCurrentResolution(RES_DESKTOP, true);
 
-  CSplash::GetInstance().Show();
+  if (showXBMCSplash)
+    CSplash::GetInstance().Show();
 
   // The key mappings may already have been loaded by a peripheral
   CLog::Log(LOGINFO, "load keymapping");
