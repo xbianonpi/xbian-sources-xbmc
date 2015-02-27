@@ -22,6 +22,7 @@
 #include "settings/AdvancedSettings.h"
 #include "stdlib.h"
 #include <sys/stat.h>
+#include "utils/log.h"
 
 #ifdef TARGET_RASPBERRY_PI
 #include "linux/RBP.h"
@@ -112,6 +113,9 @@ extern "C" int XBMC_Run(bool renderGUI)
     SAFE_RELEASE(pEnumerator);
   }
 #endif
+
+  CLog::Log(LOGNOTICE, "XBian: notifying Upstart that i'm well");
+  system("sudo /sbin/start -n -q xbmc-loaded");
 
   try
   {
