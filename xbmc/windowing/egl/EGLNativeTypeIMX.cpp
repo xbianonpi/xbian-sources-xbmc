@@ -23,6 +23,7 @@
 #include "system.h"
 #include <EGL/egl.h>
 
+#include "Application.h"
 #include "EGLNativeTypeIMX.h"
 #include <math.h>
 #include <sys/mman.h>
@@ -270,6 +271,7 @@ bool CEGLNativeTypeIMX::GetNativeResolution(RESOLUTION_INFO *res) const
 
 bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
 {
+#ifdef HAS_IMXVPU
   if (m_readonly)
     return false;
 

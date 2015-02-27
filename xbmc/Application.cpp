@@ -29,6 +29,8 @@
 #include "utils/Splash.h"
 #include "LangInfo.h"
 #include "utils/Screenshot.h"
+#include <sys/ioctl.h>
+#include <linux/vt.h>
 #include "Util.h"
 #include "URL.h"
 #include "guilib/TextureManager.h"
@@ -95,6 +97,7 @@
 #include "utils/CPUInfo.h"
 #include "utils/SeekHandler.h"
 
+#include "video/VideoReferenceClock.h"
 #include "input/KeyboardLayoutManager.h"
 
 #if HAVE_SDL_VERSION == 1
@@ -220,6 +223,10 @@
 #include "utils/AMLUtils.h"
 #endif
 
+#ifdef HAS_IMXVPU
+#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
+
 #include "cores/FFmpeg.h"
 #include "utils/CharsetConverter.h"
 #include "pictures/GUIWindowSlideShow.h"
@@ -285,6 +292,7 @@ CApplication::CApplication(void)
   m_skinReverting = false;
   m_cecStandby = false;
   m_res.strMode = "";
+  m_ourVT = -1;
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -1220,6 +1228,7 @@ bool CApplication::Initialize()
   }
 
   m_slowTimer.StartZero();
+  m_slowTimerVT.StartZero();
 
   CAddonMgr::GetInstance().StartServices(true);
 
@@ -2564,6 +2573,10 @@ void CApplication::OnApplicationMessage(ThreadMessage* pMsg)
 #if defined(TARGET_WINDOWS) || defined(TARGET_LINUX)
     Stop(EXITCODE_RESTARTAPP);
 #endif
+    break;
+
+  case TMSG_CHANGEVT:
+    g_application.ChangeVT((int)pMsg->param1);
     break;
 
   case TMSG_INHIBITIDLESHUTDOWN:
@@ -4523,6 +4536,72 @@ void CApplication::ShowAppMigrationMessage()
   }
 }
 
+void CApplication::ChangeVT(int newVT)
+{
+  std::string cmd = StringUtils::Format("sudo /sbin/start xbian-chvt TTYNR=%d", newVT);
+  CLog::Log(LOGINFO,"%s : activating tty%d", __FUNCTION__, newVT);
+  system(cmd.c_str());
+}
+
+void CApplication::checkVTchange()
+{
+  struct vt_stat vts;
+  static int last_active;
+  static bool bRestartClock;
+
+  int cur_tty = open("/dev/tty0", O_RDONLY | O_NONBLOCK | O_NOCTTY);
+  if(cur_tty < 0 || ioctl(cur_tty, VT_GETSTATE, &vts) < 0)
+    goto out;
+
+  if (last_active != vts.v_active && m_ourVT >= 0)
+  {
+    // We are back home
+    if (m_ourVT == vts.v_active)
+    {
+      CLog::Log(LOGDEBUG,"%s : our VT active again", __func__);
+      CWinEvents::Stop(false);
+#ifdef HAS_IMXVPU
+      g_IMXContext.Unblank();
+#endif
+      SetRenderGUI(true);
+      g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+      if (bRestartClock)
+      {
+        bRestartClock = false;
+        g_VideoReferenceClock.Start();
+      }
+    }
+    else
+    {
+      CLog::Log(LOGDEBUG,"%s : our VT being deactivated", __func__);
+      SetRenderGUI(false);
+#ifdef HAS_IMXVPU
+      g_IMXContext.Blank();
+#endif
+      if (g_VideoReferenceClock.IsRunning())
+      {
+        bRestartClock = true;
+        g_VideoReferenceClock.Stop();
+      }
+
+      {
+        CSingleLock lock(g_graphicsContext);
+        g_graphicsContext.Clear(0);
+        g_windowManager.Render();
+      }
+      CWinEvents::Stop(true);
+    }
+  }
+  else if (m_ourVT < 0)
+    m_ourVT = vts.v_active;
+
+  last_active = vts.v_active;
+
+out:
+  if (cur_tty > -1)
+    close(cur_tty);
+}
+
 void CApplication::Process()
 {
   MEASURE_FUNCTION;
@@ -4560,6 +4639,12 @@ void CApplication::Process()
 
   // update sound
   m_pPlayer->DoAudioWork();
+
+  if( m_slowTimerVT.GetElapsedMilliseconds() > 100)
+  {
+    m_slowTimerVT.Reset();
+    checkVTchange();
+  }
 
   // do any processing that isn't needed on each run
   if( m_slowTimer.GetElapsedMilliseconds() > 500 )

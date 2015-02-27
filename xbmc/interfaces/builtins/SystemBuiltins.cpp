@@ -142,6 +142,13 @@ static int Suspend(const std::vector<std::string>& params)
   return 0;
 }
 
+static int ChangeVT(const std::vector<std::string>& params)
+{
+  CApplicationMessenger::GetInstance().PostMsg(TMSG_CHANGEVT, atoi(params[0].c_str()));
+
+  return 0;
+}
+
 CBuiltins::CommandMap CSystemBuiltins::GetOperations() const
 {
   return {
@@ -158,6 +165,7 @@ CBuiltins::CommandMap CSystemBuiltins::GetOperations() const
            {"shutdown",            {"Shutdown the system", 0, Shutdown}},
            {"suspend",             {"Suspends the system", 0, Suspend}},
            {"system.exec",         {"Execute shell commands", 1, Exec<0>}},
-           {"system.execwait",     {"Execute shell commands and freezes Kodi until shell is closed", 1, Exec<1>}}
+           {"system.execwait",     {"Execute shell commands and freezes Kodi until shell is closed", 1, Exec<1>}},
+           {"changevt",            {"Change active VT", 1, ChangeVT}}
          };
 }
