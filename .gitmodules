@@ -1,3 +1,7 @@
 [submodule "addons/skin.re-touched"]
 	path = addons/skin.re-touched
 	url = git://github.com/xbmc/skin.re-touched.git
+[submodule "pvr-addons"]
+	path = pvr-addons
+	url = https://github.com/opdenkamp/xbmc-pvr-addons.git
+	branch = helix
