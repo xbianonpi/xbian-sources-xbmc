@@ -50,11 +50,15 @@ CLogindUPowerSyscall::CLogindUPowerSyscall()
   if (!m_hasUPower)
     CLog::Log(LOGINFO, "LogindUPowerSyscall - UPower not found, battery information will not be available");
 
-  m_canPowerdown = LogindCheckCapability("CanPowerOff");
-  m_canReboot    = LogindCheckCapability("CanReboot");
+  m_canPowerdown = true;
+  m_canReboot    = true;
+#if defined(HAS_IMXVPU) || defined(TARGET_RASPBERRY_PI)
+  m_canHibernate = false;
+  m_canSuspend   = false;
+#else
   m_canHibernate = LogindCheckCapability("CanHibernate");
   m_canSuspend   = LogindCheckCapability("CanSuspend");
-
+#endif
   InhibitDelayLock();
 
   m_batteryLevel = 0;
