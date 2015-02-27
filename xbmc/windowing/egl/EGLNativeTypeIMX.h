@@ -46,13 +46,16 @@ public:
   virtual bool  ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutions);
   virtual bool  GetPreferredResolution(RESOLUTION_INFO *res) const;
 
-  virtual bool  ShowWindow(bool show);
+  virtual bool  ShowWindow(bool show = true);
 
 protected:
   bool m_readonly;
-  int get_sysfs_str(std::string path, std::string& valstr) const;
-  int set_sysfs_str(std::string path, std::string val) const;
+  bool m_show;
+  RESOLUTION_INFO m_init;
+  bool get_sysfs_str(std::string path, std::string& valstr) const;
+  bool set_sysfs_str(std::string path, std::string val) const;
   bool ModeToResolution(std::string mode, RESOLUTION_INFO *res) const;
+  bool FindMatchingResolution(const RESOLUTION_INFO &res, const std::vector<RESOLUTION_INFO> &resolutions);
 
   EGLNativeDisplayType m_display;
   EGLNativeWindowType  m_window;

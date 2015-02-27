@@ -2358,7 +2358,7 @@ void CApplication::Render()
   //when nothing has been rendered for m_guiDirtyRegionNoFlipTimeout milliseconds,
   //we don't call g_graphicsContext.Flip() anymore, this saves gpu and cpu usage
   bool flip;
-  if (g_advancedSettings.m_guiDirtyRegionNoFlipTimeout >= 0)
+  if (g_advancedSettings.m_guiDirtyRegionNoFlipTimeout > 0)
     flip = hasRendered || (now - m_lastRenderTime) < (unsigned int)g_advancedSettings.m_guiDirtyRegionNoFlipTimeout;
   else
     flip = true;
