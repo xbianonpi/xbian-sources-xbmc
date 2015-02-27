@@ -33,6 +33,7 @@ public:
   size_t GetQueueSize();
   void MessagePush(XBMC_Event *ev);
   void RefreshDevices();
+  void CloseDevices();
   void Notify(const Observable &obs, const ObservableMessage msg)
   {
     if (msg == ObservableMessagePeripheralsChanged)

@@ -390,6 +390,7 @@ public:
   bool ScreenSaverDisablesAutoScrolling();
   void SetCecStandby(bool status);
   bool GetCecStandby() { return m_cecStandby; }
+  void ChangeVT(int newVT);
 
 protected:
   virtual bool OnSettingsSaving() const;
@@ -416,6 +417,9 @@ protected:
   bool m_loggingIn;
   bool m_cecStandby;
 
+  int m_ourVT;
+  void checkVTchange();
+
 #if defined(TARGET_DARWIN_IOS)
   friend class CWinEventsIOS;
 #endif
@@ -438,6 +442,7 @@ protected:
   CStopWatch m_frameTime;
   CStopWatch m_navigationTimer;
   CStopWatch m_slowTimer;
+  CStopWatch m_slowTimerVT;
   CStopWatch m_shutdownTimer;
 
   bool m_bInhibitIdleShutdown;
