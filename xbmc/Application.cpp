@@ -291,6 +291,8 @@ CApplication::CApplication(void)
   , m_ProcessedExternalCalls(0)
 {
   TiXmlBase::SetCondenseWhiteSpace(false);
+  m_cecStandby = false;
+  m_res.strMode = "";
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -326,7 +328,10 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
   {
     case XBMC_QUIT:
       if (!g_application.m_bStop)
+      {
         CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
+        g_application.SetCecStandby(false);
+      }
       break;
     case XBMC_VIDEORESIZE:
       if (g_windowManager.Initialized())
@@ -793,6 +798,8 @@ bool CApplication::CreateGUI()
             info.iHeight,
             info.strMode.c_str());
 
+  m_res = info;
+  CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
   g_windowManager.Initialize();
 
   return true;
@@ -1469,6 +1476,11 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, CSettings::SETTING_MUSICPLAYER_REPLAYGAINNOGAINPREAMP))
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
+
+  if (StringUtils::EqualsNoCase(settingId, "videoscreen.screenmode") || StringUtils::EqualsNoCase(settingId, "videoscreen.resolution")) {
+    m_res = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
+    CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
+  }
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)
@@ -1893,6 +1905,20 @@ float CApplication::GetDimScreenSaverLevel() const
   return 100.0f;
 }
 
+void CApplication::SetCecStandby(bool status)
+{
+  if (status == m_cecStandby)
+    return;
+
+  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
+
+  m_cecStandby = status;
+  if (g_application.m_bStop)
+    return;
+
+  SetRenderGUI(!status);
+}
+
 void CApplication::Render()
 {
   // do not render if we are stopped or in background
@@ -1955,6 +1981,7 @@ void CApplication::Render()
     g_infoManager.UpdateFPS();
   }
 
+  hasRendered &= !m_cecStandby;
   g_graphicsContext.Flip(hasRendered, m_pPlayer->IsRenderingVideoLayer());
 
   CTimeUtils::UpdateFrameTime(hasRendered);
