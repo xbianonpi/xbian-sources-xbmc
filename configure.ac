@@ -248,9 +248,9 @@ AC_ARG_WITH([platform],
 
 AC_ARG_ENABLE([optimizations],
   [AS_HELP_STRING([--enable-optimizations],
-  [enable optimization (default is yes)])],
+  [enable optimization (default is no)])],
   [use_optimizations=$enableval],
-  [use_optimizations=yes])
+  [use_optimizations=no])
 
 AC_ARG_ENABLE([gl],
   [AS_HELP_STRING([--enable-gl],
@@ -1743,9 +1743,6 @@ final_message="$final_message\n  SWIG Available:\tYes"
 
 echo "Checking for a jre installation"
 AC_PATH_PROG(JAVA_EXE, java, "none")
-if test "$JAVA_EXE" = "none"; then
-  AC_MSG_ERROR($missing_program)
-fi
 final_message="$final_message\n  JRE Available:\tYes"
 
 echo "Checking for doxygen installation"
