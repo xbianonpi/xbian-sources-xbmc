@@ -21,7 +21,6 @@
 #include "system.h"
 #include "ApplicationMessenger.h"
 #include "Application.h"
-#include "stdlib.h"
 
 #include "LangInfo.h"
 #include "PlayListPlayer.h"
@@ -300,6 +299,12 @@ void CApplicationMessenger::ProcessMessage(ThreadMessage *pMsg)
 #if defined(TARGET_WINDOWS) || defined(TARGET_LINUX)
         g_application.Stop(EXITCODE_RESTARTAPP);
 #endif
+      }
+      break;
+
+    case TMSG_CHANGEVT:
+      {
+        g_application.ChangeVT((int)pMsg->param1);
       }
       break;
 
@@ -1176,6 +1181,12 @@ void CApplicationMessenger::Reset()
 void CApplicationMessenger::RestartApp()
 {
   ThreadMessage tMsg = {TMSG_RESTARTAPP};
+  SendMessage(tMsg);
+}
+
+void CApplicationMessenger::ChangeVT(int newVT)
+{
+  ThreadMessage tMsg = {TMSG_CHANGEVT, newVT};
   SendMessage(tMsg);
 }
 

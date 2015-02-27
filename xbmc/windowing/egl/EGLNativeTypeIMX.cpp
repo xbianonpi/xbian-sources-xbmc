@@ -22,6 +22,7 @@
 #include "system.h"
 #include <EGL/egl.h>
 
+#include "Application.h"
 #include "EGLNativeTypeIMX.h"
 #include <math.h>
 #include <sys/mman.h>
@@ -209,7 +210,7 @@ bool CEGLNativeTypeIMX::GetNativeResolution(RESOLUTION_INFO *res) const
 
 bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
 {
-  if (m_readonly)
+  if (m_readonly || !g_application.GetRenderGUI())
     return false;
 
   std::string mode;

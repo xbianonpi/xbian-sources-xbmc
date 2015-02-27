@@ -121,6 +121,7 @@ const BUILT_IN commands[] = {
   { "Quit",                       false,  "Quit Kodi" },
   { "Hibernate",                  false,  "Hibernates the system" },
   { "Suspend",                    false,  "Suspends the system" },
+  { "ChangeVT",                   false,  "Change active VT" },
   { "InhibitIdleShutdown",        false,  "Inhibit idle shutdown" },
   { "AllowIdleShutdown",          false,  "Allow idle shutdown" },
   { "ActivateScreensaver",        false,  "Activate Screensaver" },
@@ -294,6 +295,10 @@ int CBuiltins::Execute(const std::string& execString)
   else if (execute == "quit")
   {
     CApplicationMessenger::Get().Quit();
+  }
+  else if (execute == "changevt")
+  {
+    CApplicationMessenger::Get().ChangeVT(atoi(params[0].c_str()));
   }
   else if (execute == "inhibitidleshutdown")
   {

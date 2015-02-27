@@ -32,6 +32,7 @@ public:
   bool MessagePump();
   size_t GetQueueSize();
   void RefreshDevices();
+  void CloseDevices();
   void Notify(const Observable &obs, const ObservableMessage msg)
   {
     if (msg == ObservableMessagePeripheralsChanged)
