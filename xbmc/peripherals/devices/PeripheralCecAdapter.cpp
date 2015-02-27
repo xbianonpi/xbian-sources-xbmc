@@ -170,6 +170,9 @@ void CPeripheralCecAdapter::Announce(AnnouncementFlag flag, const char *sender, 
           GetAudioSystemConnected())
         m_cecAdapter->PowerOnDevices(CECDEVICE_AUDIOSYSTEM);
     }
+    // if we disable render on TV power on/off events, we have to enable it again screensaver off
+    // to get screen updates for VNC sessions
+    g_application.SetCecStandby(false);
   }
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && m_bIsReady)
   {
@@ -637,6 +640,8 @@ int CPeripheralCecAdapter::CecCommand(void *cbParam, const cec_command command)
         else if (adapter->m_configuration.bShutdownOnStandby == 1)
           g_application.ExecuteXBMCAction("Shutdown");
       }
+      if (command.initiator == CECDEVICE_TV)
+        g_application.SetCecStandby(true);
       break;
     case CEC_OPCODE_SET_MENU_LANGUAGE:
       if (adapter->m_configuration.bUseTVMenuLanguage == 1 && command.initiator == CECDEVICE_TV && command.parameters.size == 3)
@@ -1190,6 +1195,9 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
         CApplicationMessenger::Get().MediaPause();
     }
   }
+
+  if (activated != 1)
+    g_application.SetCecStandby(true);
 }
 
 int CPeripheralCecAdapter::CecLogMessage(void *cbParam, const cec_log_message message)

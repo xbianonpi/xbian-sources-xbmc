@@ -276,6 +276,8 @@ CApplication::CApplication(void)
   m_ePlayState = PLAY_STATE_NONE;
   m_skinReverting = false;
   m_loggingIn = false;
+  m_cecStandby = false;
+  m_res.strMode = "";
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -338,7 +340,10 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
   {
     case XBMC_QUIT:
       if (!g_application.m_bStop)
+      {
         CApplicationMessenger::Get().Quit();
+        g_application.SetCecStandby(false);
+      }
       break;
     case XBMC_VIDEORESIZE:
       if (g_windowManager.Initialized() &&
@@ -808,6 +813,8 @@ bool CApplication::CreateGUI()
             info.iHeight,
             info.strMode.c_str());
 
+  m_res = info;
+  CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
   g_windowManager.Initialize();
 
   return true;
@@ -1433,6 +1440,11 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, "musicplayer.replaygainavoidclipping"))
     m_replayGainSettings.bAvoidClipping = ((CSettingBool*)setting)->GetValue();
+
+  if (StringUtils::EqualsNoCase(settingId, "videoscreen.screenmode") || StringUtils::EqualsNoCase(settingId, "videoscreen.resolution")) {
+    m_res = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
+    CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
+  }
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)
@@ -1888,6 +1900,20 @@ float CApplication::GetDimScreenSaverLevel() const
   return 100.0f;
 }
 
+void CApplication::SetCecStandby(bool status)
+{
+  if (status == m_cecStandby)
+    return;
+
+  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
+
+  m_cecStandby = status;
+  if (g_application.m_bStop)
+    return;
+
+  SetRenderGUI(!status);
+}
+
 void CApplication::Render()
 {
   // do not render if we are stopped or in background
@@ -2019,6 +2045,8 @@ void CApplication::Render()
     flip = hasRendered || (now - m_lastRenderTime) < (unsigned int)g_advancedSettings.m_guiDirtyRegionNoFlipTimeout;
   else
     flip = true;
+
+  flip &= !m_cecStandby;
 
   //fps limiter, make sure each frame lasts at least singleFrameTime milliseconds
   if (limitFrames || !(flip || m_bPresentFrame))
