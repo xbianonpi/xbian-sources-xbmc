@@ -292,7 +292,7 @@
 					<width>750</width>
 					<height>16</height>
 					<info>System.CPUUsage</info>
-				</control>
+				</control-->
 				<control type="label">
 					<description>Memory Text</description>
 					<left>0</left>
