@@ -43,6 +43,7 @@ class CWinEvents
     static void MessagePush(XBMC_Event* ev);
     static bool MessagePump();
     static size_t GetQueueSize();
+    static void Stop(bool suspend);
 };
 
 #endif // WINDOW_EVENTS_H

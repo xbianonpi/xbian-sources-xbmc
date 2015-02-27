@@ -42,6 +42,11 @@ void CWinEventsLinux::RefreshDevices()
   m_devices.InitAvailable();
 }
 
+void CWinEventsLinux::CloseDevices()
+{
+  m_devices.Close();
+}
+
 bool CWinEventsLinux::IsRemoteLowBattery()
 {
   return m_devices.IsRemoteLowBattery();
