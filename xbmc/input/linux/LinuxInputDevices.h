@@ -96,6 +96,7 @@ class CLinuxInputDevices
 {
 public:
   void InitAvailable();
+  void Close();
   void CheckHotplugged();
   XBMC_Event ReadEvent();
   bool IsRemoteLowBattery();
