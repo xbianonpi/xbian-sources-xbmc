@@ -210,7 +210,9 @@ bool CRenderSystemGLES::ClearBuffers(color_t color)
   float g = GET_G(color) / 255.0f;
   float b = GET_B(color) / 255.0f;
   float a = GET_A(color) / 255.0f;
-
+  
+  a = 0.0f;
+	
   glClearColor(r, g, b, a);
 
   GLbitfield flags = GL_COLOR_BUFFER_BIT;
