@@ -163,6 +163,7 @@ void CEGLNativeTypeIMX::Destroy()
 
   close(fd);
 
+  system("/usr/bin/splash --force -i -m 'stopping xbmc...'");
   return;
 }
 
