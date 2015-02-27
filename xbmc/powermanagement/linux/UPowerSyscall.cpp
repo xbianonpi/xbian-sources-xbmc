@@ -62,6 +62,9 @@ CUPowerSyscall::CUPowerSyscall()
 
   m_lowBattery = false;
 
+  m_CanPowerdown = true;
+  m_CanReboot    = true;
+
   dbus_error_init (&m_error);
   // TODO: do not use dbus_connection_pop_message() that requires the use of a
   // private connection
@@ -82,9 +85,6 @@ CUPowerSyscall::CUPowerSyscall()
     dbus_connection_unref(m_connection);
     m_connection = NULL;
   }
-
-  m_CanPowerdown = false;
-  m_CanReboot    = false;
 
   UpdateCapabilities();
 

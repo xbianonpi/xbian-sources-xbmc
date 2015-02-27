@@ -50,8 +50,8 @@ CLogindUPowerSyscall::CLogindUPowerSyscall()
   if (!m_hasUPower)
     CLog::Log(LOGINFO, "LogindUPowerSyscall - UPower not found, battery information will not be available");
 
-  m_canPowerdown = LogindCheckCapability("CanPowerOff");
-  m_canReboot    = LogindCheckCapability("CanReboot");
+  m_canPowerdown = true;
+  m_canReboot    = true;
   m_canHibernate = LogindCheckCapability("CanHibernate");
   m_canSuspend   = LogindCheckCapability("CanSuspend");
 
