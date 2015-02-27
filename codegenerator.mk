@@ -47,11 +47,6 @@ $(GENDIR)/%.xml: %.i $(SWIG) $(JAVA) $(GENERATE_DEPS)
 
 codegenerated: $(SWIG) $(JAVA) $(GENERATED) $(GENERATED_JSON) $(GENERATED_ADDON_JSON)
 
-$(JAVA):
-	@echo Java not found, it will be used if found after configure.
-	@echo This is not necessarily an error.
-	@false
-
 $(SWIG):
 	@echo Swig not found, it will be used if found after configure.
 	@echo This is not necessarily an error.
