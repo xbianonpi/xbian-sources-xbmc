@@ -734,6 +734,16 @@ case $use_platform in
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
      ;;
+  cubox-i)
+     use_static_ffmpeg=yes
+     use_joystick=no
+     use_sdl=no
+     use_hardcoded_tables="yes"
+     CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     use_cpu=cortex-a9
+     ;;
 esac
 
 XBMC_SETUP_ARCH_DEFINES()
@@ -832,8 +842,8 @@ elif test "$use_arch" = "arm"; then
         use_cpu=cortex-a8])
   else
     if test "$use_neon" = "yes"; then 
-      CFLAGS="$CFLAGS -mfpu=neon -mvectorize-with-neon-quad"
-      CXXFLAGS="$CXXFLAGS -mfpu=neon -mvectorize-with-neon-quad"
+      CFLAGS="$CFLAGS -mfpu=neon -funsafe-math-optimizations -mvectorize-with-neon-quad"
+      CXXFLAGS="$CXXFLAGS -mfpu=neon -funsafe-math-optimizations -mvectorize-with-neon-quad"
     fi
   fi
 fi
@@ -1000,6 +1010,15 @@ if test "$use_wayland" = "yes" && test "$host_vendor" != "apple"; then
   use_gles=yes
 else
   AC_MSG_RESULT($wayland_disabled)
+fi
+
+# i.MX6
+AC_MSG_CHECKING([for i.MX framebuffer support])
+AC_CHECK_HEADER([linux/mxcfb.h], have_imxfb=yes,have_imxfb=no)
+AC_MSG_RESULT($have_imxfb)
+if test "x$have_imxfb" = "xyes"; then
+  AC_DEFINE([HAS_IMXFB], [1], [Whether i.MX framebuffer support is enabled.])
+  AC_SUBST([USE_IMXFB], 1)
 fi
 
 # Checks for platforms libraries.
