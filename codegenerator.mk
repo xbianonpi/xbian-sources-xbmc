@@ -62,11 +62,6 @@ $(DOXYGEN):
 	@echo "Warning: No doxygen installed. The Api will not have any docstrings."
 	mkdir -p $(GENDIR)/doxygenxml
 
-$(JAVA):
-	@echo Java not found, it will be used if found after configure.
-	@echo This is not necessarily an error.
-	@false
-
 $(SWIG):
 	@echo Swig not found, it will be used if found after configure.
 	@echo This is not necessarily an error.
