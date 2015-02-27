@@ -2810,6 +2810,7 @@ XB_CONFIG_MODULE([pvr-addons], [
     --host=$host_alias \
     --build=$build_alias \
     --target=$target_alias \
+    --enable-addons-with-dependencies \
     CC="$CC" \
     CXX="$CXX" \
     CFLAGS="$CFLAGS" \
