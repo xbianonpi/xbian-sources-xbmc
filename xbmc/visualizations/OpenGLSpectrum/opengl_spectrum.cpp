@@ -347,7 +347,7 @@ extern "C" void Render()
   glDepthFunc(GL_LESS);
   glPolygonMode(GL_FRONT, GL_FILL);
   //glPolygonMode(GL_BACK, GL_FILL);
-  x_angle += x_speed;
+  /*x_angle += x_speed;
   if(x_angle >= 360.0)
     x_angle -= 360.0;
 
@@ -357,7 +357,7 @@ extern "C" void Render()
 
   z_angle += z_speed;
   if(z_angle >= 360.0)
-    z_angle -= 360.0;
+    z_angle -= 360.0;*/
 
   draw_bars();
   glPopMatrix();
