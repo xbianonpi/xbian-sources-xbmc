@@ -66,8 +66,10 @@ using namespace PERIPHERALS;
 #endif
 
 static void SetResolutionString(RESOLUTION_INFO &res);
+#if defined(TARGET_RASPBERRY_PI)
 static float get_display_aspect_ratio(HDMI_ASPECT_T aspect);
 static float get_display_aspect_ratio(SDTV_ASPECT_T aspect);
+#endif
 
 CEGLNativeTypeRaspberryPI::CEGLNativeTypeRaspberryPI()
 #if defined(TARGET_RASPBERRY_PI)
