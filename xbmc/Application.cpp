@@ -5111,7 +5111,7 @@ void CApplication::checkVTchange()
 
   {
     // We are back home
-    if (m_ourVT == vts.v_active && !m_renderGUI)
+    if (m_ourVT == vts.v_active && !m_renderGUI && !m_cecStandby)
     {
       CLog::Log(LOGDEBUG,"%s : our VT active again", __func__);
       CWinEvents::Stop(false);
