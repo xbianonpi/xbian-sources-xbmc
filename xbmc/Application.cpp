@@ -1968,8 +1968,6 @@ void CApplication::Render()
           ResetScreenSaver();  // Prevent screensaver dimming the screen
           singleFrameTime = 1000;  // 1 fps, high wakeup latency but v.low CPU usage
         }
-        else if (m_cecStandby)
-          singleFrameTime = 750;
         else if (lowfps)
           singleFrameTime = 200;  // 5 fps, <=200 ms latency to wake up
       }
