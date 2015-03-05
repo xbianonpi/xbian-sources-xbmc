@@ -2260,7 +2260,7 @@ void CApplication::Render()
 
   {
     // Less fps in DPMS
-    bool lowfps = m_dpmsIsActive || g_Windowing.EnableFrameLimiter() || m_cecStandby;
+    bool lowfps = m_dpmsIsActive || g_Windowing.EnableFrameLimiter();
     // Whether externalplayer is playing and we're unfocused
     bool extPlayerActive = m_pPlayer->GetCurrentPlayer() == EPC_EXTPLAYER && m_pPlayer->IsPlaying() && !m_AppFocused;
 
@@ -2288,8 +2288,6 @@ void CApplication::Render()
           ResetScreenSaver();  // Prevent screensaver dimming the screen
           singleFrameTime = 1000;  // 1 fps, high wakeup latency but v.low CPU usage
         }
-        else if (m_cecStandby)
-          singleFrameTime = 750;
         else if (lowfps)
           singleFrameTime = 200;  // 5 fps, <=200 ms latency to wake up
       }
