@@ -762,14 +762,6 @@ case $use_platform in
      use_neon=no
      use_arch="arm"
      use_cpu=arm1176jzf-s
-     use_hardcoded_tables="yes"
-     use_openmax=no
-     ARCH="arm"
-     AC_DEFINE(HAS_EGLGLES, [1], [Define if supporting EGL based GLES Framebuffer])
-     USE_OMXLIB=1; AC_DEFINE([HAVE_OMXLIB],[1],["Define to 1 if OMX libs is enabled"])
-     USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
-     CFLAGS="$CFLAGS"
-     CXXFLAGS="$CXXFLAGS"
      ;;
   cubox-i)
      target_platform="cubox-i"
@@ -786,9 +778,20 @@ case $use_platform in
      ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi2
-     use_neon=yes
      use_arch="arm"
+     use_neon=yes
      use_cpu=cortex-a7
+     USE_STATIC_FFMPEG=1
+     use_sdl=no
+     use_x11=no
+     use_joystick=no
+     ARCH="arm"
+     ;;
+esac
+
+case $target_platform in
+    target_raspberry_pi*)
+     use_arch="arm"
      use_hardcoded_tables="yes"
      use_openmax=no
      ARCH="arm"
@@ -797,11 +800,6 @@ case $use_platform in
      USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
-     USE_STATIC_FFMPEG=1
-     use_sdl=no
-     use_x11=no
-     use_joystick=no
-     ;;
 esac
 
 if test "$host_vendor" = "apple"; then
