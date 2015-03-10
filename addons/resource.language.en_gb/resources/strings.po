@@ -16759,6 +16759,16 @@ msgctxt "#38121"
 msgid "Enables decoding of high quality DTS-HD audio streams. Note: This increases CPU load and is only available when DTS and DTS-HD audio passthrough are disabled."
 msgstr ""
 
+#: system/settings/rbp.xml
+msgctxt "#38110"
+msgid "Support MVC video (full frame 3D)"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38111"
+msgid "This option decodes frames for both eyes of MVC video. Disabling may improve performance if you don't require 3D"
+msgstr ""
+
 #: system/settings/settings.xml
 msgctxt "#38103"
 msgid "Extract thumbnails from video files"
