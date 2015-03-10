@@ -16096,7 +16096,28 @@ msgctxt "#37031"
 msgid "Specifies how Blu-rays should be opened/played back. Disc menus are not fully supported yet and may cause problems."
 msgstr ""
 
-#empty strings from id 37032 to 38009
+#empty strings from id 37032 to 38005
+
+#. Description of setting "Videos -> Playback -> A/V sync method" with label #13500
+#: system/settings/settings.xml
+msgctxt "#38006"
+msgid "Audio has to stay in sync, this can either be done by resampling, or adjusting the PLL"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#38007"
+msgid "Boost centre channel when downmixing"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#38008"
+msgid "Increase this value to make the dialogue louder compared to background sounds when downmixing multichannel audio"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#38009"
+msgid "%i dB"
+msgstr ""
 
 #: system/settings/rbp.xml
 msgctxt "#38010"
@@ -16137,4 +16158,49 @@ msgstr ""
 #: system/settings/settings.xml
 msgctxt "#38016"
 msgid "%d fps"
+msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38050"
+msgid "Remote button press delay before repeating (ms)"
+msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38051"
+msgid "Remote button press repeat rate (ms)"
+msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38052"
+msgid "Remote button press release time (ms)"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38100"
+msgid "Audio output latency"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38101"
+msgid "Increase this to protect against underruns, reduce to have lower latency gui sounds"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38102"
+msgid "%i ms"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38110"
+msgid "Support MVC video (full frame 3D)"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38111"
+msgid "This option decodes frames for both eyes of MVC video. Disabling may improve performance if you don't require 3D"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#38103"
+msgid "Extract thumbnails from video files"
 msgstr ""
