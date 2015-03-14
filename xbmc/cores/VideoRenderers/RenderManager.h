@@ -205,6 +205,7 @@ protected:
   bool m_bIsStarted;
   bool m_bReconfigured;
   bool m_bRenderGUI;
+  int m_waitForBufferCount;
 
   int m_rendermethod;
 
