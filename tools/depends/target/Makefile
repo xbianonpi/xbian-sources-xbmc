@@ -16,7 +16,7 @@ DEPENDS = \
 	libplist libcec libbluray boost tinyxml dummy-libxbmc \
 	libamplayer libssh taglib libusb libnfs libmp3lame \
 	xbmc-pvr-addons xbmc-audioencoder-addons \
-	pythonmodule-pil libxslt ffmpeg
+	pythonmodule-pil libxslt ffmpeg platform libdcadec
 
 ifeq ($(ENABLE_GPLV3),1)
   DEPENDS+=samba-gplv3 libcdio-gplv3
@@ -100,7 +100,7 @@ nettle: gmp
 pythonmodule-pil: $(ZLIB) libjpeg-turbo libpng freetype2 python26
 libsdl2: $(LINUX_SYSTEM_LIBS)
 libxslt: libgcrypt
-ffmpeg: $(ICONV) $(ZLIB) bzip2 libvorbis $(FFMPEG_DEPENDS)
+ffmpeg: $(ICONV) $(ZLIB) bzip2 libvorbis libdcadec $(FFMPEG_DEPENDS)
 
 .installed-$(PLATFORM): $(DEPENDS)
 	touch $@
