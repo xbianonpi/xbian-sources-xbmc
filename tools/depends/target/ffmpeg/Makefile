@@ -30,6 +30,7 @@ ffmpg_config += --enable-muxer=asf --enable-muxer=ipod
 ffmpg_config += --enable-encoder=ac3 --enable-encoder=aac
 ffmpg_config += --enable-encoder=wmav2 --enable-protocol=http
 ffmpg_config += --pkg-config=/usr/bin/pkg-config
+ffmpg_config += --enable-libdcadec
 
 ifeq ($(CROSS_COMPILING), yes)
   ffmpg_config += --arch=$(CPU) --enable-cross-compile
@@ -67,7 +68,6 @@ ifeq ($(Configuration), Release)
   ffmpg_config += --disable-debug
 endif
 
-ffmpg_config += --enable-libdcadec
 ffmpg_config += $(CONFFLAGS)
 
 CLEAN_FILES=$(ARCHIVE) $(PLATFORM)
