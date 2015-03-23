@@ -67,6 +67,7 @@ endif
 ifeq ($(Configuration), Release)
   ffmpg_config += --disable-debug
 endif
+ffmpg_config += --enable-libdcadec --disable-decoder=dca
 
 ffmpg_config += $(CONFFLAGS)
 
@@ -91,7 +92,6 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); patch -p1 < ../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 	cd $(PLATFORM); patch -p1 < ../pfcd_hevc_optimisations.patch
 	cd $(PLATFORM); patch -p1 < ../no_rpi.patch
-
 	cd $(PLATFORM);\
 	CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	./configure $(ffmpg_config)

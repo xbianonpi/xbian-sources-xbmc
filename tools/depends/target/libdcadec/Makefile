@@ -2,14 +2,15 @@ include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile
 
 # lib name, version
-LIBNAME=libdcadec
-VERSION=git-2a9186e3
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+LIBNAME=dcadec
+ARCHIVE=master.tar.gz
+BASE_URL=https://github.com/foo86/dcadec/archive
 
 # configuration settings
 
-LIBDYLIB=$(PLATFORM)/.libs/$(LIBNAME).a
+LIBDYLIB=$(PLATFORM)/.libs/lib$(LIBNAME).a
+
+CLEAN_FILES=$(ARCHIVE) $(PLATFORM)
 
 CFLAGS += -std=gnu99
 
