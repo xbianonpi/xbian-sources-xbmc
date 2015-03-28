@@ -390,14 +390,7 @@ void CWinSystemEGL::UpdateResolutions()
     g_graphicsContext.ResetOverscan(resolutions[i]);
     CDisplaySettings::Get().GetResolutionInfo(res_index) = resolutions[i];
 
-    CLog::Log(LOGNOTICE, "Found resolution %d x %d for display %d with %d x %d%s @ %f Hz\n",
-      resolutions[i].iWidth,
-      resolutions[i].iHeight,
-      resolutions[i].iScreen,
-      resolutions[i].iScreenWidth,
-      resolutions[i].iScreenHeight,
-      resolutions[i].dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-      resolutions[i].fRefreshRate);
+    CLog::Log(LOGNOTICE, "Found resolution %s\n", resolutions[i].strMode.c_str());
 
     res_index = (RESOLUTION)((int)res_index + 1);
   }
@@ -426,18 +419,12 @@ void CWinSystemEGL::UpdateResolutions()
       ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
 
-  // swap desktop index for desktop res if available
-  if (ResDesktop != RES_INVALID)
+  // don't swap resolutions if current matches previous index
+  if(CDisplaySettings::Get().GetCurrentResolution() == ResDesktop)
+    return;
+  else if (ResDesktop != RES_INVALID)
   {
-    CLog::Log(LOGNOTICE, "Found (%dx%d%s@%f) at %d, setting to RES_DESKTOP at %d",
-      resDesktop.iWidth, resDesktop.iHeight,
-      resDesktop.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-      resDesktop.fRefreshRate,
-      (int)ResDesktop, (int)RES_DESKTOP);
-
-    RESOLUTION_INFO desktop = CDisplaySettings::Get().GetResolutionInfo(RES_DESKTOP);
-    CDisplaySettings::Get().GetResolutionInfo(RES_DESKTOP) = CDisplaySettings::Get().GetResolutionInfo(ResDesktop);
-    CDisplaySettings::Get().GetResolutionInfo(ResDesktop) = desktop;
+    CDisplaySettings::Get().SetCurrentResolution(ResDesktop);
     return;
   }
 
