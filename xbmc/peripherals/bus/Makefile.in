@@ -8,6 +8,7 @@ endif
 
 ifeq (@USE_LIBUDEV@,1)
 SRCS += linux/PeripheralBusUSBLibUdev.cpp
+SRCS += linux/PeripheralBusPLATFORMLibUdev.cpp
 endif
 
 ifeq (@USE_LIBUSB@,1)
