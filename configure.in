@@ -743,6 +743,8 @@ case $use_platform in
      CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      use_cpu=cortex-a9
+     use_x11=no
+     use_neon=yes
      ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi2
@@ -1058,6 +1060,9 @@ if test "$use_gles" = "yes"; then
     else
       AC_CHECK_LIB([EGL],   [main],, AC_MSG_ERROR($missing_library))
       AC_CHECK_LIB([GLESv2],[main],, AC_MSG_ERROR($missing_library))
+      if test "$target_platform" = "cubox-i"; then
+        LIBS="$LIBS -lGAL "
+      fi
     fi
   fi
 else
