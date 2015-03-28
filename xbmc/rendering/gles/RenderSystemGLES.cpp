@@ -45,7 +45,8 @@ static const char* ShaderNames[SM_ESHADERCOUNT] =
      "guishader_frag_rgba_oes.glsl",
      "guishader_frag_rgba_blendcolor.glsl",
      "guishader_frag_rgba_bob.glsl",
-     "guishader_frag_rgba_bob_oes.glsl"
+     "guishader_frag_rgba_bob_oes.glsl",
+     "guishader_frag_rgba_imx.glsl"
     };
 
 CRenderSystemGLES::CRenderSystemGLES()

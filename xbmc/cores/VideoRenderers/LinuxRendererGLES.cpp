@@ -1756,7 +1756,8 @@ void CLinuxRendererGLES::RenderIMXMAPTexture(int index, int field)
   unsigned int time = XbmcThreads::SystemClockMillis();
 #endif
 
-  YUVPLANE &plane = m_buffers[index].fields[field][0];
+  YUVPLANE &plane = m_buffers[index].fields[0][0];
+  YUVPLANE &planef = m_buffers[index].fields[field][0];
   CDVDVideoCodecIMXBuffer *buffer = m_buffers[index].IMXBuffer;
 
   if(buffer == NULL) return;
@@ -1774,7 +1775,28 @@ void CLinuxRendererGLES::RenderIMXMAPTexture(int index, int field)
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(m_textureTarget, plane.id);
 
-  g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA);
+  if (field != FIELD_FULL && CMediaSettings::Get().GetCurrentVideoSettings().m_InterlaceMethod != VS_INTERLACEMETHOD_IMX)
+  {
+    g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA_BOB);
+    GLint   fieldLoc = g_Windowing.GUIShaderGetField();
+    GLint   stepLoc = g_Windowing.GUIShaderGetStep();
+
+    if     (field == FIELD_TOP)
+      glUniform1i(fieldLoc, 1);
+    else if(field == FIELD_BOT)
+      glUniform1i(fieldLoc, 0);
+    glUniform1f(stepLoc, 1.0f / (float)plane.texheight);
+  }
+  else if (CMediaSettings::Get().GetCurrentVideoSettings().m_InterlaceMethod == VS_INTERLACEMETHOD_IMX
+        && CMediaSettings::Get().GetCurrentVideoSettings().m_DeinterlaceMode != VS_DEINTERLACEMODE_OFF)
+  {
+    g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA_IMX);
+    GLint   stepLoc = g_Windowing.GUIShaderGetStep();
+
+    glUniform1f(stepLoc, 1.0f / (float)plane.texwidth);
+  }
+  else
+    g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA);
 
   GLint   contrastLoc = g_Windowing.GUIShaderGetContrast();
   glUniform1f(contrastLoc, CMediaSettings::Get().GetCurrentVideoSettings().m_Contrast * 0.02f);
@@ -1807,11 +1829,20 @@ void CLinuxRendererGLES::RenderIMXMAPTexture(int index, int field)
     ver[i][3] = 1.0f;
   }
 
-  // Set texture coordinates
-  tex[0][0] = tex[3][0] = plane.rect.x1;
-  tex[0][1] = tex[1][1] = plane.rect.y1;
-  tex[1][0] = tex[2][0] = plane.rect.x2;
-  tex[2][1] = tex[3][1] = plane.rect.y2;
+  if (field == FIELD_FULL)
+  {
+    tex[0][0] = tex[3][0] = plane.rect.x1;
+    tex[0][1] = tex[1][1] = plane.rect.y1;
+    tex[1][0] = tex[2][0] = plane.rect.x2;
+    tex[2][1] = tex[3][1] = plane.rect.y2;
+  }
+  else
+  {
+    tex[0][0] = tex[3][0] = planef.rect.x1;
+    tex[0][1] = tex[1][1] = planef.rect.y1 * 2.0f;
+    tex[1][0] = tex[2][0] = planef.rect.x2;
+    tex[2][1] = tex[3][1] = planef.rect.y2 * 2.0f;
+  }
 
   glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, idx);
 
@@ -2861,7 +2892,6 @@ bool CLinuxRendererGLES::CreateIMXMAPTexture(int index)
 {
   YV12Image &im     = m_buffers[index].image;
   YUVFIELDS &fields = m_buffers[index].fields;
-  YUVPLANE  &plane  = fields[0][0];
 
   DeleteIMXMAPTexture(index);
 
@@ -2871,11 +2901,17 @@ bool CLinuxRendererGLES::CreateIMXMAPTexture(int index)
   im.height = m_sourceHeight;
   im.width  = m_sourceWidth;
 
-  plane.texwidth  = 0; // Must be actual frame width for pseudo-cropping
-  plane.texheight = 0; // Must be actual frame height for pseudo-cropping
-  plane.pixpertex_x = 1;
-  plane.pixpertex_y = 1;
+  for (int f=0; f<3; ++f)
+  {
+    YUVPLANE  &plane  = fields[f][0];
 
+    plane.texwidth  = im.width; // Must be actual frame width for pseudo-cropping
+    plane.texheight = im.height; // Must be actual frame height for pseudo-cropping
+    plane.pixpertex_x = 1;
+    plane.pixpertex_y = 1;
+  }
+
+  YUVPLANE  &plane  = fields[0][0];
   glEnable(m_textureTarget);
   glGenTextures(1, &plane.id);
   VerifyGLState();
@@ -2884,6 +2920,10 @@ bool CLinuxRendererGLES::CreateIMXMAPTexture(int index)
 
   glTexParameteri(m_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(m_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(m_textureTarget, 0, GL_RGBA, plane.texwidth, plane.texheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
   glDisable(m_textureTarget);
   return true;
@@ -2952,9 +2992,6 @@ bool CLinuxRendererGLES::Supports(EDEINTERLACEMODE mode)
   if(m_renderMethod & RENDER_CVREF)
     return false;
 
-  if(m_renderMethod & RENDER_IMXMAP)
-    return false;
-
   if(mode == VS_DEINTERLACEMODE_AUTO
   || mode == VS_DEINTERLACEMODE_FORCE)
     return true;
@@ -2994,7 +3031,14 @@ bool CLinuxRendererGLES::Supports(EINTERLACEMETHOD method)
     return false;
 
   if(m_renderMethod & RENDER_IMXMAP)
-    return false;
+  {
+    if (method == VS_INTERLACEMETHOD_IMX
+     || method == VS_INTERLACEMETHOD_RENDER_BOB
+     || method == VS_INTERLACEMETHOD_RENDER_BOB_INVERTED)
+      return true;
+    else
+      return false;
+  }
 
   if(method == VS_INTERLACEMETHOD_AUTO)
     return true;
@@ -3053,7 +3097,7 @@ EINTERLACEMETHOD CLinuxRendererGLES::AutoInterlaceMethod()
     return VS_INTERLACEMETHOD_NONE;
 
   if(m_renderMethod & RENDER_IMXMAP)
-    return VS_INTERLACEMETHOD_NONE;
+    return VS_INTERLACEMETHOD_IMX;
 
 #if !defined(TARGET_ANDROID) && (defined(__i386__) || defined(__x86_64__))
   return VS_INTERLACEMETHOD_DEINTERLACE_HALF;

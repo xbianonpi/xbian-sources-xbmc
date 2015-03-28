@@ -246,6 +246,7 @@ void CGUIDialogVideoSettings::InitializeSettings()
   entries.push_back(make_pair(16022, VS_INTERLACEMETHOD_RENDER_BOB_INVERTED));
   entries.push_back(make_pair(16021, VS_INTERLACEMETHOD_RENDER_BOB));
   entries.push_back(make_pair(16020, VS_INTERLACEMETHOD_DEINTERLACE));
+  entries.push_back(make_pair(16020, VS_INTERLACEMETHOD_IMX));
   entries.push_back(make_pair(16036, VS_INTERLACEMETHOD_DEINTERLACE_HALF));
   entries.push_back(make_pair(16324, VS_INTERLACEMETHOD_SW_BLEND));
   entries.push_back(make_pair(16314, VS_INTERLACEMETHOD_INVERSE_TELECINE));
