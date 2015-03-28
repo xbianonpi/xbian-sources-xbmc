@@ -5940,7 +5940,12 @@ msgctxt "#13287"
 msgid "Screen resolution:"
 msgstr ""
 
-#empty strings from id 13288 to 13291
+#: peripheral/devices/PeripheralVideo.cpp
+msgctxt "#13288"
+msgid "Probing available resolutions"
+msgstr "Probing available resolutions"
+
+#empty strings from id 13289 to 13291
 
 msgctxt "#13292"
 msgid "A/V cable:"
@@ -18118,4 +18123,22 @@ msgstr ""
 #. Used in Confluence
 msgctxt "#38023"
 msgid "Set my rating"
+msgstr ""
+
+#. Label of setting "System -> Video output -> Refresh resolutions"
+#: system/settings/settings.xml
+msgctxt "#40000"
+msgid "Update available resolutions on Display device changes"
+msgstr ""
+
+#. Description of setting "System -> Video output -> Refresh resolutions"
+#: system/settings/settings.xml
+msgctxt "#40001"
+msgid "Available resolutions will be updated on HDMI hotplug events. Currently active resolution will be matched agains new mode list. If new mode list doesn't provide same mode, closest mode will be used and changed to"
+msgstr ""
+
+#. Label of "System -> Input devices -> HDMI Video -> Enable hotplug events be passed to Kodi"
+#: system/peripherals.xml
+msgctxt "#40002"
+msgid "Detect hotplug events"
 msgstr ""

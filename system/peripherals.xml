@@ -44,4 +44,9 @@
     <setting key="do_not_use_custom_keymap" type="bool" value="1" label="35009" configurable="0"/>
     <setting key="disable_winjoystick" type="bool" value="1" label="35102" order="1" />
   </peripheral>
+
+  <peripheral bus="platform" name="generic_video,hdmi_video" mapTo="video">
+    <setting key="enabled" type="bool" value="1" label="305" configurable="0" />
+    <setting key="pass_events" type="bool" value="1" label="40002" order="1" />
+  </peripheral>
 </peripherals>

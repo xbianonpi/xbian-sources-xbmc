@@ -19,36 +19,29 @@
  *
  */
 
-#include "peripherals/bus/PeripheralBus.h"
-#include "peripherals/devices/Peripheral.h"
+#include "peripherals/bus/linux/PeripheralBusUSBLibUdev.h"
 
-struct udev;
-struct udev_monitor;
+struct udev_device;
 
 namespace PERIPHERALS
 {
   class CPeripherals;
 
-  class CPeripheralBusUSB : public CPeripheralBus
+  class CPeripheralBusPLATFORM : public CPeripheralBusUSB
   {
   public:
-    CPeripheralBusUSB(CPeripherals *manager, const CStdString &threadname = "PeripBusUSBUdev", PeripheralBusType type = PERIPHERAL_BUS_USB);
-    virtual ~CPeripheralBusUSB(void);
+    CPeripheralBusPLATFORM(CPeripherals *manager, const CStdString &threadname = "PeripBusPLATFORMUdev", PeripheralBusType type = PERIPHERAL_BUS_PLATFORM);
+    virtual ~CPeripheralBusPLATFORM(void) {};
 
     virtual void Clear(void);
 
-    /*!
-     * @see PeripheralBus::PerformDeviceScan()
-     */
     bool PerformDeviceScan(PeripheralScanResults &results);
 
+    virtual void OnDeviceChanged(const CStdString &strLocation);
+    virtual void OnDeviceAdded(const CStdString &strLocation) {};
+    int GetCableState(const CStdString &strLocation);
+
   protected:
-    static const PeripheralType GetType(int iDeviceClass);
-
     virtual void Process(void);
-    bool WaitForUpdate(void);
-
-    struct udev *        m_udev;
-    struct udev_monitor *m_udevMon;
   };
 }

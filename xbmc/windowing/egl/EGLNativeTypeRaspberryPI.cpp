@@ -29,6 +29,11 @@
 #include "utils/StringUtils.h"
 #include "settings/Settings.h"
 #include <cassert>
+#include "peripherals/Peripherals.h"
+#include "peripherals/bus/PeripheralBus.h"
+#include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
+
+using namespace PERIPHERALS;
 
 #ifndef __VIDEOCORE4__
 #define __VIDEOCORE4__
@@ -66,6 +71,9 @@ static SDTV_ASPECT_T get_sdtv_aspect_from_display_aspect(float display_aspect);
 #endif
 
 CEGLNativeTypeRaspberryPI::CEGLNativeTypeRaspberryPI()
+#if defined(TARGET_RASPBERRY_PI)
+  : m_video(NULL)
+#endif
 {
 #if defined(TARGET_RASPBERRY_PI)
   m_DllBcmHost    = NULL;
@@ -105,6 +113,22 @@ void CEGLNativeTypeRaspberryPI::Initialize()
 
   m_DllBcmHost = new DllBcmHost;
   m_DllBcmHost->Load();
+
+  CPeripheralBus *m_bus = g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
+  if (!m_bus)
+    return;
+
+  PeripheralScanResult   result(m_bus->Type());
+  PeripheralScanResults  results;
+  result.m_strLocation   = "/sys/class/graphics/fb0";
+  result.m_iSequence     = m_bus->GetNumberOfPeripheralsWithFeature(FEATURE_CABLESTATE);
+  result.m_type          = PERIPHERAL_VIDEO;
+  result.m_strDeviceName = "generic_video";
+  result.m_iVendorId     = 0;
+  result.m_iProductId    = 0;
+  results.m_results.push_back(result);
+
+  m_video = m_bus->RegisterNewDevice(result);
 #endif
 }
 
@@ -683,6 +707,8 @@ void CEGLNativeTypeRaspberryPI::TvServiceCallback(uint32_t reason, uint32_t para
   switch(reason)
   {
   case VC_HDMI_UNPLUGGED:
+    if (m_video)
+      m_video->OnDeviceChanged(CABLE_DISCONNECTED);
     break;
   case VC_HDMI_STANDBY:
     break;
@@ -692,6 +718,8 @@ void CEGLNativeTypeRaspberryPI::TvServiceCallback(uint32_t reason, uint32_t para
   case VC_HDMI_DVI:
     //Signal we are ready now
     sem_post(&m_tv_synced);
+    if (m_video)
+      m_video->OnDeviceChanged(CABLE_CONNECTED);
     break;
   default:
      break;

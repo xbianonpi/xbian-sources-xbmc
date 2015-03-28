@@ -390,14 +390,7 @@ void CWinSystemEGL::UpdateResolutions()
     g_graphicsContext.ResetOverscan(resolutions[i]);
     CDisplaySettings::GetInstance().GetResolutionInfo(res_index) = resolutions[i];
 
-    CLog::Log(LOGNOTICE, "Found resolution %d x %d for display %d with %d x %d%s @ %f Hz\n",
-      resolutions[i].iWidth,
-      resolutions[i].iHeight,
-      resolutions[i].iScreen,
-      resolutions[i].iScreenWidth,
-      resolutions[i].iScreenHeight,
-      resolutions[i].dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-      resolutions[i].fRefreshRate);
+    CLog::Log(LOGNOTICE, "Found resolution %s\n", resolutions[i].strMode.c_str());
 
     res_index = (RESOLUTION)((int)res_index + 1);
   }
@@ -407,8 +400,8 @@ void CWinSystemEGL::UpdateResolutions()
    */
   if (!g_application.m_res.strMode.empty())
     resDesktop = g_application.m_res;
-  else if (CDisplaySettings::Get().GetDisplayResolution() != RES_DESKTOP)
-    resDesktop = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
+  else if (CDisplaySettings::GetInstance().GetDisplayResolution() != RES_DESKTOP)
+    resDesktop = CDisplaySettings::GetInstance().GetResolutionInfo(CDisplaySettings::GetInstance().GetDisplayResolution());
   else if (m_egl->GetNativeResolution(&curDisplay))
     resDesktop = curDisplay;
 
@@ -426,18 +419,12 @@ void CWinSystemEGL::UpdateResolutions()
       ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
 
-  // swap desktop index for desktop res if available
-  if (ResDesktop != RES_INVALID)
+  // don't swap resolutions if current matches previous index
+  if(CDisplaySettings::Get()Instance.GetCurrentResolution() == ResDesktop)
+    return;
+  else if (ResDesktop != RES_INVALID)
   {
-    CLog::Log(LOGNOTICE, "Found (%dx%d%s@%f) at %d, setting to RES_DESKTOP at %d",
-      resDesktop.iWidth, resDesktop.iHeight,
-      resDesktop.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-      resDesktop.fRefreshRate,
-      (int)ResDesktop, (int)RES_DESKTOP);
-
-    RESOLUTION_INFO desktop = CDisplaySettings::GetInstance().GetResolutionInfo(RES_DESKTOP);
-    CDisplaySettings::GetInstance().GetResolutionInfo(RES_DESKTOP) = CDisplaySettings::GetInstance().GetResolutionInfo(ResDesktop);
-    CDisplaySettings::GetInstance().GetResolutionInfo(ResDesktop) = desktop;
+    CDisplaySettings::GetInstance().SetCurrentResolution(ResDesktop);
     return;
   }
 

@@ -78,6 +78,7 @@ namespace PERIPHERALS
 
     virtual size_t GetNumberOfPeripherals() const;
     virtual size_t GetNumberOfPeripheralsWithId(const int iVendorId, const int iProductId) const;
+    virtual size_t GetNumberOfPeripheralsWithFeature(const PeripheralFeature feature) const;
 
     /*!
      * @brief Get all features that are supported by devices on this bus.
@@ -148,6 +149,8 @@ namespace PERIPHERALS
     virtual bool FindComPort(std::string &strLocation) { return false; }
 
     virtual bool IsInitialised(void) const { return m_bInitialised; }
+
+    virtual CPeripheral *RegisterNewDevice(const PeripheralScanResult &result);
 
   protected:
     virtual void Process(void);

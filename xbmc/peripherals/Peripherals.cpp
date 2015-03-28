@@ -295,6 +295,10 @@ CPeripheral *CPeripherals::CreatePeripheral(CPeripheralBus &bus, const Periphera
     peripheral = new CPeripheralImon(mappedResult);
     break;
 
+  case PERIPHERAL_VIDEO:
+    peripheral = new CPeripheralVideo(mappedResult);
+    break;
+
   default:
     break;
   }
@@ -786,4 +790,25 @@ void CPeripherals::OnApplicationMessage(KODI::MESSAGING::ThreadMessage* pMsg)
 int CPeripherals::GetMessageMask()
 {
   return TMSG_MASK_PERIPHERALS;
+}
+
+CPeripheralBus *CPeripherals::CreatePeripheralBus(CPeripheralBus *bus)
+{
+  CPeripheralBus *pbus = GetBusByType(bus->Type());
+  if (!pbus)
+  {
+    m_busses.push_back(bus);
+    if (!bus->Initialise())
+    {
+      CLog::Log(LOGERROR, "%s - failed to initialise bus %s", __FUNCTION__, PeripheralTypeTranslator::BusTypeToString(bus->Type()));
+      delete bus;
+      m_busses.erase(m_busses.end());
+    }
+    else
+      pbus = bus;
+  }
+  else
+    delete bus;
+
+  return pbus;
 }

@@ -6,6 +6,7 @@ SRCS += PeripheralImon.cpp
 SRCS += PeripheralNIC.cpp
 SRCS += PeripheralNyxboard.cpp
 SRCS += PeripheralTuner.cpp
+SRCS += PeripheralVideo.cpp
 
 ifeq (@USE_LIBCEC@,1)
 SRCS += PeripheralCecAdapter.cpp

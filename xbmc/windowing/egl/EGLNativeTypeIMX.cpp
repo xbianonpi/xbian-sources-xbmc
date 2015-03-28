@@ -40,6 +40,10 @@
 #include "windowing/WindowingFactory.h"
 #include "cores/AudioEngine/AEFactory.h"
 #include <fstream>
+#include "peripherals/Peripherals.h"
+#include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
+
+using namespace PERIPHERALS;
 
 CEGLNativeTypeIMX::CEGLNativeTypeIMX()
   : m_sar(0.0f)
@@ -48,6 +52,8 @@ CEGLNativeTypeIMX::CEGLNativeTypeIMX()
 {
   m_show = true;
   m_readonly = true;
+
+  g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
 }
 
 CEGLNativeTypeIMX::~CEGLNativeTypeIMX()

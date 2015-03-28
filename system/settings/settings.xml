@@ -2474,6 +2474,13 @@
           <control type="toggle" />
         </setting>
       </group>
+      <group id="4">
+        <setting id="videoscreen.updateresolutions" type="boolean" label="40000" help="40001">
+          <level>2</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
     <category id="audiooutput" label="772" help="36360">
       <group id="1">

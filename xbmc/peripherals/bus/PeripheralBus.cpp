@@ -118,6 +118,15 @@ void CPeripheralBus::RegisterNewDevices(const PeripheralScanResults &results)
   }
 }
 
+CPeripheral *CPeripheralBus::RegisterNewDevice(const PeripheralScanResult &result)
+{
+  CSingleLock lock(m_critSection);
+  if (!HasPeripheral(result.m_strLocation))
+    return g_peripherals.CreatePeripheral(*this, result);
+  else
+    return GetPeripheral(result.m_strLocation);
+}
+
 bool CPeripheralBus::ScanForDevices(void)
 {
   bool bReturn(false);
@@ -202,6 +211,13 @@ size_t CPeripheralBus::GetNumberOfPeripheralsWithId(const int iVendorId, const i
   }
 
   return iReturn;
+}
+
+size_t CPeripheralBus::GetNumberOfPeripheralsWithFeature(const PeripheralFeature feature) const
+{
+  vector<CPeripheral *> peripherals;
+  GetPeripheralsWithFeature(peripherals, feature);
+  return peripherals.size();
 }
 
 void CPeripheralBus::Process(void)
