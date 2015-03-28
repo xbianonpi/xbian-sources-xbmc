@@ -1225,6 +1225,7 @@ bool CApplication::Initialize()
   }
 
   m_slowTimer.StartZero();
+  m_slowTimerVT.StartZero();
 
   CAddonMgr::Get().StartServices(true);
 
@@ -4312,8 +4313,11 @@ void CApplication::Process()
   // update sound
   m_pPlayer->DoAudioWork();
 
-  if(!g_application.m_bInitializing)
+  if( m_slowTimerVT.GetElapsedMilliseconds() > 100)
+  {
+    m_slowTimerVT.Reset();
     checkVTchange();
+  }
 
   // do any processing that isn't needed on each run
   if( m_slowTimer.GetElapsedMilliseconds() > 500 )
