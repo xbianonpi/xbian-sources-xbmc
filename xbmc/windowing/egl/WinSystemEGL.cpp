@@ -390,14 +390,7 @@ void CWinSystemEGL::UpdateResolutions()
     g_graphicsContext.ResetOverscan(resolutions[i]);
     CDisplaySettings::Get().GetResolutionInfo(res_index) = resolutions[i];
 
-    CLog::Log(LOGNOTICE, "Found resolution %d x %d for display %d with %d x %d%s @ %f Hz\n",
-      resolutions[i].iWidth,
-      resolutions[i].iHeight,
-      resolutions[i].iScreen,
-      resolutions[i].iScreenWidth,
-      resolutions[i].iScreenHeight,
-      resolutions[i].dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-      resolutions[i].fRefreshRate);
+    CLog::Log(LOGNOTICE, "Found resolution %s\n", resolutions[i].strMode.c_str());
 
     res_index = (RESOLUTION)((int)res_index + 1);
   }
