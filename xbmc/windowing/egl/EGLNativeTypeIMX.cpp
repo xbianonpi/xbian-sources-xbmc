@@ -380,10 +380,10 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->bFullScreen   = true;
   res->iSubtitles    = (int)(0.965 * res->iHeight);
   res->fPixelRatio  *= (float)m_init.fPixelRatio / ((float)res->iScreenWidth/(float)res->iScreenHeight);
-  res->strMode       = StringUtils::Format("%dx%d @ %.2f%s %s- Full Screen (%.3f)", res->iScreenWidth, res->iScreenHeight, res->fRefreshRate,
-                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-                                           res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "3DSBS " : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "3DTB " : "",
-                                           res->fPixelRatio);
+  res->strMode       = StringUtils::Format("%4sx%4s @ %.2f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
+                                           StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
+                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
+                                           res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "- 3DSBS" : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "- 3DTB" : "");
   res->strId         = mode;
 
   return res->iWidth > 0 && res->iHeight> 0;
