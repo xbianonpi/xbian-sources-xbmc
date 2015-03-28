@@ -102,6 +102,10 @@ bool CPeripheralBusCEC::PerformDeviceScan(PeripheralScanResults &results)
       /** the Pi's adapter cannot be removed, no need to rescan */
       m_bNeedsPolling = false;
       break;
+    case ADAPTERTYPE_IMX:
+      result.m_mappedBusType = PERIPHERAL_BUS_IMX;
+      m_bNeedsPolling = false;
+      break;
     default:
       break;
     }
