@@ -431,6 +431,7 @@ protected:
   CStopWatch m_frameTime;
   CStopWatch m_navigationTimer;
   CStopWatch m_slowTimer;
+  CStopWatch m_slowTimerVT;
   CStopWatch m_shutdownTimer;
 
   bool m_bInhibitIdleShutdown;
