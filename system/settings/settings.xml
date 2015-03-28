@@ -2321,6 +2321,13 @@
           <control type="button" format="action" />
         </setting>
       </group>
+      <group id="4">
+        <setting id="videoscreen.updateresolutions" type="boolean" label="40000" help="40001">
+          <level>2</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
     <category id="audio" label="14221" help="36360">
       <group id="1" label="14250">
