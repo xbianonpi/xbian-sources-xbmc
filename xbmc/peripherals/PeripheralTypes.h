@@ -38,6 +38,7 @@ namespace PERIPHERALS
     PERIPHERAL_BUS_USB,
     PERIPHERAL_BUS_PCI,
     PERIPHERAL_BUS_RPI,
+    PERIPHERAL_BUS_IMX,
     PERIPHERAL_BUS_CEC
   };
 
@@ -152,6 +153,8 @@ namespace PERIPHERALS
         return "pci";
       case PERIPHERAL_BUS_RPI:
         return "rpi";
+      case PERIPHERAL_BUS_IMX:
+        return "imx";
       case PERIPHERAL_BUS_CEC:
         return "cec";
       default:
@@ -170,6 +173,8 @@ namespace PERIPHERALS
         return PERIPHERAL_BUS_PCI;
       else if (strTypeLowerCase == "rpi")
         return PERIPHERAL_BUS_RPI;
+      else if (strTypeLowerCase == "imx")
+        return PERIPHERAL_BUS_IMX;
       else if (strTypeLowerCase == "cec")
         return PERIPHERAL_BUS_CEC;
 
