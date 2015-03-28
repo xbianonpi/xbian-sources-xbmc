@@ -37,6 +37,7 @@ namespace PERIPHERALS
     PERIPHERAL_BUS_USB,
     PERIPHERAL_BUS_PCI,
     PERIPHERAL_BUS_RPI,
+    PERIPHERAL_BUS_IMX,
     PERIPHERAL_BUS_CEC
   };
 
@@ -151,6 +152,8 @@ namespace PERIPHERALS
         return "pci";
       case PERIPHERAL_BUS_RPI:
         return "rpi";
+      case PERIPHERAL_BUS_IMX:
+        return "imx";
       case PERIPHERAL_BUS_CEC:
         return "cec";
       default:
@@ -169,6 +172,8 @@ namespace PERIPHERALS
         return PERIPHERAL_BUS_PCI;
       else if (strTypeLowerCase.Equals("rpi"))
         return PERIPHERAL_BUS_RPI;
+      else if (strTypeLowerCase.Equals("imx"))
+        return PERIPHERAL_BUS_IMX;
       else if (strTypeLowerCase.Equals("cec"))
         return PERIPHERAL_BUS_CEC;
 
