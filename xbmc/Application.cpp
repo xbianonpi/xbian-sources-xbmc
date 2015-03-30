@@ -2358,7 +2358,7 @@ void CApplication::Render()
   if (g_advancedSettings.m_guiDirtyRegionNoFlipTimeout >= 0)
     flip = hasRendered || (now - m_lastRenderTime) < (unsigned int)g_advancedSettings.m_guiDirtyRegionNoFlipTimeout;
   else
-    flip = true;
+    flip = !m_cecStandby;
 
   //fps limiter, make sure each frame lasts at least singleFrameTime milliseconds
   if (limitFrames || !flip)
