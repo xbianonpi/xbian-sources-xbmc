@@ -546,6 +546,7 @@ int CBuiltins::Execute(const std::string& execString)
     else if (paramlow == "1080psbs") res = RES_HDTV_1080pSBS;
     else if (paramlow == "1080ptb") res = RES_HDTV_1080pTB;
     else if (paramlow == "1080i") res = RES_HDTV_1080i;
+    else if (paramlow == "custom" && atoi(params[1].c_str()) >= (int)RES_DESKTOP) res = (RESOLUTION)atoi(params[1].c_str());
     if (g_graphicsContext.IsValidResolution(res))
     {
       CDisplaySettings::Get().SetCurrentResolution(res, true);
