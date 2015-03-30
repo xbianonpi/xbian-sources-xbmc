@@ -735,6 +735,7 @@ case $use_platform in
      CXXFLAGS="$CXXFLAGS"
      ;;
   cubox-i)
+     target_platform="cubox-i"
      use_static_ffmpeg=yes
      use_joystick=no
      use_sdl=no
