@@ -426,17 +426,20 @@ void CWinSystemEGL::UpdateResolutions()
       ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
 
+  // don't swap resolutions if current matches previous index
+  if(CDisplaySettings::Get().GetCurrentResolution() == ResDesktop)
+    return;
   // swap desktop index for desktop res if available
   if (ResDesktop != RES_INVALID)
   {
-    CLog::Log(LOGNOTICE, "Found (%dx%d%s@%f) at %d, setting to RES_DESKTOP at %d",
+    CLog::Log(LOGNOTICE, "Found (%dx%d%s@%f) at %d, swapping with %d",
       resDesktop.iWidth, resDesktop.iHeight,
       resDesktop.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
       resDesktop.fRefreshRate,
-      (int)ResDesktop, (int)RES_DESKTOP);
+      (int)ResDesktop, (int)CDisplaySettings::Get().GetCurrentResolution());
 
-    RESOLUTION_INFO desktop = CDisplaySettings::Get().GetResolutionInfo(RES_DESKTOP);
-    CDisplaySettings::Get().GetResolutionInfo(RES_DESKTOP) = CDisplaySettings::Get().GetResolutionInfo(ResDesktop);
+    RESOLUTION_INFO desktop = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetCurrentResolution());
+    CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetCurrentResolution()) = CDisplaySettings::Get().GetResolutionInfo(ResDesktop);
     CDisplaySettings::Get().GetResolutionInfo(ResDesktop) = desktop;
     return;
   }
