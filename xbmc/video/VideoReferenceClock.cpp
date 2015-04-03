@@ -29,6 +29,7 @@
 #include "guilib/GraphicContext.h"
 #include "video/videosync/VideoSync.h"
 #include "windowing/WindowingFactory.h"
+#include "settings/Settings.h"
 
 #if defined(HAS_GLX)
 #include "video/videosync/VideoSyncGLX.h"
