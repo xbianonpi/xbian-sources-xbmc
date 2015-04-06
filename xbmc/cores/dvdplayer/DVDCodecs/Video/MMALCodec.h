@@ -119,7 +119,6 @@ protected:
   const char        *m_pFormatName;
   MMALVideoPtr      m_myself;
 
-  std::queue<double> m_dts_queue;
   std::queue<mmal_demux_packet> m_demux_queue;
   unsigned           m_demux_queue_length;
 
@@ -145,6 +144,7 @@ protected:
   int               m_speed;
   bool              m_preroll;
   int               m_codecControlFlags;
+  uint32_t          m_history_valid_pts;
 
   MMAL_COMPONENT_T *m_dec;
   MMAL_PORT_T *m_dec_input;
