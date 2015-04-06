@@ -429,6 +429,13 @@ void CWinSystemEGL::UpdateResolutions()
   // don't swap resolutions if current matches previous index
   if(CDisplaySettings::Get().GetCurrentResolution() == ResDesktop)
     return;
+  // if last time we had more resolutions (saved res is out of index), re-set to the same with
+  // fresh index
+  else if (CDisplaySettings::Get().GetCurrentResolution() >= resolutions.size() + RES_DESKTOP)
+  {
+    CDisplaySettings::Get().SetCurrentResolution(ResDesktop);
+    return;
+  }
   // swap desktop index for desktop res if available
   if (ResDesktop != RES_INVALID)
   {
