@@ -1702,6 +1702,17 @@ void CDVDPlayer::HandlePlaySpeed()
   if(m_caching != caching)
     SetCaching(caching);
 
+  if (m_playSpeed == DVD_PLAYSPEED_NORMAL && m_caching == CACHESTATE_DONE)
+  {
+    // due to i.e. discontinuities of pts the stream may have drifted away
+    // from clock too far for audio to sync back.
+    if (m_CurrentAudio.id >= 0 && m_CurrentAudio.inited &&
+        m_dvdPlayerAudio->IsStalled() && m_dvdPlayerAudio->GetLevel() == 0)
+    {
+      CLog::Log(LOGDEBUG,"CDVDPlayer::HandlePlaySpeed - audio stream stalled, tiggering re-sync");
+      TriggerResync();
+    }
+  }
 
   if(GetPlaySpeed() != DVD_PLAYSPEED_NORMAL && GetPlaySpeed() != DVD_PLAYSPEED_PAUSE)
   {
@@ -1795,6 +1806,7 @@ bool CDVDPlayer::CheckStartCaching(CCurrentStream& current)
       {
         CLog::Log(LOGDEBUG, "%s stream stalled. start buffering", current.type == STREAM_AUDIO ? "audio" : "video");
         SetCaching(CACHESTATE_PVR);
+        TriggerResync();
       }
       return true;
     }
@@ -2095,18 +2107,6 @@ void CDVDPlayer::CheckAutoSceneSkip()
     m_EdlAutoSkipMarkers.seek_to_start   = true; // Allow backwards Seek() to go directly to the start
   }
 }
-
-  if (m_playSpeed == DVD_PLAYSPEED_NORMAL && m_caching == CACHESTATE_DONE)
-  {
-    // due to i.e. discontinuities of pts the stream may have drifted away
-    // from clock too far for audio to sync back.
-    if (m_CurrentAudio.id >= 0 && m_CurrentAudio.inited &&
-        m_dvdPlayerAudio->IsStalled() && m_dvdPlayerAudio->GetLevel() == 0)
-    {
-      CLog::Log(LOGDEBUG,"CDVDPlayer::HandlePlaySpeed - audio stream stalled, tiggering re-sync");
-      TriggerResync();
-    }
-  }
 
 void CDVDPlayer::SynchronizeDemuxer(unsigned int timeout)
 {
@@ -3556,24 +3556,6 @@ void CDVDPlayer::TriggerResync()
   m_dvdPlayerVideo->SendMessage(msg->Acquire(), 1);
   msg->Wait(&m_bStop, 0);
   msg->Release();
-}
-
-void CDVDPlayer::TriggerResync()
-{
-  m_CurrentAudio.inited      = false;
-  m_CurrentVideo.inited      = false;
-  m_CurrentSubtitle.inited   = false;
-  m_CurrentTeletext.inited   = false;
-
-  m_CurrentAudio.startpts    = DVD_NOPTS_VALUE;
-  m_CurrentVideo.startpts    = DVD_NOPTS_VALUE;
-  m_CurrentSubtitle.startpts = DVD_NOPTS_VALUE;
-  m_CurrentTeletext.startpts = DVD_NOPTS_VALUE;
-
-  m_dvdPlayerAudio->FlushMessages();
-  m_dvdPlayerVideo->FlushMessages();
-  m_dvdPlayerSubtitle->FlushMessages();
-  m_dvdPlayerTeletext->FlushMessages();
 }
 
 // since we call ffmpeg functions to decode, this is being called in the same thread as ::Process() is
