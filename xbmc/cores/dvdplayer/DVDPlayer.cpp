@@ -2559,6 +2559,15 @@ void CDVDPlayer::HandleMessages()
             m_State = state;
         }
       }
+      else if (pMsg->IsType(CDVDMsg::SUBTITLE_ADDFILE))
+      {
+        int id = AddSubtitleFile(((CDVDMsgType<std::string>*) pMsg)->m_value);
+        if (id >= 0)
+        {
+          SetSubtitle(id);
+          SetSubtitleVisibleInternal(true);
+        }
+      }
 
     pMsg->Release();
   }
@@ -4049,9 +4058,9 @@ int CDVDPlayer::SeekChapter(int iChapter)
   return 0;
 }
 
-int CDVDPlayer::AddSubtitle(const std::string& strSubPath)
+void CDVDPlayer::AddSubtitle(const std::string& strSubPath)
 {
-  return AddSubtitleFile(strSubPath);
+  m_messenger.Put(new CDVDMsgType<std::string>(CDVDMsg::SUBTITLE_ADDFILE, strSubPath));
 }
 
 int CDVDPlayer::GetCacheLevel() const
