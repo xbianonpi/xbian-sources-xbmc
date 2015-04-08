@@ -58,6 +58,7 @@ CMMALVideoBuffer::CMMALVideoBuffer(CMMALVideo *omv)
   height = 0;
   index = 0;
   m_aspect_ratio = 0.0f;
+  m_changed_count = 0;
 }
 
 CMMALVideoBuffer::~CMMALVideoBuffer()
@@ -254,10 +255,11 @@ void CMMALVideo::dec_output_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buf
         CMMALVideoBuffer *omvb = new CMMALVideoBuffer(this);
         m_output_busy++;
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-          CLog::Log(LOGDEBUG, "%s::%s - %p (%p) buffer_size(%u) dts:%.3f pts:%.3f flags:%x:%x",
-            CLASSNAME, __func__, buffer, omvb, buffer->length, buffer->dts*1e-6, buffer->pts*1e-6, buffer->flags, buffer->type->video.flags);
+          CLog::Log(LOGDEBUG, "%s::%s - %p (%p) buffer_size(%u) dts:%.3f pts:%.3f flags:%x:%x frame:%d",
+            CLASSNAME, __func__, buffer, omvb, buffer->length, buffer->dts*1e-6, buffer->pts*1e-6, buffer->flags, buffer->type->video.flags, omvb->m_changed_count);
         omvb->mmal_buffer = buffer;
         buffer->user_data = (void *)omvb;
+        omvb->m_changed_count = m_changed_count;
         omvb->width = m_decoded_width;
         omvb->height = m_decoded_height;
         omvb->m_aspect_ratio = m_aspect_ratio;

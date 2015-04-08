@@ -54,6 +54,7 @@ public:
   int width;
   int height;
   float m_aspect_ratio;
+  uint32_t m_changed_count;
   // reference counting
   CMMALVideoBuffer* Acquire();
   long              Release();
