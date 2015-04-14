@@ -1811,7 +1811,7 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
 
     // This code reduces rendering fps of the GUI layer when playing videos in fullscreen mode
     // it makes only sense on architectures with multiple layers
-    if (CServiceBroker::GetWinSystem()->GetGfxContext().IsFullScreenVideo() && !m_appPlayer.IsPausedPlayback() && m_appPlayer.IsRenderingVideoLayer())
+    if (appPlayer && appPlayer->IsPlayingVideo() && !appPlayer->IsPausedPlayback() && appPlayer->IsRenderingVideoLayer())
       fps = CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(CSettings::SETTING_VIDEOPLAYER_LIMITGUIUPDATE);
 
     auto now = std::chrono::steady_clock::now();
