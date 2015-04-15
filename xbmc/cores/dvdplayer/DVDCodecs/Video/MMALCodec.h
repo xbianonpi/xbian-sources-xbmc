@@ -106,6 +106,7 @@ protected:
   void ReturnBuffer(CMMALVideoBuffer *buffer);
   bool CreateDeinterlace(EINTERLACEMETHOD interlace_method);
   bool DestroyDeinterlace();
+  void Prime();
 
   // Video format
   int               m_decoded_width;
