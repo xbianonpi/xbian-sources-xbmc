@@ -93,7 +93,41 @@ bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
   }
   m_vout_input = m_vout->input[0];
   m_vout_input->userdata = (struct MMAL_PORT_USERDATA_T *)this;
-  mmal_format_full_copy(m_vout_input->format, format);
+  MMAL_ES_FORMAT_T *es_format = m_vout_input->format;
+
+  es_format->type = MMAL_ES_TYPE_VIDEO;
+  es_format->es->video.crop.width = m_sourceWidth;
+  es_format->es->video.crop.height = m_sourceHeight;
+
+  if (m_format == RENDER_FMT_MMAL)
+  {
+    es_format->encoding = MMAL_ENCODING_OPAQUE;
+    es_format->es->video.width = m_sourceWidth;
+    es_format->es->video.height = m_sourceHeight;
+  }
+  else if (m_format == RENDER_FMT_YUV420P)
+  {
+    const int pitch = ALIGN_UP(m_sourceWidth, 32);
+    const int aligned_height = ALIGN_UP(m_sourceHeight, 16);
+
+    es_format->encoding = MMAL_ENCODING_I420;
+    es_format->es->video.width = pitch;
+    es_format->es->video.height = aligned_height;
+
+    if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_BT709)
+      es_format->es->video.color_space = MMAL_COLOR_SPACE_ITUR_BT709;
+    else if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_BT601)
+      es_format->es->video.color_space = MMAL_COLOR_SPACE_ITUR_BT601;
+    else if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_240M)
+      es_format->es->video.color_space = MMAL_COLOR_SPACE_SMPTE240M;
+  }
+
+  if (m_format == RENDER_FMT_MMAL)
+  {
+    status = mmal_port_parameter_set_boolean(m_vout_input, MMAL_PARAMETER_ZERO_COPY,  MMAL_TRUE);
+    if (status != MMAL_SUCCESS)
+       CLog::Log(LOGERROR, "%s::%s Failed to enable zero copy mode on %s (status=%x %s)", CLASSNAME, __func__, m_vout_input->name, status, mmal_status_to_string(status));
+  }
   status = mmal_port_format_commit(m_vout_input);
   if (status != MMAL_SUCCESS)
   {
