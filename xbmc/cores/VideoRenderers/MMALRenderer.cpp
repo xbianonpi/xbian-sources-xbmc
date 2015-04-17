@@ -95,6 +95,8 @@ static void vout_input_port_cb_static(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *b
 
 bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
 {
+  CSingleLock lock(m_sharedSection);
+  bool formatChanged = m_format != format;
   MMAL_STATUS_T status;
 
   CLog::Log(LOGDEBUG, "%s::%s configured:%d format:%d->%d", CLASSNAME, __func__, m_bConfigured, m_format, format);
@@ -224,6 +226,7 @@ CMMALRenderer::CMMALRenderer()
 
 CMMALRenderer::~CMMALRenderer()
 {
+  CSingleLock lock(m_sharedSection);
   CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
   // shutdown thread
   mmal_queue_put(m_release_queue, NULL);
@@ -246,6 +249,7 @@ void CMMALRenderer::AddProcessor(CMMALVideoBuffer *buffer, int index)
 
 bool CMMALRenderer::Configure(unsigned int width, unsigned int height, unsigned int d_width, unsigned int d_height, float fps, unsigned flags, ERenderFormat format, unsigned extended_format, unsigned int orientation)
 {
+  CSingleLock lock(m_sharedSection);
   ReleaseBuffers();
 
   m_sourceWidth  = width;
@@ -373,6 +377,8 @@ void CMMALRenderer::Update()
 
 void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
 {
+  CSingleLock lock(m_sharedSection);
+  int source = m_iYV12RenderBuffer;
 #if defined(MMAL_DEBUG_VERBOSE)
   CLog::Log(LOGDEBUG, "%s::%s - %d %x %d", CLASSNAME, __func__, clear, flags, alpha);
 #endif
@@ -428,9 +434,22 @@ void CMMALRenderer::FlipPage(int source)
   else assert(0);
 }
 
+void CMMALRenderer::FlipPage(int source)
+{
+  CSingleLock lock(m_sharedSection);
+  if (!m_bConfigured || m_format == RENDER_FMT_BYPASS)
+    return;
+
+#if defined(MMAL_DEBUG_VERBOSE)
+  CLog::Log(LOGDEBUG, "%s::%s - %d", CLASSNAME, __func__, source);
+#endif
+
+  m_iYV12RenderBuffer = source;
+}
+
 unsigned int CMMALRenderer::PreInit()
 {
-  CSingleLock lock(g_graphicsContext);
+  CSingleLock lock(m_sharedSection);
   m_bConfigured = false;
   UnInit();
 
@@ -460,6 +479,7 @@ void CMMALRenderer::ReleaseBuffers()
 
 void CMMALRenderer::UnInit()
 {
+  CSingleLock lock(m_sharedSection);
   CLog::Log(LOGDEBUG, "%s::%s pool(%p)", CLASSNAME, __func__, m_vout_input_pool);
   if (m_vout)
   {
@@ -569,6 +589,7 @@ EINTERLACEMETHOD CMMALRenderer::AutoInterlaceMethod()
 
 void CMMALRenderer::SetVideoRect(const CRect& InSrcRect, const CRect& InDestRect)
 {
+  CSingleLock lock(m_sharedSection);
   assert(g_graphicsContext.GetStereoView() != RENDER_STEREO_VIEW_RIGHT);
 
   if (!m_vout_input)
