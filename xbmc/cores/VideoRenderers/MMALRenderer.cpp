@@ -97,7 +97,17 @@ bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
 {
   MMAL_STATUS_T status;
 
-  CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
+  CLog::Log(LOGDEBUG, "%s::%s configured:%d format:%d->%d", CLASSNAME, __func__, m_bConfigured, m_format, format);
+
+  if (m_bMMALConfigured && formatChanged)
+    UnInitMMAL();
+
+  if (m_bMMALConfigured)
+    return true;
+
+  m_format = format;
+  if (m_format != RENDER_FMT_MMAL && m_format != RENDER_FMT_YUV420P)
+    return true;
 
   /* Create video renderer */
   status = mmal_component_create(MMAL_COMPONENT_DEFAULT_VIDEO_RENDERER, &m_vout);
@@ -204,6 +214,11 @@ CMMALRenderer::CMMALRenderer()
   m_vout_input_pool = NULL;
   memset(m_buffers, 0, sizeof m_buffers);
   m_release_queue = mmal_queue_create();
+  m_iFlags = 0;
+  m_format = RENDER_FMT_NONE;
+  m_bConfigured = false;
+  m_bMMALConfigured = false;
+  m_iYV12RenderBuffer = 0;
   Create();
 }
 
@@ -254,43 +269,9 @@ bool CMMALRenderer::Configure(unsigned int width, unsigned int height, unsigned 
   SetViewMode(CMediaSettings::Get().GetCurrentVideoSettings().m_ViewMode);
   ManageDisplay();
 
-  if (m_format == RENDER_FMT_MMAL|| m_format == RENDER_FMT_YUV420P)
-  {
-    MMAL_ES_FORMAT_T *es_format = mmal_format_alloc();
-    es_format->type = MMAL_ES_TYPE_VIDEO;
-    es_format->es->video.crop.width = m_sourceWidth;
-    es_format->es->video.crop.height = m_sourceHeight;
-
-    if (m_format == RENDER_FMT_MMAL)
-    {
-      es_format->encoding = MMAL_ENCODING_OPAQUE;
-      es_format->es->video.width = m_sourceWidth;
-      es_format->es->video.height = m_sourceHeight;
-    }
-    else if (m_format == RENDER_FMT_YUV420P)
-    {
-      const int pitch = ALIGN_UP(m_sourceWidth, 32);
-      const int aligned_height = ALIGN_UP(m_sourceHeight, 16);
-
-      es_format->encoding = MMAL_ENCODING_I420;
-      es_format->es->video.width = pitch;
-      es_format->es->video.height = aligned_height;
-
-      if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_BT709)
-        es_format->es->video.color_space = MMAL_COLOR_SPACE_ITUR_BT709;
-      else if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_BT601)
-        es_format->es->video.color_space = MMAL_COLOR_SPACE_ITUR_BT601;
-      else if (CONF_FLAGS_YUVCOEF_MASK(m_iFlags) == CONF_FLAGS_YUVCOEF_240M)
-        es_format->es->video.color_space = MMAL_COLOR_SPACE_SMPTE240M;
-    }
-    if (m_bConfigured)
-      UnInit();
-    m_bConfigured = init_vout(es_format);
-    mmal_format_free(es_format);
-  }
-  else
-    m_bConfigured = true;
-
+  m_bMMALConfigured = init_vout(format);
+  m_bConfigured = m_bMMALConfigured;
+  assert(m_bConfigured);
   return m_bConfigured;
 }
 
@@ -353,6 +334,10 @@ int CMMALRenderer::GetImage(YV12Image *image, int source, bool readonly)
 
 void CMMALRenderer::ReleaseBuffer(int idx)
 {
+  CSingleLock lock(m_sharedSection);
+  if (!m_bMMALConfigured || m_format == RENDER_FMT_BYPASS)
+    return;
+
 #if defined(MMAL_DEBUG_VERBOSE)
   CLog::Log(LOGDEBUG, "%s::%s - %d", CLASSNAME, __func__, idx);
 #endif
@@ -513,6 +498,7 @@ void CMMALRenderer::UnInit()
   m_StereoInvert = false;
 
   m_bConfigured = false;
+  m_bMMALConfigured = false;
 }
 
 bool CMMALRenderer::RenderCapture(CRenderCapture* capture)
