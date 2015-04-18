@@ -289,7 +289,8 @@ void CGUIWindowVideoBase::OnInfo(CFileItem* pItem, const ADDON::ScraperPtr& scra
   // so take a copy of the item now
   CFileItem item(*pItem);
   bool fromDB = false;
-  if (item.IsVideoDb() && item.HasVideoInfoTag())
+  if ((item.IsVideoDb() && item.HasVideoInfoTag()) ||
+      (item.HasVideoInfoTag() && item.GetVideoInfoTag()->m_iDbId != -1))
   {
     if (item.GetVideoInfoTag()->m_type == MediaTypeSeason)
     { // clear out the art - we're really grabbing the info on the show here
