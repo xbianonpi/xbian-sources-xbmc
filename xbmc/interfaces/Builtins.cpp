@@ -257,6 +257,14 @@ void CBuiltins::GetHelp(std::string &help)
   }
 }
 
+bool CBuiltins::ActivateWindow(int iWindowID, const std::vector<std::string>& params /* = {} */, bool swappingWindows /* = false */)
+{
+  // disable the screensaver
+  g_application.WakeUpScreenSaverAndDPMS();
+  g_windowManager.ActivateWindow(iWindowID, params, swappingWindows);
+  return true;
+}
+
 int CBuiltins::Execute(const std::string& execString)
 {
   // Deprecated. Get the text after the "XBMC."
