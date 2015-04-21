@@ -220,6 +220,7 @@ CMMALRenderer::CMMALRenderer()
   m_bConfigured = false;
   m_bMMALConfigured = false;
   m_iYV12RenderBuffer = 0;
+  m_sharpness = -2.0f;
   Create();
 }
 
@@ -390,13 +391,15 @@ void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
   // for sizing video playback on a layer other than the gles layer.
   if (m_RenderUpdateCallBackFn)
     (*m_RenderUpdateCallBackFn)(m_RenderUpdateCallBackCtx, m_sourceRect, m_destRect);
-}
 
-void CMMALRenderer::FlipPage(int source)
-{
-#if defined(MMAL_DEBUG_VERBOSE)
-  CLog::Log(LOGDEBUG, "%s::%s - %d", CLASSNAME, __func__, source);
-#endif
+  // if sharpness setting has changed, we should update it
+  if (m_sharpness != CMediaSettings::Get().GetCurrentVideoSettings().m_Sharpness)
+  {
+    m_sharpness = CMediaSettings::Get().GetCurrentVideoSettings().m_Sharpness;
+    char command[80], response[80];
+    sprintf(command, "scaling_sharpness %d", ((int)(50.0f * (m_sharpness + 1.0f) + 0.5f)));
+    vc_gencmd(response, sizeof response, command);
+  }
 
   if (!m_bConfigured || m_format == RENDER_FMT_BYPASS)
     return;
@@ -567,7 +570,8 @@ bool CMMALRenderer::Supports(ERENDERFEATURE feature)
       feature == RENDERFEATURE_ZOOM            ||
       feature == RENDERFEATURE_ROTATION        ||
       feature == RENDERFEATURE_VERTICAL_SHIFT  ||
-      feature == RENDERFEATURE_PIXEL_RATIO)
+      feature == RENDERFEATURE_PIXEL_RATIO     ||
+      feature == RENDERFEATURE_SHARPNESS)
     return true;
 
   return false;
