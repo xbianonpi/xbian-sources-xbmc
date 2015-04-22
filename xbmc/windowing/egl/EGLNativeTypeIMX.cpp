@@ -37,7 +37,8 @@
 #include <fstream>
 
 CEGLNativeTypeIMX::CEGLNativeTypeIMX()
-  : m_display(NULL)
+  : m_sar(0)
+  , m_display(NULL)
   , m_window(NULL)
 {
   m_show = true;
@@ -70,9 +71,10 @@ void CEGLNativeTypeIMX::Initialize()
   {
     m_readonly = false;
     close(fd);
-    GetNativeResolution(&m_init); m_init.fPixelRatio = (float)m_init.iScreenWidth/m_init.iScreenHeight;
+    GetNativeResolution(&m_init);
   }
 
+  m_sar = GetMonitorSAR();
   ShowWindow(false);
   return;
 }
@@ -240,7 +242,8 @@ bool CEGLNativeTypeIMX::FindMatchingResolution(const RESOLUTION_INFO &res, const
   {
     if(resolutions[i].iScreenWidth == res.iScreenWidth &&
        resolutions[i].iScreenHeight == res.iScreenHeight &&
-       resolutions[i].fRefreshRate == res.fRefreshRate && (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) == (res.dwFlags & D3DPRESENTFLAG_MODEMASK))
+       resolutions[i].fRefreshRate == res.fRefreshRate &&
+      (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) == (res.dwFlags & D3DPRESENTFLAG_MODEMASK))
     {
        return true;
     }
@@ -255,8 +258,12 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
 
   std::string valstr;
   get_sysfs_str("/sys/class/graphics/fb0/modes", valstr);
-
   std::vector<std::string> probe_str = StringUtils::Split(valstr, "\n");
+
+  // lexical order puts the modes list into our preferred
+  // order and by later filtering through FindMatchingResolution()
+  // we make sure we read _all_ S modes, following U and V modes
+  // while list will hold unique resolutions only
   std::sort(probe_str.begin(), probe_str.end());
 
   resolutions.clear();
@@ -264,14 +271,14 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
   for (size_t i = 0; i < probe_str.size(); i++)
   {
     if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:") &&
+       !StringUtils::StartsWith(probe_str[i], "V:") &&
        !StringUtils::StartsWith(probe_str[i], "H:") && !StringUtils::StartsWith(probe_str[i], "T:"))
       continue;
 
     if(ModeToResolution(probe_str[i], &res))
       if(!FindMatchingResolution(res, resolutions))
-         resolutions.push_back(res);
+        resolutions.push_back(res);
   }
-
   return resolutions.size() > 0;
 }
 
@@ -290,6 +297,72 @@ bool CEGLNativeTypeIMX::ShowWindow(bool show)
 
   m_show = show;
   return true;
+}
+
+float CEGLNativeTypeIMX::GetMonitorSAR()
+{
+  FILE *f_edid;
+  char *str = NULL;
+  unsigned char p;
+  size_t n;
+  int done = 0;
+
+  // kernels <= 3.18 use ./soc0/soc.0
+  // kernels  > 3.18 use ./soc0/soc
+  f_edid = fopen("/sys/devices/soc0/soc/20e0000.hdmi_video/edid", "r");
+  if(!f_edid)
+    f_edid = fopen("/sys/devices/soc0/soc.0/20e0000.hdmi_video/edid", "r");
+
+  if(!f_edid)
+    return 0;
+
+  // we need to convert mxc_hdmi output format to binary array
+  // mxc_hdmi provides the EDID as space delimited 1bytes blocks
+  // exported as text with format specifier %x eg:
+  // 0x00 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF 0x00 0x4C 0x2D 0x7A 0x0A 0x00 0x00 0x00 0x00
+  //
+  // this translates into the inner cycle where we move pointer first
+  // with +2 to skip '0x',
+  // we sscanf actual data (eg FF) into a byte,
+  // we move over the FF and delimiting space with +3
+  //
+  // this parses whole 512 byte long info into internal binary array for future
+  // reference and use. current use is only to grab screen's physical params
+  // at EGL init.
+  while(getline(&str, &n, f_edid) > 0)
+  {
+    char *c = str;
+    while(*c != '\n' && done < 512)
+    {
+      c += 2;
+      sscanf(c, "%hhx", &p);
+      m_edid[done++] = p;
+      c += 3;
+    }
+    if (str)
+      free(str);
+    str = NULL;
+  }
+  fclose(f_edid);
+
+  // info related to 'Basic display parameters.' is at offset 0x14-0x18.
+  // where W is 2nd byte, H 3rd.
+  int cmWidth  = (int)*(m_edid +EDID_STRUCT_DISPLAY +1);
+  int cmHeight = (int)*(m_edid +EDID_STRUCT_DISPLAY +2);
+  if (cmHeight > 0)
+  {
+    float t_sar = (float) cmWidth / cmHeight;
+    if (t_sar >= 0.33 && t_sar <= 3.0)
+    {
+      CLog::Log(LOGDEBUG, "%s: Screen SAR: %.3f (%dcmx%dcm)",__FUNCTION__, t_sar, cmWidth, cmHeight);
+      return t_sar;
+    }
+  }
+
+  // if we end up here, H/W values or final SAR are useless
+  // return 0 and use 1.0f as PR for all resolutions
+  CLog::Log(LOGDEBUG, "%s: Screen SAR - not usable info",__FUNCTION__);
+  return 0;
 }
 
 bool CEGLNativeTypeIMX::get_sysfs_str(std::string path, std::string& valstr) const
@@ -379,7 +452,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iScreen       = 0;
   res->bFullScreen   = true;
   res->iSubtitles    = (int)(0.965 * res->iHeight);
-  res->fPixelRatio  *= (float)m_init.fPixelRatio / ((float)res->iScreenWidth/(float)res->iScreenHeight);
+  res->fPixelRatio  *= !m_sar ? 1.0f : (float)m_sar / res->iScreenWidth * res->iScreenHeight;
   res->strMode       = StringUtils::Format("%4sx%4s @ %.2f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
                                            StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
                                            res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
