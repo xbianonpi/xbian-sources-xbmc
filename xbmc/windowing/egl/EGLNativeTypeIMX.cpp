@@ -334,6 +334,7 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
   for (size_t i = 0; i < probe_str.size(); i++)
   {
     if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:") &&
+       !StringUtils::StartsWith(probe_str[i], "V:") &&
        !StringUtils::StartsWith(probe_str[i], "H:") && !StringUtils::StartsWith(probe_str[i], "T:"))
       continue;
 
@@ -341,7 +342,6 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
       if(!FindMatchingResolution(res, resolutions))
         resolutions.push_back(res);
   }
-
   return resolutions.size() > 0;
 }
 
