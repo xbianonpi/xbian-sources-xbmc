@@ -172,6 +172,8 @@ missing_headers="Could not find some required headers. Please see the README for
 missing_program="Could not find a required program. Please see the README for your platform."
 alsa_disabled="== ALSA support disabled. =="
 dbus_disabled="== DBUS support disabled. =="
+glesscreensavers_enabled="== GLES screensavers enabled. =="
+glesscreensavers_disabled="== GLES screensavers disabled. =="
 wayland_enabled="== Wayland enabled. =="
 wayland_disabled="== Wayland disabled. =="
 x11_enabled="== X11 enabled. =="
@@ -305,6 +307,12 @@ AC_ARG_ENABLE([joystick],
   [enable SDL joystick support (default is auto)])],
   [use_joystick=$enableval],
   [use_joystick=auto])
+
+AC_ARG_ENABLE([glesscreensavers],
+  [AS_HELP_STRING([--enable-glesscreensavers],
+  [enable GLES screensavers (default is yes)])],
+  [use_glesscreensavers=$enableval],
+  [use_glesscreensavers=yes])
 
 AC_ARG_ENABLE([wayland],
   [AS_HELP_STRING([--enable-wayland],
@@ -1430,6 +1438,15 @@ else
   AC_MSG_RESULT($x11_disabled)
 fi
 
+# GLES Screensavers
+if test "$use_glesscreensavers" = "no" || test "$use_gles" = "no"; then
+  AC_MSG_NOTICE($glesscreensavers_disabled)
+  DISABLE_GLESSCREENSAVERS=1
+else
+  AC_MSG_NOTICE($glesscreensavers_enabled)
+  DISABLE_GLESSCREENSAVERS=0
+fi
+
 # touch skin
 use_touch_skin=no
 if [[ -f "addons/skin.re-touched/addon.xml" ]]; then 
@@ -2077,6 +2094,12 @@ else
   final_message="$final_message\n  Joystick:\tNo"
 fi
 
+if test "$use_glesscreensavers" = "yes"; then
+  final_message="$final_message\n  GLES Screensavers:\t\tYes"
+else
+  final_message="$final_message\n  GLES Screensavers:\t\tNo"
+fi
+
 if test "$use_touch_skin" = "yes"; then
   final_message="$final_message\n  Touch skin:\tYes"
 else
@@ -2427,6 +2450,15 @@ OUTPUT_FILES="Makefile \
     xbmc/freebsd/Makefile \
     xbmc/linux/Makefile \
     xbmc/filesystem/Makefile \
+    xbmc/screensavers/gles/Makefile \
+    xbmc/screensavers/gles/solarwinds/Makefile \
+    xbmc/screensavers/gles/plasma/Makefile \
+    xbmc/screensavers/gles/plasma2/Makefile \
+    xbmc/screensavers/gles/noise/Makefile \
+    xbmc/screensavers/gles/warp/Makefile \
+    xbmc/screensavers/gles/stellar/Makefile \
+    xbmc/screensavers/gles/spiral/Makefile \
+    xbmc/screensavers/gles/ball/Makefile \
     xbmc/windowing/Makefile \
     xbmc/windowing/egl/Makefile \
     lib/addons/library.xbmc.addon/Makefile \
@@ -2528,6 +2560,7 @@ AC_SUBST(CXXFLAGS_FOR_BUILD)
 AC_SUBST(LDFLAGS_FOR_BUILD)
 AC_SUBST(SDL_DEFINES)
 AC_SUBST(BUILD_DVDCSS)
+AC_SUBST(DISABLE_GLESSCREENSAVERS)
 AC_SUBST(FFMPEG_LIBDIR)
 AC_SUBST(USE_STATIC_FFMPEG)
 AC_SUBST(GNUTLS_ALL_LIBS)
