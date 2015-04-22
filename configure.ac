@@ -172,6 +172,8 @@ missing_headers="Could not find some required headers. Please see the README for
 missing_program="Could not find a required program. Please see the README for your platform."
 alsa_disabled="== ALSA support disabled. =="
 dbus_disabled="== DBUS support disabled. =="
+glesscreensavers_enabled="== GLES screensavers enabled. =="
+glesscreensavers_disabled="== GLES screensavers disabled. =="
 x11_enabled="== X11 enabled. =="
 x11_disabled="== X11 disabled. =="
 pulse_not_found="== Could not find libpulse. PulseAudio support disabled. =="
@@ -285,6 +287,12 @@ AC_ARG_ENABLE([profiling],
   [enable gprof profiling (default is no)])],
   [use_profiling=$enableval],
   [use_profiling=no])
+
+AC_ARG_ENABLE([glesscreensavers],
+  [AS_HELP_STRING([--enable-glesscreensavers],
+  [enable GLES screensavers (default is yes)])],
+  [use_glesscreensavers=$enableval],
+  [use_glesscreensavers=yes])
 
 AC_ARG_ENABLE([x11],
   [AS_HELP_STRING([--enable-x11],
@@ -1347,6 +1355,15 @@ else
   AC_MSG_RESULT($x11_disabled)
 fi
 
+# GLES Screensavers
+if test "$use_glesscreensavers" = "no" || test "$use_gles" = "no"; then
+  AC_MSG_NOTICE($glesscreensavers_disabled)
+  DISABLE_GLESSCREENSAVERS=1
+else
+  AC_MSG_NOTICE($glesscreensavers_enabled)
+  DISABLE_GLESSCREENSAVERS=0
+fi
+
 # libssh
 if test "x$use_ssh" = "xno"; then
   AC_MSG_NOTICE(ssh support disabled by user)
@@ -1938,6 +1955,12 @@ else
   final_message="$final_message\n  OpenMax:\tNo"
 fi
 
+if test "$use_glesscreensavers" = "yes"; then
+  final_message="$final_message\n  GLES Screensavers:\t\tYes"
+else
+  final_message="$final_message\n  GLES Screensavers:\t\tNo"
+fi
+
 if test "$use_x11" = "yes"; then
   USE_X11=1
   final_message="$final_message\n  X11:\t\tYes"
@@ -2222,6 +2245,15 @@ OUTPUT_FILES="Makefile \
     xbmc/freebsd/Makefile \
     xbmc/linux/Makefile \
     xbmc/filesystem/Makefile \
+    xbmc/screensavers/gles/Makefile \
+    xbmc/screensavers/gles/solarwinds/Makefile \
+    xbmc/screensavers/gles/plasma/Makefile \
+    xbmc/screensavers/gles/plasma2/Makefile \
+    xbmc/screensavers/gles/noise/Makefile \
+    xbmc/screensavers/gles/warp/Makefile \
+    xbmc/screensavers/gles/stellar/Makefile \
+    xbmc/screensavers/gles/spiral/Makefile \
+    xbmc/screensavers/gles/ball/Makefile \
     xbmc/windowing/Makefile \
     xbmc/windowing/egl/Makefile \
     lib/addons/library.xbmc.addon/Makefile \
@@ -2321,6 +2353,7 @@ AC_SUBST(CFLAGS_FOR_BUILD)
 AC_SUBST(CXXFLAGS_FOR_BUILD)
 AC_SUBST(LDFLAGS_FOR_BUILD)
 AC_SUBST(SDL_DEFINES)
+AC_SUBST(DISABLE_GLESSCREENSAVERS)
 AC_SUBST(FFMPEG_LIBDIR)
 AC_SUBST(USE_STATIC_FFMPEG)
 AC_SUBST(GNUTLS_ALL_LIBS)
