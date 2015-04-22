@@ -126,18 +126,11 @@ void CEGLNativeTypeIMX::Initialize()
   if (ioctl(fd, MXCFB_SET_CLR_KEY, &colorKey) < 0)
     CLog::Log(LOGERROR, "%s - Failed to setup color keying\n", __FUNCTION__);
 #endif
-  // Unblank the fb
-  if (ioctl(fd, FBIOBLANK, 0) < 0)
-  {
-    CLog::Log(LOGERROR, "%s - Error while unblanking fb0.\n", __FUNCTION__);
-  }
-
-  m_sar = GetMonitorSAR();
-
   // Check if we can change the framebuffer resolution
   if (!m_readonly)
     GetNativeResolution(&m_init);
 
+  m_sar = GetMonitorSAR();
   close(fd);
   return;
 }
@@ -331,6 +324,7 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
   for (size_t i = 0; i < probe_str.size(); i++)
   {
     if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:") &&
+       !StringUtils::StartsWith(probe_str[i], "V:") &&
        !StringUtils::StartsWith(probe_str[i], "H:") && !StringUtils::StartsWith(probe_str[i], "T:"))
       continue;
 
@@ -338,7 +332,6 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
       if(!FindMatchingResolution(res, resolutions))
         resolutions.push_back(res);
   }
-
   return resolutions.size() > 0;
 }
 
