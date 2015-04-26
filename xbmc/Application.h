@@ -387,7 +387,7 @@ public:
    */
   void UnregisterActionListener(IActionListener *listener);
 
-  void SetCecStandby(bool status, bool force = false);
+  void SetCecStandby(bool status);
   bool GetCecStandby() { return m_cecStandby; }
   void ChangeVT(int newVT);
 
@@ -417,7 +417,6 @@ protected:
 
   bool m_loggingIn;
   bool m_cecStandby;
-  int m_cecStandbyRun;
 
   int m_ourVT;
   void checkVTchange();
