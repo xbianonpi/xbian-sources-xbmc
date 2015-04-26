@@ -38,6 +38,13 @@ namespace PERIPHERALS
     STATE_STANDBY
   } CecStateChange;
 
+  typedef enum
+  {
+    CABLE_UNKNOWN = 0,
+    CABLE_DISCONNECTED,
+    CABLE_CONNECTED
+  } ScreenCableState;
+
   class CPeripheral
   {
     friend class CGUIDialogPeripheralSettings;
@@ -95,6 +102,11 @@ namespace PERIPHERALS
      * @param strChangedSetting The changed setting.
      */
     virtual void OnSettingChanged(const std::string &strChangedSetting) {};
+
+    /*!
+     * @brief Called when this device is changed.
+     */
+    virtual void OnDeviceChanged(int state) {};
 
     /*!
      * @brief Called when this device is removed, before calling the destructor.

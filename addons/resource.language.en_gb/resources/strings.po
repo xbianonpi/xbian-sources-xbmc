@@ -5651,7 +5651,17 @@ msgctxt "#13287"
 msgid "Screen resolution:"
 msgstr ""
 
-#empty strings from id 13288 to 13291
+#: system/peripherals.xml
+msgctxt "#13288"
+msgid "Probe & re-apply resolutions on display device change"
+msgstr "Probe & re-apply resolutions on display device change"
+
+#: peripheral/devices/PeripheralVideo.cpp
+msgctxt "#13289"
+msgid "Probing available resolutions"
+msgstr "Probing available resolutions"
+
+#empty strings from id 13290 to 13291
 
 msgctxt "#13292"
 msgid "A/V cable:"

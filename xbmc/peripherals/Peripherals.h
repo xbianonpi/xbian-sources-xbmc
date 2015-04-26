@@ -198,6 +198,8 @@ namespace PERIPHERALS
      */
     virtual bool GetNextKeypress(float frameTime, CKey &key);
 
+    virtual CPeripheralBus *CreatePeripheralBus(CPeripheralBus *bus);
+
     bool SupportsCEC(void) const
     {
 #if defined(HAVE_LIBCEC)

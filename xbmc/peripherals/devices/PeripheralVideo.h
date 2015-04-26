@@ -19,36 +19,23 @@
  *
  */
 
-#include "peripherals/bus/PeripheralBus.h"
-#include "peripherals/devices/Peripheral.h"
-
-struct udev;
-struct udev_monitor;
+#include "Peripheral.h"
+#include "peripherals/Peripherals.h"
+#include "threads/Timer.h"
 
 namespace PERIPHERALS
 {
-  class CPeripherals;
-
-  class CPeripheralBusUSB : public CPeripheralBus
+  class CPeripheralVideo : public CPeripheral, protected ITimerCallback
   {
   public:
-    CPeripheralBusUSB(CPeripherals *manager, const CStdString &threadname = "PeripBusUSBUdev", PeripheralBusType type = PERIPHERAL_BUS_USB);
-    virtual ~CPeripheralBusUSB(void);
+    CPeripheralVideo(const PeripheralScanResult& scanResult);
+    virtual ~CPeripheralVideo(void) {};
 
-    virtual void Clear(void);
-
-    /*!
-     * @see PeripheralBus::PerformDeviceScan()
-     */
-    bool PerformDeviceScan(PeripheralScanResults &results);
+    virtual void OnDeviceChanged(int state);
+    virtual void OnTimeout();
 
   protected:
-    static const PeripheralType GetType(int iDeviceClass);
-
-    virtual void Process(void);
-    bool WaitForUpdate(void);
-
-    struct udev *        m_udev;
-    struct udev_monitor *m_udevMon;
+    int                           m_cableState;
+    CTimer                        m_timer;
   };
 }
