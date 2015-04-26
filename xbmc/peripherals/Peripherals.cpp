@@ -28,6 +28,7 @@
 #include "devices/PeripheralTuner.h"
 #include "devices/PeripheralCecAdapter.h"
 #include "devices/PeripheralImon.h"
+#include "devices/PeripheralVideo.h"
 #include "bus/PeripheralBusUSB.h"
 #include "dialogs/GUIDialogPeripheralManager.h"
 
@@ -285,6 +286,10 @@ CPeripheral *CPeripherals::CreatePeripheral(CPeripheralBus &bus, const Periphera
 
   case PERIPHERAL_IMON:
     peripheral = new CPeripheralImon(mappedResult);
+    break;
+
+  case PERIPHERAL_VIDEO:
+    peripheral = new CPeripheralVideo(mappedResult);
     break;
 
   default:
@@ -724,4 +729,25 @@ void CPeripherals::OnSettingAction(const CSetting *setting)
     if (dialog != NULL)
       dialog->DoModal();
   }
+}
+
+CPeripheralBus *CPeripherals::CreatePeripheralBus(CPeripheralBus *bus)
+{
+  CPeripheralBus *pbus = GetBusByType(bus->Type());
+  if (!pbus)
+  {
+    m_busses.push_back(bus);
+    if (!bus->Initialise())
+    {
+      CLog::Log(LOGERROR, "%s - failed to initialise bus %s", __FUNCTION__, PeripheralTypeTranslator::BusTypeToString(bus->Type()));
+      delete bus;
+      m_busses.erase(m_busses.end());
+    }
+    else
+      pbus = bus;
+  }
+  else
+    delete bus;
+
+  return pbus;
 }

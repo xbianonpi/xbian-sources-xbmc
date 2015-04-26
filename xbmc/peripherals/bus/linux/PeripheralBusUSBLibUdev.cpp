@@ -76,8 +76,8 @@ extern "C" {
 
 using namespace PERIPHERALS;
 
-CPeripheralBusUSB::CPeripheralBusUSB(CPeripherals *manager) :
-    CPeripheralBus("PeripBusUSBUdev", manager, PERIPHERAL_BUS_USB)
+CPeripheralBusUSB::CPeripheralBusUSB(CPeripherals *manager, const CStdString &threadname, PeripheralBusType type) :
+    CPeripheralBus(threadname, manager, type)
 {
   /* the Process() method in this class overrides the one in CPeripheralBus, so leave this set to true */
   m_bNeedsPolling = true;
@@ -95,12 +95,13 @@ CPeripheralBusUSB::CPeripheralBusUSB(CPeripherals *manager) :
   m_udevMon = udev_monitor_new_from_netlink(m_udev, "udev");
   udev_monitor_enable_receiving(m_udevMon);
 
-  CLog::Log(LOGDEBUG, "%s - initialised udev monitor", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "%s - initialised %s monitor", __FUNCTION__, threadname.c_str());
 }
 
 CPeripheralBusUSB::~CPeripheralBusUSB(void)
 {
-  StopThread(true);
+  if(IsRunning())
+    StopThread(true);
   udev_monitor_unref(m_udevMon);
   udev_unref(m_udev);
 }
@@ -245,7 +246,10 @@ bool CPeripheralBusUSB::WaitForUpdate()
   /* we have to read the message from the queue, even though we're not actually using it */
   struct udev_device *dev = udev_monitor_receive_device(m_udevMon);
   if (dev)
+  {
+    OnDeviceChanged(udev_device_get_syspath(dev));
     udev_device_unref(dev);
+  }
   else
   {
     CLog::Log(LOGERROR, "%s - failed to get device from udev_monitor_receive_device()", __FUNCTION__);
