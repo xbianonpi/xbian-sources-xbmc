@@ -411,7 +411,6 @@ CApplication::CApplication(void)
   m_skinReverting = false;
   m_loggingIn = false;
   m_cecStandby = false;
-  m_cecStandbyRun = 0;
   m_res.strMode = "";
   m_ourVT = -1;
 
@@ -2220,15 +2219,12 @@ float CApplication::GetDimScreenSaverLevel() const
   return 100.0f;
 }
 
-void CApplication::SetCecStandby(bool status, bool force)
+void CApplication::SetCecStandby(bool status)
 {
-  if (force && m_cecStandbyRun++ == 0)
+  if (status == m_cecStandby)
     return;
 
-  if (status == m_cecStandby && !force)
-    return;
-
-  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d, csr %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave, m_cecStandbyRun);
+  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
 
   m_cecStandby = status;
   if (g_application.m_bStop)
@@ -2237,14 +2233,11 @@ void CApplication::SetCecStandby(bool status, bool force)
   SetRenderGUI(!status);
   if (!status)
   {
-    if (!force && IsInScreenSaver())
+    if (IsInScreenSaver())
       WakeUpScreenSaverAndDPMS();
-
-    g_Windowing.UpdateResolutions();
-    g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
   }
   else
-    if (!force && !IsInScreenSaver())
+    if (!IsInScreenSaver())
       ActivateScreenSaver();
 }
 
@@ -5193,12 +5186,6 @@ void CApplication::Process()
   {
     m_slowTimer.Reset();
     ProcessSlow();
-
-    if (m_cecStandbyRun > 0 && !(m_cecStandbyRun++ % 4))
-    {
-      SetCecStandby(false, true);
-      m_cecStandbyRun = -1;
-    }
   }
 
   g_cpuInfo.getUsedPercentage(); // must call it to recalculate pct values

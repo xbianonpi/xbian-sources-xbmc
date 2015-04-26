@@ -1608,7 +1608,6 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
   // and let the gui know that we're done
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000), strNotification);
 
-  g_application.SetCecStandby(false, true);
   return true;
 }
 
