@@ -18,7 +18,9 @@
  *
  */
 
-#include <linux/mxcfb.h>
+#ifdef HAS_IMXVPU
+ #include <linux/mxcfb.h>
+#endif
 #include "system.h"
 #include <EGL/egl.h>
 
