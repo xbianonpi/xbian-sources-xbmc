@@ -755,6 +755,20 @@ case $use_platform in
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
      ;;
+  raspberry-pi2)
+     target_platform=target_raspberry_pi2
+     use_neon=yes
+     use_arch="arm"
+     use_cpu=cortex-a7
+     use_hardcoded_tables="yes"
+     use_openmax=no
+     ARCH="arm"
+     AC_DEFINE(HAS_EGLGLES, [1], [Define if supporting EGL based GLES Framebuffer])
+     USE_OMXLIB=1; AC_DEFINE([HAVE_OMXLIB],[1],["Define to 1 if OMX libs is enabled"])
+     USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
+     CFLAGS="$CFLAGS"
+     CXXFLAGS="$CXXFLAGS"
+     ;;
 esac
 
 if test "$host_vendor" = "apple"; then
@@ -854,6 +868,10 @@ elif test "$target_platform" = "target_raspberry_pi"; then
   CFLAGS="$CFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
   CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
   FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+elif test "$target_platform" = "target_raspberry_pi2"; then
+  CFLAGS="$CFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
+  CXXFLAGS="$CXXFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
+  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O4 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
 elif test "$use_arch" = "arm"; then
   CFLAGS="$CFLAGS -mno-apcs-stack-check"
   CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
@@ -1050,7 +1068,7 @@ if test "$use_gles" = "yes"; then
     AC_DEFINE([HAVE_LIBGLESV2],[1],["Define to 1 if you have the `GLESv2' library (-lGLESv2)."])
     AC_MSG_RESULT(== WARNING: OpenGLES support is assumed.)
   else
-    if test "$target_platform" = "target_raspberry_pi"; then
+    if test "$target_platform" = "target_raspberry_pi" || test "$target_platform" = "target_raspberry_pi2"; then
       AC_DEFINE([HAVE_LIBEGL],[1],["Define to 1 if you have the `EGL' library (-lEGL)."])
       AC_DEFINE([HAVE_LIBGLESV2],[1],["Define to 1 if you have the `GLESv2' library (-lGLESv2)."])
       AC_MSG_RESULT(== WARNING: OpenGLES support is assumed.)
