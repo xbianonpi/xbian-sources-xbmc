@@ -781,6 +781,10 @@ case $use_platform in
      USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
+     USE_STATIC_FFMPEG=1
+     use_sdl=no
+     use_x11=no
+     use_joystick=no
      ;;
 esac
 
@@ -884,7 +888,6 @@ elif test "$target_platform" = "target_raspberry_pi"; then
 elif test "$target_platform" = "target_raspberry_pi2"; then
   CFLAGS="$CFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad  "
   CXXFLAGS="$CXXFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad  "
-  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O4 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
 elif test "$use_arch" = "arm"; then
   CFLAGS="$CFLAGS -mno-apcs-stack-check"
   CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
@@ -1073,12 +1076,14 @@ else
 fi
 
 # i.MX6
-AC_MSG_CHECKING([for i.MX framebuffer support])
-AC_CHECK_HEADER([linux/mxcfb.h], have_imxfb=yes,have_imxfb=no)
-AC_MSG_RESULT($have_imxfb)
-if test "x$have_imxfb" = "xyes"; then
-  AC_DEFINE([HAS_IMXFB], [1], [Whether i.MX framebuffer support is enabled.])
-  AC_SUBST([USE_IMXFB], 1)
+if test "$target_platform" = "cubox-i"; then
+  AC_MSG_CHECKING([for i.MX framebuffer support])
+  AC_CHECK_HEADER([linux/mxcfb.h], have_imxfb=yes,have_imxfb=no)
+  AC_MSG_RESULT($have_imxfb)
+  if test "x$have_imxfb" = "xyes"; then
+    AC_DEFINE([HAS_IMXFB], [1], [Whether i.MX framebuffer support is enabled.])
+    AC_SUBST([USE_IMXFB], 1)
+  fi
 fi
 
 # Checks for platforms libraries.
@@ -1778,6 +1783,11 @@ if test "${USE_STATIC_FFMPEG}" = "1"; then
     fi
     if test "$use_optimizations" != "yes"; then
       FFMPEG_OPTS="${FFMPEG_OPTS} --disable-optimizations"
+    fi
+
+    if test "${target_platform}" != ""; then
+      #FFMPEG_OPTS="${FFMPEG_OPTS} --disable-libxcb"
+      :
     fi
 
     if test "$with_ffmpeg" = "auto" || test "$with_ffmpeg" = "yes"; then
