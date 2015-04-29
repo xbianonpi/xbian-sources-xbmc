@@ -745,11 +745,13 @@ case $use_platform in
      target_platform=target_raspberry_pi
      use_neon=no
      use_cpu=arm1176jzf-s
+     extrarpiflags=rpi1
      ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi
      use_neon=yes
      use_cpu=cortex-a7
+     extrarpiflags=rpi2
      ;;
 esac
 
@@ -856,12 +858,18 @@ if test "$host_vendor" = "apple" ; then
     LIBS="$LIBS -framework SystemConfiguration"
     LIBS="$LIBS -framework VideoDecodeAcceleration"
   fi
-elif test "$target_platform" = "target_raspberry_pi"; then
+elif test "$target_platform" = "target_raspberry_pi" && test "$extrarpiflags" = "rpi1"; then
   ARCH="arm"
   use_arch="arm"
   CFLAGS="$CFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
   CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
   FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+elif test "$target_platform" = "target_raspberry_pi" && test "$extrarpiflags" = "rpi2"; then
+  ARCH="arm"
+  use_arch="arm"
+  CFLAGS="$CFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
+  CXXFLAGS="$CXXFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
+  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O4 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
 elif test "$use_arch" = "arm"; then
   CFLAGS="$CFLAGS -mno-apcs-stack-check"
   CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
