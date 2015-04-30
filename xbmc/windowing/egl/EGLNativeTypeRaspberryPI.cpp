@@ -81,6 +81,7 @@ CEGLNativeTypeRaspberryPI::CEGLNativeTypeRaspberryPI()
 #if defined(TARGET_RASPBERRY_PI)
   m_DllBcmHost    = NULL;
   m_nativeWindow  = NULL;
+  m_event.Reset();
 #endif
 }
 
@@ -116,6 +117,10 @@ void CEGLNativeTypeRaspberryPI::Initialize()
 
   m_DllBcmHost = new DllBcmHost;
   m_DllBcmHost->Load();
+  vc_tv_register_callback(CallbackTvServiceCallback, this);
+
+  TV_DISPLAY_STATE_T tv_state;
+  m_DllBcmHost->vc_tv_get_display_state(&tv_state);
 
   CPeripheralBus *m_bus = g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
   if (!m_bus)
@@ -138,6 +143,7 @@ void CEGLNativeTypeRaspberryPI::Initialize()
 void CEGLNativeTypeRaspberryPI::Destroy()
 {
 #if defined(TARGET_RASPBERRY_PI)
+  vc_tv_unregister_callback_full(CallbackTvServiceCallback, this);
   if(m_DllBcmHost && m_DllBcmHost->IsLoaded())
     m_DllBcmHost->Unload();
   delete m_DllBcmHost;
@@ -300,8 +306,6 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
   if(GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
   {
     uint32_t mode3d = HDMI_3D_FORMAT_NONE;
-    sem_init(&m_tv_synced, 0, 0);
-    m_DllBcmHost->vc_tv_register_callback(CallbackTvServiceCallback, this);
 
     if (stereo_mode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL || stereo_mode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
     {
@@ -341,7 +345,7 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
                           CStereoscopicsManager::GetInstance().ConvertGuiStereoModeToString(stereo_mode),
                           mode3d==HDMI_3D_FORMAT_FRAME_PACKING ? " FP" : mode3d==HDMI_3D_FORMAT_SBS_HALF ? " SBS" : mode3d==HDMI_3D_FORMAT_TB_HALF ? " TB" : "");
 
-      sem_wait(&m_tv_synced);
+      m_event.WaitMSec(10000);
     }
     else
     {
@@ -350,16 +354,11 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
                           CStereoscopicsManager::GetInstance().ConvertGuiStereoModeToString(stereo_mode),
                           mode3d==HDMI_3D_FORMAT_FRAME_PACKING ? " FP" : mode3d==HDMI_3D_FORMAT_SBS_HALF ? " SBS" : mode3d==HDMI_3D_FORMAT_TB_HALF ? " TB" : "");
     }
-    m_DllBcmHost->vc_tv_unregister_callback(CallbackTvServiceCallback);
-    sem_destroy(&m_tv_synced);
 
     m_desktopRes = res;
   }
   else if(!GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
   {
-    sem_init(&m_tv_synced, 0, 0);
-    m_DllBcmHost->vc_tv_register_callback(CallbackTvServiceCallback, this);
-
     SDTV_OPTIONS_T options;
     options.aspect = get_sdtv_aspect_from_display_aspect((float)res.iScreenWidth / (float)res.iScreenHeight);
 
@@ -370,15 +369,13 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
       CLog::Log(LOGDEBUG, "EGL set SDTV mode (%d,%d)=%d\n",
                           GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success);
 
-      sem_wait(&m_tv_synced);
+      m_event.WaitMSec(10000);
     }
     else
     {
       CLog::Log(LOGERROR, "EGL failed to set SDTV mode (%d,%d)=%d\n",
                           GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success);
     }
-    m_DllBcmHost->vc_tv_unregister_callback(CallbackTvServiceCallback);
-    sem_destroy(&m_tv_synced);
 
     m_desktopRes = res;
   }
@@ -689,16 +686,16 @@ void CEGLNativeTypeRaspberryPI::TvServiceCallback(uint32_t reason, uint32_t para
     if (m_video)
       m_video->OnDeviceChanged(CABLE_DISCONNECTED);
     break;
-  case VC_HDMI_STANDBY:
+  case VC_HDMI_ATTACHED:
+    if (m_video)
+      m_video->OnDeviceChanged(CABLE_CONNECTED);
     break;
   case VC_SDTV_NTSC:
   case VC_SDTV_PAL:
   case VC_HDMI_HDMI:
   case VC_HDMI_DVI:
     //Signal we are ready now
-    sem_post(&m_tv_synced);
-    if (m_video)
-      m_video->OnDeviceChanged(CABLE_CONNECTED);
+    m_event.Set();
     break;
   default:
      break;
