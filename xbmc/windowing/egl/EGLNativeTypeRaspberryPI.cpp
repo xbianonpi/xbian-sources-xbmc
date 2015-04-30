@@ -76,6 +76,7 @@ CEGLNativeTypeRaspberryPI::CEGLNativeTypeRaspberryPI()
 #if defined(TARGET_RASPBERRY_PI)
   m_DllBcmHost    = NULL;
   m_nativeWindow  = NULL;
+  m_event.Reset();
 #endif
 }
 
@@ -111,6 +112,10 @@ void CEGLNativeTypeRaspberryPI::Initialize()
 
   m_DllBcmHost = new DllBcmHost;
   m_DllBcmHost->Load();
+  vc_tv_register_callback(CallbackTvServiceCallback, this);
+
+  TV_DISPLAY_STATE_T tv_state;
+  m_DllBcmHost->vc_tv_get_display_state(&tv_state);
 
   CPeripheralBus *m_bus = g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
   if (!m_bus)
@@ -133,6 +138,7 @@ void CEGLNativeTypeRaspberryPI::Initialize()
 void CEGLNativeTypeRaspberryPI::Destroy()
 {
 #if defined(TARGET_RASPBERRY_PI)
+  vc_tv_unregister_callback_full(CallbackTvServiceCallback, this);
   if(m_DllBcmHost && m_DllBcmHost->IsLoaded())
     m_DllBcmHost->Unload();
   delete m_DllBcmHost;
@@ -293,9 +299,6 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
 
   if(!m_fixedMode && GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
   {
-    sem_init(&m_tv_synced, 0, 0);
-    m_DllBcmHost->vc_tv_register_callback(CallbackTvServiceCallback, this);
-
     if (res.dwFlags & (D3DPRESENTFLAG_MODE3DSBS|D3DPRESENTFLAG_MODE3DTB))
     {
       /* inform TV of any 3D settings. Note this property just applies to next hdmi mode change, so no need to call for 2D modes */
@@ -331,7 +334,7 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS) ? " SBS":"",
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DTB) ? " TB":"");
 
-      sem_wait(&m_tv_synced);
+      m_event.WaitMSec(10000);
     }
     else
     {
@@ -340,8 +343,6 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS) ? " SBS":"",
                           (res.dwFlags & D3DPRESENTFLAG_MODE3DTB) ? " TB":"");
     }
-    m_DllBcmHost->vc_tv_unregister_callback(CallbackTvServiceCallback);
-    sem_destroy(&m_tv_synced);
 
     m_desktopRes = res;
   }
@@ -664,16 +665,16 @@ void CEGLNativeTypeRaspberryPI::TvServiceCallback(uint32_t reason, uint32_t para
     if (m_video)
       m_video->OnDeviceChanged(CABLE_DISCONNECTED);
     break;
-  case VC_HDMI_STANDBY:
+  case VC_HDMI_ATTACHED:
+    if (m_video)
+      m_video->OnDeviceChanged(CABLE_CONNECTED);
     break;
   case VC_SDTV_NTSC:
   case VC_SDTV_PAL:
   case VC_HDMI_HDMI:
   case VC_HDMI_DVI:
     //Signal we are ready now
-    sem_post(&m_tv_synced);
-    if (m_video)
-      m_video->OnDeviceChanged(CABLE_CONNECTED);
+    m_event.Set();
     break;
   default:
      break;
