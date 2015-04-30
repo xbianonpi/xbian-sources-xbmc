@@ -26,6 +26,7 @@
 #include <bcm_host.h>
 #endif
 #include "peripherals/Peripherals.h"
+#include "threads/Thread.h"
 
 using namespace PERIPHERALS;
 
@@ -61,7 +62,7 @@ private:
   DISPMANX_ELEMENT_HANDLE_T     m_dispman_display;
   DISPMANX_ELEMENT_HANDLE_T     m_dispman_element;
   TV_GET_STATE_RESP_T           m_tv_state;
-  sem_t                         m_tv_synced;
+  CEvent                        m_event;
   RESOLUTION_INFO               m_desktopRes;
   int                           m_width;
   int                           m_height;
