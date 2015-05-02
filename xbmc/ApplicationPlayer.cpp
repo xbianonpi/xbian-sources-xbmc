@@ -261,6 +261,15 @@ int64_t CApplicationPlayer::GetTime() const
     return 0;
 }
 
+int64_t CApplicationPlayer::GetDisplayTime() const
+{
+  boost::shared_ptr<IPlayer> player = GetInternal();
+  if (player)
+    return player->GetDisplayTime();
+  else
+    return 0;
+}
+
 bool CApplicationPlayer::IsCaching() const
 {
   boost::shared_ptr<IPlayer> player = GetInternal();
