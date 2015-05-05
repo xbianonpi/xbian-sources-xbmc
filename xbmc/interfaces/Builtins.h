@@ -21,6 +21,7 @@
  */
 
 #include <string>
+#include <vector>
 
 class CBuiltins
 {
@@ -28,5 +29,8 @@ public:
   static bool HasCommand(const std::string& execString);
   static void GetHelp(std::string &help);
   static int Execute(const std::string& execString);
+
+private:
+  static bool ActivateWindow(int iWindowID, const std::vector<std::string>& params = std::vector<std::string>(), bool swappingWindows = false);
 };
 
