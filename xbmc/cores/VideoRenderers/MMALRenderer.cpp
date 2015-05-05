@@ -175,14 +175,11 @@ bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
     return false;
   }
 
-  if (m_format == RENDER_FMT_YUV420P)
+  m_vout_input_pool = mmal_port_pool_create(m_vout_input , m_vout_input->buffer_num, m_vout_input->buffer_size);
+  if (!m_vout_input_pool)
   {
-    m_vout_input_pool = mmal_pool_create(m_vout_input->buffer_num, m_vout_input->buffer_size);
-    if (!m_vout_input_pool)
-    {
-      CLog::Log(LOGERROR, "%s::%s Failed to create pool for decoder input port (status=%x %s)", CLASSNAME, __func__, status, mmal_status_to_string(status));
-      return false;
-    }
+    CLog::Log(LOGERROR, "%s::%s Failed to create pool for decoder input port (status=%x %s)", CLASSNAME, __func__, status, mmal_status_to_string(status));
+    return false;
   }
   return true;
 }
@@ -478,8 +475,7 @@ void CMMALRenderer::ReleaseBuffers()
 
 void CMMALRenderer::UnInit()
 {
-  CSingleLock lock(g_graphicsContext);
-  CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
+  CLog::Log(LOGDEBUG, "%s::%s pool(%p)", CLASSNAME, __func__, m_vout_input_pool);
   if (m_vout)
   {
     mmal_component_disable(m_vout);
@@ -493,6 +489,8 @@ void CMMALRenderer::UnInit()
     m_vout_input = NULL;
   }
 
+  ReleaseBuffers();
+
   if (m_vout_input_pool)
   {
     mmal_pool_destroy(m_vout_input_pool);
@@ -504,7 +502,6 @@ void CMMALRenderer::UnInit()
     mmal_component_release(m_vout);
     m_vout = NULL;
   }
-  ReleaseBuffers();
 
   m_RenderUpdateCallBackFn = NULL;
   m_RenderUpdateCallBackCtx = NULL;
