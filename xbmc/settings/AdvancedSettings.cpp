@@ -44,6 +44,9 @@
 #if defined(TARGET_DARWIN_IOS)
 #include "osx/DarwinUtils.h"
 #endif
+#if defined(TARGET_RASPBERRY_PI)
+#include "linux/RBP.h"
+#endif
 
 using namespace ADDON;
 using namespace XFILE;
@@ -425,7 +428,9 @@ void CAdvancedSettings::Initialize()
   #endif
 
   m_userAgent = g_sysinfo.GetUserAgent();
-
+#ifdef TARGET_RASPBERRY_PI
+  g_RBP.InitializeSettings();
+#endif
   m_initialized = true;
 }
 

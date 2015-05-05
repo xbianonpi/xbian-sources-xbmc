@@ -42,6 +42,12 @@ CRBP::~CRBP()
   delete m_DllBcmHost;
 }
 
+void CRBP::InitializeSettings()
+{
+  if (g_advancedSettings.m_cacheMemBufferSize == ~0U)
+    g_advancedSettings.m_cacheMemBufferSize = m_arm_mem < 256 ? 1024 * 1024 * 2 : 1024 * 1024 * 20;
+}
+
 bool CRBP::Initialize()
 {
   CSingleLock lock (m_critSection);
@@ -83,6 +89,11 @@ bool CRBP::Initialize()
   m_gui_resolution_limit = CSettings::Get().GetInt("videoscreen.limitgui");
   if (!m_gui_resolution_limit)
     m_gui_resolution_limit = m_gpu_mem < 128 ? 720:1080;
+
+  InitializeSettings();
+
+  // in case xbcm was restarted when suspended
+  ResumeVideoOutput();
 
   g_OMXImage.Initialize();
   m_omx_image_init = true;
