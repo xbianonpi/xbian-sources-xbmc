@@ -77,7 +77,8 @@ void CMMALRenderer::vout_input_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *
   buffer->flags &= ~MMAL_BUFFER_HEADER_FLAG_USER2;
   if (m_format == RENDER_FMT_MMAL)
   {
-    mmal_queue_put(m_release_queue, buffer);
+    CMMALVideoBuffer *omvb = (CMMALVideoBuffer *)buffer->user_data;
+    omvb->Release();
   }
   else if (m_format == RENDER_FMT_YUV420P)
   {
@@ -207,31 +208,24 @@ void CMMALRenderer::Process()
 }
 
 CMMALRenderer::CMMALRenderer()
-: CThread("CMMALRenderer")
 {
   CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
   m_vout = NULL;
   m_vout_input = NULL;
   m_vout_input_pool = NULL;
   memset(m_buffers, 0, sizeof m_buffers);
-  m_release_queue = mmal_queue_create();
   m_iFlags = 0;
   m_format = RENDER_FMT_NONE;
   m_bConfigured = false;
   m_bMMALConfigured = false;
   m_iYV12RenderBuffer = 0;
   m_sharpness = -2.0f;
-  Create();
 }
 
 CMMALRenderer::~CMMALRenderer()
 {
   CSingleLock lock(m_sharedSection);
   CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
-  // shutdown thread
-  mmal_queue_put(m_release_queue, NULL);
-  m_sync.Wait();
-  mmal_queue_destroy(m_release_queue);
   UnInit();
 }
 
