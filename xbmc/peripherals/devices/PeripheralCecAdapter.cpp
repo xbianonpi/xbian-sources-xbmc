@@ -1326,6 +1326,11 @@ void CPeripheralCecAdapter::SetConfigurationFromSettings(void)
     iDeviceType = (int)CEC_DEVICE_TYPE_RECORDING_DEVICE;
   m_configuration.deviceTypes.Add((cec_device_type)iDeviceType);
 
+  // add all other remaining device types - in case we have already 3 recorders
+  // XBMC would fail obtaining LA
+  m_configuration.deviceTypes.Add((cec_device_type)CEC_DEVICE_TYPE_PLAYBACK_DEVICE);
+  m_configuration.deviceTypes.Add((cec_device_type)CEC_DEVICE_TYPE_TUNER);
+
   // always try to autodetect the address.
   // when the firmware supports this, it will override the physical address, connected device and hdmi port settings
   m_configuration.bAutodetectAddress = CEC_DEFAULT_SETTING_AUTODETECT_ADDRESS;
