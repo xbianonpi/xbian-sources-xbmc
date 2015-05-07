@@ -260,8 +260,39 @@ bool CDVDVideoCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
    * */
   if ((EDECODEMETHOD) CSettings::Get().GetInt("videoplayer.decodingmethod") == VS_DECODEMETHOD_SOFTWARE || m_isSWCodec)
   {
-    CLog::Log(LOGDEBUG,"CDVDVideoCodecFFmpeg::Open() Keeping default threading %d",
-                        m_pCodecContext->thread_type);
+    bool tryhw = false;
+#ifdef HAVE_LIBVDPAU
+    if(CSettings::Get().GetBool("videoplayer.usevdpau"))
+      tryhw = true;
+#endif
+#ifdef HAVE_LIBVA
+    if(CSettings::Get().GetBool("videoplayer.usevaapi"))
+      tryhw = true;
+#endif
+#ifdef HAS_DX
+    if(CSettings::Get().GetBool("videoplayer.usedxva2"))
+      tryhw = true;
+#endif
+#ifdef TARGET_DARWIN_OSX
+    if(CSettings::Get().GetBool("videoplayer.usevda"))
+      tryhw = true;
+#endif
+    if (tryhw && m_decoderState == STATE_NONE)
+    {
+      m_decoderState = STATE_HW_SINGLE;
+    }
+    else
+    {
+      int num_threads = std::min(8 /*MAX_THREADS*/, g_cpuInfo.getCPUCount());
+#ifdef defined(TARGET_RASPBERRY_PI) || defined(HAS_IMXVPU)
+      num_threads = num_threads > 1 ? 2 * num_threads : num_threads;
+#endif
+      if( num_threads > 1)
+        m_pCodecContext->thread_count = num_threads;
+      m_pCodecContext->thread_safe_callbacks = 1;
+      m_decoderState = STATE_SW_MULTI;
+      CLog::Log(LOGDEBUG, "CDVDVideoCodecFFmpeg - open frame threaded with %d threads", num_threads);
+    }
   }
   else
     m_pCodecContext->thread_type = FF_THREAD_SLICE;
