@@ -52,6 +52,7 @@ public:
 
   virtual bool  ShowWindow(bool show = true);
 
+#ifdef HAS_IMXVPU
 protected:
   bool m_readonly;
   bool m_show;
@@ -64,4 +65,5 @@ protected:
   EGLNativeDisplayType m_display;
   EGLNativeWindowType  m_window;
   uint8_t              m_edid[512];
+#endif
 };
