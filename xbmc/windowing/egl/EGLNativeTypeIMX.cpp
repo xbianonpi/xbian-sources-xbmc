@@ -46,14 +46,18 @@
 using namespace PERIPHERALS;
 
 CEGLNativeTypeIMX::CEGLNativeTypeIMX()
+#ifdef HAS_IMXVPU
   : m_sar(0.0f)
   , m_display(NULL)
   , m_window(NULL)
+#endif
 {
+#ifdef HAS_IMXVPU
   m_show = true;
   m_readonly = true;
 
   g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
+#endif
 }
 
 CEGLNativeTypeIMX::~CEGLNativeTypeIMX()
@@ -62,12 +66,17 @@ CEGLNativeTypeIMX::~CEGLNativeTypeIMX()
 
 bool CEGLNativeTypeIMX::CheckCompatibility()
 {
+#ifdef HAS_IMXVPU
   std::ifstream file("/sys/class/graphics/fb0/fsl_disp_dev_property");
   return file.is_open();
+#else
+  return false;
+#endif
 }
 
 void CEGLNativeTypeIMX::Initialize()
 {
+#ifdef HAS_IMXVPU
   int fd;
 
   // Check if we can change the framebuffer resolution
@@ -110,7 +119,7 @@ void CEGLNativeTypeIMX::Initialize()
     CLog::Log(LOGERROR, "%s - Error while opening /dev/fb0.\n", __FUNCTION__);
     return;
   }
-#ifdef HAS_IMXVPU
+
   struct mxcfb_color_key colorKey;
   struct mxcfb_gbl_alpha gbl_alpha;
   struct mxcfb_loc_alpha lalpha;
@@ -131,18 +140,20 @@ void CEGLNativeTypeIMX::Initialize()
   colorKey.color_key = (16 << 16)|(8 << 8)|16;
   if (ioctl(fd, MXCFB_SET_CLR_KEY, &colorKey) < 0)
     CLog::Log(LOGERROR, "%s - Failed to setup color keying\n", __FUNCTION__);
-#endif
+
   // Check if we can change the framebuffer resolution
   if (!m_readonly)
     GetNativeResolution(&m_init);
 
   m_sar = GetMonitorSAR();
   close(fd);
+#endif
   return;
 }
 
 void CEGLNativeTypeIMX::Destroy()
 {
+#ifdef HAS_IMXVPU
   CLog::Log(LOGDEBUG, "%s\n", __FUNCTION__);
   struct fb_fix_screeninfo fixed_info;
   void *fb_buffer;
@@ -172,6 +183,7 @@ void CEGLNativeTypeIMX::Destroy()
   SetNativeResolution(m_init);
 
   system("/usr/bin/splash --force -i -m 'stopping xbmc...'");
+#endif
   return;
 }
 
@@ -213,20 +225,28 @@ bool CEGLNativeTypeIMX::CreateNativeWindow()
 
 bool CEGLNativeTypeIMX::GetNativeDisplay(XBNativeDisplayType **nativeDisplay) const
 {
+#ifdef HAS_IMXVPU
   if (!m_nativeDisplay)
     return false;
 
   *nativeDisplay = (XBNativeDisplayType*)m_nativeDisplay;
   return true;
+#else
+  return false;
+#endif
 }
 
 bool CEGLNativeTypeIMX::GetNativeWindow(XBNativeWindowType **nativeWindow) const
 {
+#ifdef HAS_IMXVPU
   if (!m_nativeWindow)
     return false;
 
   *nativeWindow = (XBNativeWindowType*)m_nativeWindow;
   return true;
+#else
+  return false;
+#endif
 }
 
 bool CEGLNativeTypeIMX::DestroyNativeDisplay()
@@ -261,11 +281,15 @@ bool CEGLNativeTypeIMX::DestroyNativeWindow()
 
 bool CEGLNativeTypeIMX::GetNativeResolution(RESOLUTION_INFO *res) const
 {
+#ifdef HAS_IMXVPU
   std::string mode;
   SysfsUtils::GetString("/sys/class/graphics/fb0/mode", mode);
   CLog::Log(LOGDEBUG,": %s, %s", __FUNCTION__, mode.c_str());
 
   return ModeToResolution(mode, res);
+#else
+  return false;
+#endif
 }
 
 bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
@@ -293,8 +317,12 @@ bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
   CreateNativeWindow();
 
   return true;
+#else
+  return false;
+#endif
 }
 
+#ifdef HAS_IMXVPU
 bool CEGLNativeTypeIMX::FindMatchingResolution(const RESOLUTION_INFO &res, const std::vector<RESOLUTION_INFO> &resolutions)
 {
   for (int i = 0; i < (int)resolutions.size(); i++)
@@ -309,9 +337,11 @@ bool CEGLNativeTypeIMX::FindMatchingResolution(const RESOLUTION_INFO &res, const
   }
   return false;
 }
+#endif
 
 bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutions)
 {
+#ifdef HAS_IMXVPU
   if (m_readonly)
     return false;
 
@@ -339,15 +369,23 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
         resolutions.push_back(res);
   }
   return resolutions.size() > 0;
+#else
+  return false;
+#endif
 }
 
 bool CEGLNativeTypeIMX::GetPreferredResolution(RESOLUTION_INFO *res) const
 {
+#ifdef HAS_IMXVPU
   return GetNativeResolution(res);
+#else
+  return false;
+#endif
 }
 
 bool CEGLNativeTypeIMX::ShowWindow(bool show)
 {
+#ifdef HAS_IMXVPU
   if (m_show == show)
     return true;
 
@@ -362,8 +400,12 @@ bool CEGLNativeTypeIMX::ShowWindow(bool show)
 
   m_show = show;
   return true;
+#else
+  return false;
+#endif
 }
 
+#ifdef HAS_IMXVPU
 float CEGLNativeTypeIMX::GetMonitorSAR()
 {
   FILE *f_edid;
@@ -485,3 +527,4 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
 
   return res->iWidth > 0 && res->iHeight> 0;
 }
+#endif
