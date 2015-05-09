@@ -25,6 +25,7 @@
 #include "utils/log.h"
 
 #include "cores/omxplayer/OMXImage.h"
+#include "xbmc/settings/AdvancedSettings.h"
 
 CRBP::CRBP()
 {

@@ -8384,8 +8384,6 @@ std::vector<int> CVideoDatabase::CleanMediaType(const std::string &mediaType, co
         }
       }
 
-      sourcePathsDeleteDecisions.insert(make_pair(sourcePathID, make_pair(sourcePathNotExists, del)));
-      pathsDeleteDecisions.insert(make_pair(sourcePathID, sourcePathNotExists && del));
     }
     // the only reason not to delete the file is if the parent path doesn't
     // exist and the user decided to delete all the items it contained

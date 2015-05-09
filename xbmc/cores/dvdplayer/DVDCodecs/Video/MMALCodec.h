@@ -35,8 +35,8 @@
 
 #include <queue>
 #include <semaphore.h>
-#include <boost/shared_ptr.hpp>
-#include "utils/StdString.h"
+#include <memory>
+#include <string>
 #include "guilib/Geometry.h"
 #include "rendering/RenderSystem.h"
 #include "cores/VideoRenderers/BaseRenderer.h"
@@ -54,7 +54,6 @@ public:
   int width;
   int height;
   float m_aspect_ratio;
-  uint32_t m_changed_count;
   // reference counting
   CMMALVideoBuffer* Acquire();
   long              Release();
@@ -83,7 +82,7 @@ public:
   virtual void Reset(void);
   virtual bool GetPicture(DVDVideoPicture *pDvdVideoPicture);
   virtual bool ClearPicture(DVDVideoPicture* pDvdVideoPicture);
-  virtual unsigned GetAllowedReferences() { return NUM_BUFFERS; }
+  virtual unsigned GetAllowedReferences() { return 3; }
   virtual void SetDropState(bool bDrop);
   virtual const char* GetName(void) { return m_pFormatName ? m_pFormatName:"mmal-xxx"; }
   virtual bool GetCodecStats(double &pts, int &droppedPics);
@@ -100,7 +99,6 @@ public:
 
 protected:
   void QueryCodec(void);
-  void ReturnBuffer(CMMALVideoBuffer *buffer);
   bool CreateDeinterlace(EINTERLACEMETHOD interlace_method);
   bool DestroyDeinterlace();
   void Prime();
@@ -119,10 +117,9 @@ protected:
   // mmal output buffers (video frames)
   pthread_mutex_t   m_output_mutex;
   std::queue<CMMALVideoBuffer*> m_output_ready;
-  std::vector<CMMALVideoBuffer*> m_output_buffers;
 
   // initialize mmal and get decoder component
-  bool Initialize( const CStdString &decoder_name);
+  bool Initialize( const std::string &decoder_name);
   void PortSettingsChanged(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
   bool SendCodecConfigData();
 
@@ -131,7 +128,6 @@ protected:
   MMAL_INTERLACETYPE_T m_interlace_mode;
   EINTERLACEMETHOD  m_interlace_method;
   bool              m_startframe;
-  unsigned int      m_decode_frame_number;
   double            m_decoderPts;
   int               m_speed;
   bool              m_preroll;
