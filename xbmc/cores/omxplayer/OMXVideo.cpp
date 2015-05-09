@@ -641,7 +641,7 @@ bool COMXVideo::Open(CDVDStreamInfo &hints, OMXClock *clock, EDEINTERLACEMODE de
   switch(hints.orientation)
   {
     case 90:
-      m_transform = OMX_DISPLAY_ROT90;
+§§§      m_transform = OMX_DISPLAY_ROT90;
       break;
     case 180:
       m_transform = OMX_DISPLAY_ROT180;
@@ -742,7 +742,6 @@ bool COMXVideo::GetPlayerInfo(double &match, double &phase, double &pll)
 
 
 int COMXVideo::Decode(uint8_t *pData, int iSize, double dts, double pts)
->>>>>>> d3363c8... [players] Make use of new scheme to submit DTS timestamps
 {
   CSingleLock lock (m_critSection);
   OMX_ERRORTYPE omx_err;

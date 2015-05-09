@@ -20,6 +20,8 @@
  *
  */
 
+#include <vector>
+
 enum ERenderFormat {
   RENDER_FMT_NONE = 0,
   RENDER_FMT_YUV420P,
