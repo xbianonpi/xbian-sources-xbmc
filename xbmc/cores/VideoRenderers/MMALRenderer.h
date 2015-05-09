@@ -20,8 +20,6 @@
  *
  */
 
-#ifdef HAS_MMAL
-
 #include "guilib/GraphicContext.h"
 #include "RenderFlags.h"
 #include "RenderFormats.h"
@@ -50,7 +48,6 @@ class CMMALRenderer : public CBaseRenderer
   {
     CMMALVideoBuffer *MMALBuffer; // used for hw decoded buffers
     MMAL_BUFFER_HEADER_T *mmal_buffer;  // used for sw decoded buffers
-    unsigned flipindex; /* used to decide if this has been uploaded */
   };
 public:
   CMMALRenderer();
@@ -90,6 +87,7 @@ public:
 
   void vout_input_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
 protected:
+  int m_iYV12RenderBuffer;
   int m_NumYV12Buffers;
 
   std::vector<ERenderFormat> m_formats;
@@ -116,8 +114,5 @@ protected:
 
   bool init_vout(ERenderFormat format);
   void ReleaseBuffers();
+  void UnInitMMAL();
 };
-
-#else
-#include "LinuxRenderer.h"
-#endif

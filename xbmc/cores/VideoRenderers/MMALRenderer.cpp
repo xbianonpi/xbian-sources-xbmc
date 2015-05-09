@@ -67,9 +67,8 @@ static void vout_control_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer
 
 void CMMALRenderer::vout_input_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
 {
-  CMMALVideoBuffer *omvb = (CMMALVideoBuffer *)buffer->user_data;
-
   #if defined(MMAL_DEBUG_VERBOSE)
+  CMMALVideoBuffer *omvb = (CMMALVideoBuffer *)buffer->user_data;
   CLog::Log(LOGDEBUG, "%s::%s port:%p buffer %p (%p), len %d cmd:%x f:%x", CLASSNAME, __func__, port, buffer, omvb, buffer->length, buffer->cmd, buffer->flags);
   #endif
 
@@ -93,7 +92,7 @@ static void vout_input_port_cb_static(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *b
   mmal->vout_input_port_cb(port, buffer);
 }
 
-bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
+bool CMMALRenderer::init_vout(ERenderFormat format)
 {
   CSingleLock lock(m_sharedSection);
   bool formatChanged = m_format != format;
@@ -170,7 +169,7 @@ bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
     return false;
   }
 
-  m_vout_input->buffer_num = m_vout_input->buffer_num_recommended;
+  m_vout_input->buffer_num = std::max(m_vout_input->buffer_num_recommended, (uint32_t)m_NumYV12Buffers);
   m_vout_input->buffer_size = m_vout_input->buffer_size_recommended;
 
   status = mmal_port_enable(m_vout_input, vout_input_port_cb_static);
@@ -194,17 +193,6 @@ bool CMMALRenderer::init_vout(MMAL_ES_FORMAT_T *format)
     return false;
   }
   return true;
-}
-
-void CMMALRenderer::Process()
-{
-  MMAL_BUFFER_HEADER_T *buffer;
-  while (buffer = mmal_queue_wait(m_release_queue), buffer)
-  {
-    CMMALVideoBuffer *omvb = (CMMALVideoBuffer *)buffer->user_data;
-    omvb->Release();
-  }
-  m_sync.Set();
 }
 
 CMMALRenderer::CMMALRenderer()
@@ -252,7 +240,6 @@ bool CMMALRenderer::Configure(unsigned int width, unsigned int height, unsigned 
 
   m_fps = fps;
   m_iFlags = flags;
-  m_format = format;
 
   CLog::Log(LOGDEBUG, "%s::%s - %dx%d->%dx%d@%.2f flags:%x format:%d ext:%x orient:%d", CLASSNAME, __func__, width, height, d_width, d_height, fps, flags, format, extended_format, orientation);
 
@@ -337,7 +324,7 @@ void CMMALRenderer::ReleaseBuffer(int idx)
     return;
 
 #if defined(MMAL_DEBUG_VERBOSE)
-  CLog::Log(LOGDEBUG, "%s::%s - %d", CLASSNAME, __func__, idx);
+  CLog::Log(LOGDEBUG, "%s::%s - %d (%p)", CLASSNAME, __func__, idx, m_buffers[idx].MMALBuffer);
 #endif
   YUVBUFFER &buf = m_buffers[idx];
   SAFE_RELEASE(buf.MMALBuffer);
@@ -346,7 +333,7 @@ void CMMALRenderer::ReleaseBuffer(int idx)
 void CMMALRenderer::ReleaseImage(int source, bool preserve)
 {
 #if defined(MMAL_DEBUG_VERBOSE)
-  CLog::Log(LOGDEBUG, "%s::%s - %d %d", CLASSNAME, __func__, source, preserve);
+  CLog::Log(LOGDEBUG, "%s::%s - %d %d (%p)", CLASSNAME, __func__, source, preserve, m_buffers[source].MMALBuffer);
 #endif
 }
 
@@ -357,6 +344,7 @@ void CMMALRenderer::Reset()
 
 void CMMALRenderer::Flush()
 {
+  m_iYV12RenderBuffer = 0;
   CLog::Log(LOGDEBUG, "%s::%s", CLASSNAME, __func__);
 }
 
@@ -374,7 +362,7 @@ void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
   CSingleLock lock(m_sharedSection);
   int source = m_iYV12RenderBuffer;
 #if defined(MMAL_DEBUG_VERBOSE)
-  CLog::Log(LOGDEBUG, "%s::%s - %d %x %d", CLASSNAME, __func__, clear, flags, alpha);
+  CLog::Log(LOGDEBUG, "%s::%s - %d %x %d %d", CLASSNAME, __func__, clear, flags, alpha, source);
 #endif
 
   if (!m_bConfigured) return;
@@ -395,13 +383,12 @@ void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
     vc_gencmd(response, sizeof response, command);
   }
 
-  if (!m_bConfigured || m_format == RENDER_FMT_BYPASS)
+  if (m_format == RENDER_FMT_BYPASS)
     return;
 
+  SetVideoRect(m_sourceRect, m_destRect);
+
   YUVBUFFER *buffer = &m_buffers[source];
-  // we only want to upload frames once
-  if (buffer->flipindex++)
-    return;
   if (m_format == RENDER_FMT_MMAL)
   {
     CMMALVideoBuffer *omvb = buffer->MMALBuffer;
@@ -410,9 +397,15 @@ void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
 #if defined(MMAL_DEBUG_VERBOSE)
       CLog::Log(LOGDEBUG, "%s::%s %p (%p) f:%x", CLASSNAME, __func__, omvb, omvb->mmal_buffer, omvb->mmal_buffer->flags);
 #endif
+      // we only want to upload frames once
+      if (omvb->mmal_buffer->flags & MMAL_BUFFER_HEADER_FLAG_USER1)
+        return;
       omvb->Acquire();
+      omvb->mmal_buffer->flags |= MMAL_BUFFER_HEADER_FLAG_USER1 | MMAL_BUFFER_HEADER_FLAG_USER2;
       mmal_port_send_buffer(m_vout_input, omvb->mmal_buffer);
-    } else assert(0);
+    }
+    else
+      CLog::Log(LOGDEBUG, "%s::%s - No buffer to update", CLASSNAME, __func__);
   }
   else if (m_format == RENDER_FMT_YUV420P)
   {
@@ -425,7 +418,9 @@ void CMMALRenderer::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
       // sanity check it is not on display
       buffer->mmal_buffer->flags |= MMAL_BUFFER_HEADER_FLAG_USER1 | MMAL_BUFFER_HEADER_FLAG_USER2;
       mmal_port_send_buffer(m_vout_input, buffer->mmal_buffer);
-    else assert(0);
+    }
+    else
+      CLog::Log(LOGDEBUG, "%s::%s - No buffer to update", CLASSNAME, __func__);
   }
   else assert(0);
 }
@@ -462,6 +457,8 @@ unsigned int CMMALRenderer::PreInit()
   m_formats.push_back(RENDER_FMT_MMAL);
   m_formats.push_back(RENDER_FMT_BYPASS);
 
+  memset(m_buffers, 0, sizeof m_buffers);
+  m_iYV12RenderBuffer = 0;
   m_NumYV12Buffers = NUM_BUFFERS;
 
   return 0;
@@ -473,7 +470,7 @@ void CMMALRenderer::ReleaseBuffers()
     ReleaseBuffer(i);
 }
 
-void CMMALRenderer::UnInit()
+void CMMALRenderer::UnInitMMAL()
 {
   CSingleLock lock(m_sharedSection);
   CLog::Log(LOGDEBUG, "%s::%s pool(%p)", CLASSNAME, __func__, m_vout_input_pool);
@@ -512,9 +509,15 @@ void CMMALRenderer::UnInit()
   m_video_stereo_mode = RENDER_STEREO_MODE_OFF;
   m_display_stereo_mode = RENDER_STEREO_MODE_OFF;
   m_StereoInvert = false;
+  m_format = RENDER_FMT_NONE;
 
   m_bConfigured = false;
   m_bMMALConfigured = false;
+}
+
+void CMMALRenderer::UnInit()
+{
+  UnInitMMAL();
 }
 
 bool CMMALRenderer::RenderCapture(CRenderCapture* capture)
@@ -546,6 +549,8 @@ bool CMMALRenderer::Supports(EDEINTERLACEMODE mode)
 
 bool CMMALRenderer::Supports(EINTERLACEMETHOD method)
 {
+  if (method == VS_INTERLACEMETHOD_AUTO)
+    return true;
   if (method == VS_INTERLACEMETHOD_MMAL_ADVANCED)
     return true;
   if (method == VS_INTERLACEMETHOD_MMAL_ADVANCED_HALF)
