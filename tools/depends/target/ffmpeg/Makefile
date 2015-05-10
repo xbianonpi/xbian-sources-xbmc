@@ -1,10 +1,19 @@
-include ../../Makefile.include
 include FFMPEG-VERSION
-DEPS= ../../Makefile.include FFMPEG-VERSION Makefile
+
+PLATFORM = ffmpeg-$(VERSION)
+RETRIEVE_TOOL = curl
+TARBALLS_LOCATION = $(shell pwd)
+ARCHIVE_TOOL = tar
+ARCHIVE_TOOL_FLAGS = --strip-components=1 -xf
+
+DEPS= ../../Makefile.include FFMPEG-VERSION Makefile ffmpeg_Speed_up_wtv_index_creation.patch 0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch \
+  hevcdsp_ARM_NEON_optimized_epel_functions.patch \
+  0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch \
+  0001-avcodec-add-libdcadec-decoder.patch  0002-avcodec-Fix-libdcadec-include-dir.patch 0003-avcodec-add-profile-define-for-DTS-Express.patch
 
 # set to "yes" to enable patching
 # we don't apply patches until we move to a vanilla ffmpeg tarball
-APPLY_PATCHES=no
+APPLY_PATCHES=yes
 
 # configuration settings
 ffmpg_config = --prefix=$(PREFIX) --extra-version="kodi-$(VERSION)"
@@ -55,11 +64,14 @@ endif
 ifeq ($(Configuration), Release)
   ffmpg_config += --disable-debug
 endif
+<<<<<<< HEAD
 
+ffmpg_config += --enable-libdcadec
+ffmpg_config += $(CONFFLAGS)
 
 CLEAN_FILES=$(ARCHIVE) $(PLATFORM)
 
-all: .installed-$(PLATFORM)
+all: .ffmpeg-installed
 
 $(TARBALLS_LOCATION)/$(ARCHIVE):
 	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) -Ls --create-dirs -f -o $(TARBALLS_LOCATION)/$(ARCHIVE) $(BASE_URL)/$(VERSION).tar.gz
@@ -75,14 +87,14 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 build: $(PLATFORM)
 	$(MAKE) -C $(PLATFORM)
 
-.installed-$(PLATFORM): build
+.ffmpeg-installed: build
 	$(MAKE) -C $(PLATFORM) install
 	touch $@
 
 clean:
 	$(MAKE) -C $(PLATFORM) clean
-	rm -f .installed-$(PLATFORM)
+	rm -f .ffmpeg-installed
 
 distclean::
-	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+	rm -rf $(PLATFORM) .ffmpeg-installed
 
