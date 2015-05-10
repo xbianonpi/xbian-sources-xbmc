@@ -6,9 +6,6 @@
         <setting id="videoplayer.useomxplayer">
           <default>false</default>
         </setting>
-        <setting id="videoplayer.supportdtshd">
-          <default>true</default>
-        </setting>
       </group>
     </category>
   </section>
