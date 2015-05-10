@@ -485,9 +485,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->dwFlags = 0;
   res->fPixelRatio = 1.0f;
 
-  if (StringUtils::StartsWith(mode, "U:")) {
-    res->dwFlags |= D3DPRESENTFLAG_WIDESCREEN;
-  } else if (StringUtils::StartsWith(mode, "H:")) {
+  if (StringUtils::StartsWith(mode, "H:")) {
     res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
     res->fPixelRatio = 2.0f;
   } else if (StringUtils::StartsWith(mode, "T:")) {
