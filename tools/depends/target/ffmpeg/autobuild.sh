@@ -110,6 +110,9 @@ then
   [ "$VERSION" == "$CURVER" ] && exit 0
 fi
 
+CFLAG="$CFLAGS" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" PLATFORM=ffmpeg-${VERSION} CONFFLAGS=${FLAGS} PREFIX=${FFMPEG_PREFIX} make -j ${BUILDTHREADS}
+exit $?
+
 [ -f ${ARCHIVE} ] || curl -Ls --create-dirs -f -o ${ARCHIVE} ${BASE_URL}/${VERSION}.tar.gz
 [ $downloadonly ] && exit 0
 
