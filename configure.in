@@ -741,6 +741,7 @@ case $use_platform in
      USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
+     USE_STATIC_FFMPEG=1
      ;;
   cubox-i)
      target_platform="cubox-i"
@@ -754,6 +755,7 @@ case $use_platform in
      use_cpu=cortex-a9
      use_x11=no
      use_neon=yes
+     USE_STATIC_FFMPEG=1
      ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi2
