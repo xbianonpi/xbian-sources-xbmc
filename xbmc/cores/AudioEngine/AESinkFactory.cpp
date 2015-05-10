@@ -266,10 +266,7 @@ void CAESinkFactory::EnumerateEx(AESinkInfoList &list, bool force)
   info.m_sinkName = "PULSE";
   CAESinkPULSE::EnumerateDevicesEx(info.m_deviceInfoList, force);
   if(!info.m_deviceInfoList.empty())
-  {
     list.push_back(info);
-    return;
-  }
   #endif
 
   #if defined(HAS_ALSA)
@@ -277,10 +274,7 @@ void CAESinkFactory::EnumerateEx(AESinkInfoList &list, bool force)
   info.m_sinkName = "ALSA";
   CAESinkALSA::EnumerateDevicesEx(info.m_deviceInfoList, force);
   if(!info.m_deviceInfoList.empty())
-  {
     list.push_back(info);
-    return;
-  }
   #endif
   #if defined(TARGET_FREEBSD)
   info.m_deviceInfoList.clear();
