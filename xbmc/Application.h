@@ -371,7 +371,7 @@ public:
    */
   const CSeekHandler *GetSeekHandler() const { return m_seekHandler; };
 
-  bool SwitchToFullScreen();
+  bool SwitchToFullScreen(bool force = false);
 
   CSplash* GetSplash() { return m_splash; }
   void SetRenderGUI(bool renderGUI);
