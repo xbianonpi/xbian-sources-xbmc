@@ -1125,7 +1125,7 @@ AC_CHECK_HEADER([jpeglib.h],,        AC_MSG_ERROR($missing_library))
 AC_CHECK_HEADER([ogg/ogg.h],,        AC_MSG_ERROR($missing_library))
 AC_CHECK_HEADER([vorbis/vorbisfile.h],, AC_MSG_ERROR($missing_library))
 AC_CHECK_HEADER([libmodplug/modplug.h],, AC_MSG_ERROR($missing_library))
-AC_CHECK_HEADER([libdcadec/dca_context.h],, AC_MSG_ERROR($missing_library))
+PKG_CHECK_MODULES([LIBDCADEC], [dcadec],, AC_MSG_ERROR([libdcadec not found]))
 
 AC_CHECK_HEADER([curl/curl.h],, AC_MSG_ERROR($missing_library))
 XB_FIND_SONAME([CURL], [curl])
