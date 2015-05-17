@@ -37,8 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "bcm_host.h"
-
 #include "triangle2.h"
 
 #define min(a,b) ((a)<(b)?(a):(b)) 
