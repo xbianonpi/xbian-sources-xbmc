@@ -35,8 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <assert.h>
 #include <unistd.h>
-
-#include "bcm_host.h"
+#include <stddef.h>
 
 #include "solarwinds.h"
 
@@ -243,16 +242,16 @@ static void draw_particle_to_texture(CUBE_STATE_T *state)
                       4,                                        // One component per particle
                       GL_FLOAT,                                 // Data is floating point type
                       GL_FALSE,                                 // No fixed point scaling
-                      sizeof(Particle),                         // No gaps in data
-                      (void*)(offsetof(Particle, pos)));      // Start from "theta" offset within bound buffer
+                      sizeof(struct Particle),                         // No gaps in data
+                      (void*)(offsetof(struct Particle, pos)));      // Start from "theta" offset within bound buffer
 
 	glEnableVertexAttribArray(state->aShade);
 	glVertexAttribPointer(state->aShade,                // Set pointer
                       4,                                        // Three components per particle
                       GL_FLOAT,                                 // Data is floating point type
                       GL_FALSE,                                 // No fixed point scaling
-                      sizeof(Particle),                         // No gaps in data
-                      (void*)(offsetof(Particle, shade)));      // Start from "shade" offset within bound buffer
+                      sizeof(struct Particle),                         // No gaps in data
+                      (void*)(offsetof(struct Particle, shade)));      // Start from "shade" offset within bound buffer
 
 	// Draw particles
 	glDrawArrays(GL_POINTS, 0, state->numParticles);

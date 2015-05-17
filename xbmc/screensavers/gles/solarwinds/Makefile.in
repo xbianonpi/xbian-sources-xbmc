@@ -5,10 +5,8 @@ SLIB = @abs_top_srcdir@/system/libsolarwinds.so
 else
 SLIB = @abs_top_srcdir@/addons/screensaver.gles.solarwinds/Solarwinds.xbs
 endif
-ifeq (@TARGET_RASPBERRY_PI@,1)
 OBJS = wrapper.o solarwinds.o 
 DEFINES += -DSCREENSAVER=solarwinds
-endif
 
 ifeq (@USE_OPENGLES@,1)
   DEFINES += -DHAS_GLES=2
