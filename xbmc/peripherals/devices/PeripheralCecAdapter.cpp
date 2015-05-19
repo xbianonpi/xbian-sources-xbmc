@@ -52,6 +52,9 @@ using namespace std;
 #define LOCALISED_ID_TV           36037
 #define LOCALISED_ID_AVR          36038
 #define LOCALISED_ID_TV_AVR       36039
+#define LOCALISED_ID_STOP         36044
+#define LOCALISED_ID_PAUSE        36045
+
 #define LOCALISED_ID_NONE         231
 
 /* time in seconds to suppress source activation after receiving OnStop */
@@ -1163,7 +1166,7 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
   if (activated == 1)
     g_application.WakeUpScreenSaverAndDPMS();
 
-  if (adapter->GetSettingBool("pause_playback_on_deactivate"))
+  if (adapter->GetSettingInt("pause_or_stop_playback_on_deactivate") != LOCALISED_ID_NONE)
   {
     bool bShowingSlideshow = (g_windowManager.GetActiveWindow() == WINDOW_SLIDESHOW);
     CGUIWindowSlideShow *pSlideShow = bShowingSlideshow ? (CGUIWindowSlideShow *)g_windowManager.GetWindow(WINDOW_SLIDESHOW) : NULL;
@@ -1176,7 +1179,8 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
     else if (bPausedAndActivated)
       adapter->m_bPlaybackPaused = false;
 
-    if (bPlayingAndDeactivated || bPausedAndActivated)
+    if ((bPlayingAndDeactivated || bPausedAndActivated)
+      && adapter->GetSettingInt("pause_or_stop_playback_on_deactivate") == LOCALISED_ID_PAUSE)
     {
       if (pSlideShow)
         // pause/resume slideshow
@@ -1184,6 +1188,13 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
       else
         // pause/resume player
         CApplicationMessenger::Get().MediaPause();
+    }
+    else if (adapter->GetSettingInt("pause_or_stop_playback_on_deactivate") == LOCALISED_ID_STOP)
+    {
+      if (pSlideShow)
+        pSlideShow->OnAction(CAction(ACTION_STOP));
+      else
+        CApplicationMessenger::Get().MediaStop();
     }
   }
 
@@ -1391,6 +1402,12 @@ void CPeripheralCecAdapter::SetConfigurationFromSettings(void)
   // backwards compatibility. will be removed once the next major release of libCEC is out
   m_configuration.iDoubleTapTimeoutMs = GetSettingInt("double_tap_timeout_ms");
 #endif
+
+  if (GetSettingBool("pause_playback_on_deactivate"))
+  {
+    SetSetting("pause_or_stop_playback_on_deactivate", 36045);
+    SetSetting("pause_playback_on_deactivate", false);
+  }
 }
 
 void CPeripheralCecAdapter::ReadLogicalAddresses(const std::string &strString, cec_logical_addresses &addresses)
