@@ -42,6 +42,13 @@
           <control type="toggle" />
         </setting>
       </group>
+      <group id="3">
+        <setting id="videoplayer.preferptstimestamps" type="boolean" label="38210" help="38211">
+          <level>3</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
     <category id="myvideos">
       <group id="1">
