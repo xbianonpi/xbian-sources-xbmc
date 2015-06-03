@@ -264,7 +264,7 @@ int CEGLNativeTypeRaspberryPI::FindMatchingResolution(const RESOLUTION_INFO &res
   for (int i = 0; i < (int)resolutions.size(); i++)
   {
     if(resolutions[i].iScreenWidth == res.iScreenWidth && resolutions[i].iScreenHeight == res.iScreenHeight && resolutions[i].fRefreshRate == res.fRefreshRate &&
-      (resolutions[i].dwFlags & (D3DPRESENTFLAG_MODE3DSBS|D3DPRESENTFLAG_MODE3DTB)) == (res.dwFlags & (D3DPRESENTFLAG_MODE3DSBS|D3DPRESENTFLAG_MODE3DTB)))
+      (resolutions[i].dwFlags & D3DPRESENTFLAG_MODEMASK) == (res.dwFlags & D3DPRESENTFLAG_MODEMASK))
     {
        return i;
     }
@@ -280,8 +280,7 @@ int CEGLNativeTypeRaspberryPI::AddUniqueResolution(RESOLUTION_INFO &res, std::ve
   int i = FindMatchingResolution(res, resolutions);
   if (i>=0)
   {  // don't replace a progressive resolution with an interlaced one of same resolution
-     if (!(res.dwFlags & D3DPRESENTFLAG_INTERLACED))
-       resolutions[i] = res;
+     resolutions[i] = res;
   }
   else
   {
@@ -618,7 +617,6 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
   GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
   GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
 
-  if(resolutions.size() == 0)
   {
     AddUniqueResolution(m_desktopRes, resolutions);
     CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
@@ -709,6 +707,12 @@ void CEGLNativeTypeRaspberryPI::GetSupportedModes(HDMI_RES_GROUP_T group, std::v
       res.iScreenHeight = tv->height;
       res.fPixelRatio   = (float)GetSAR() / ((float)res.iScreenWidth / (float)res.iScreenHeight);
       res.iSubtitles    = (int)(0.965 * res.iHeight);
+
+      if (!m_desktopRes.dwFlags && prefer_group == group && prefer_mode == tv->code)
+        m_desktopRes = res;
+
+      if (res.dwFlags & D3DPRESENTFLAG_INTERLACED)
+        continue;
 
       AddUniqueResolution(res, resolutions);
       CLog::Log(LOGDEBUG, "EGL mode %d: %s (%.2f) %s%s:%x\n", i, res.strMode.c_str(), res.fPixelRatio,
