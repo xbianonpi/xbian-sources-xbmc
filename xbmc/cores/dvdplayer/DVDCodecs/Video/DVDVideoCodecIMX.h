@@ -68,7 +68,10 @@ public:
   VpuDecRetCode            ReleaseFramebuffer(VpuDecHandle *handle);
   void                     SetPts(double pts);
   double                   GetPts(void) const;
+  void                     SetDts(double pts);
+  double                   GetDts(void) const;
   CDVDVideoCodecIMXBuffer *GetPreviousBuffer() const;
+  VpuFieldType             GetFieldType() const { return m_fieldType; }
 
   uint32_t       m_iWidth;
   uint32_t       m_iHeight;
@@ -87,6 +90,8 @@ private:
   VpuFrameBuffer          *m_frameBuffer;
   bool                     m_rendered;
   double                   m_pts;
+  double                   m_dts;
+  VpuFieldType             m_fieldType;
   CDVDVideoCodecIMXBuffer *m_previousBuffer; // Holds a the reference counted
                                              // previous buffer
 };
@@ -137,6 +142,7 @@ protected:
   int                       m_vpuFrameBufferNum; // Total number of allocated frame buffers
   VpuFrameBuffer           *m_vpuFrameBuffers;   // Table of VPU frame buffers description
   CDVDVideoCodecIMXBuffer **m_outputBuffers;     // Table of VPU output buffers
+  CDVDVideoCodecIMXBuffer  *m_currentBuffer;
   CDVDVideoCodecIMXBuffer  *m_lastBuffer;        // Keep track of previous VPU output buffer (needed by deinterlacing motion engin)
   VpuMemDesc               *m_extraMem;          // Table of allocated extra Memory
   int                       m_frameCounter;      // Decoded frames counter
@@ -147,5 +153,5 @@ protected:
   int                       m_bytesToBeConsumed; // Remaining bytes in VPU
   double                    m_previousPts;       // Enable to keep pts when needed
   bool                      m_frameReported;     // State whether the frame consumed event will be reported by libfslvpu
-  double                    m_dts;               // Current dts
+  bool                      m_warnOnce;
 };

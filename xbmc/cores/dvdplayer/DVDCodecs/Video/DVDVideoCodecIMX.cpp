@@ -239,17 +239,17 @@ bool CDVDVideoCodecIMX::VpuAllocFrameBuffers(void)
   unsigned char* ptrVirt;
   int nAlign;
 
-  m_vpuFrameBufferNum =  m_initInfo.nMinFrameBufferCount + m_extraVpuBuffers;
+  m_vpuFrameBufferNum = m_initInfo.nMinFrameBufferCount + m_extraVpuBuffers;
   m_vpuFrameBuffers = new VpuFrameBuffer[m_vpuFrameBufferNum];
 
-  yStride=Align(m_initInfo.nPicWidth,FRAME_ALIGN);
+  yStride = Align(m_initInfo.nPicWidth,FRAME_ALIGN);
   if(m_initInfo.nInterlace)
   {
-    ySize=Align(m_initInfo.nPicWidth,FRAME_ALIGN)*Align(m_initInfo.nPicHeight,(2*FRAME_ALIGN));
+    ySize = Align(m_initInfo.nPicWidth,FRAME_ALIGN)*Align(m_initInfo.nPicHeight,(2*FRAME_ALIGN));
   }
   else
   {
-    ySize=Align(m_initInfo.nPicWidth,FRAME_ALIGN)*Align(m_initInfo.nPicHeight,FRAME_ALIGN);
+    ySize = Align(m_initInfo.nPicWidth,FRAME_ALIGN)*Align(m_initInfo.nPicHeight,FRAME_ALIGN);
   }
 
   //NV12 for all video
@@ -257,11 +257,12 @@ bool CDVDVideoCodecIMX::VpuAllocFrameBuffers(void)
   uvSize=ySize/2;
   mvSize=uvSize/2;
 
-  nAlign=m_initInfo.nAddressAlignment;
+  nAlign = m_initInfo.nAddressAlignment;
   if(nAlign>1)
   {
-    ySize=Align(ySize,nAlign);
-    uvSize=Align(uvSize,nAlign);
+    ySize = Align(ySize, nAlign);
+    uvSize = Align(uvSize, nAlign);
+    mvSize = Align(mvSize, nAlign);
   }
 
   m_outputBuffers = new CDVDVideoCodecIMXBuffer*[m_vpuFrameBufferNum];
@@ -321,7 +322,7 @@ bool CDVDVideoCodecIMX::VpuAllocFrameBuffers(void)
 #ifdef TRACE_FRAMES
     m_outputBuffers[i] = new CDVDVideoCodecIMXBuffer(i);
 #else
-    m_outputBuffers[i] = new CDVDVideoCodecIMXBuffer();
+    m_outputBuffers[i] = new CDVDVideoCodecIMXBuffer;
 #endif
   }
 
@@ -335,6 +336,7 @@ CDVDVideoCodecIMX::CDVDVideoCodecIMX()
   m_vpuFrameBuffers = NULL;
   m_outputBuffers = NULL;
   m_lastBuffer = NULL;
+  m_currentBuffer = NULL;
   m_extraMem = NULL;
   m_vpuFrameBufferNum = 0;
   m_dropState = false;
@@ -349,6 +351,7 @@ CDVDVideoCodecIMX::CDVDVideoCodecIMX()
   m_convert_bitstream = false;
   m_bytesToBeConsumed = 0;
   m_previousPts = DVD_NOPTS_VALUE;
+  m_warnOnce = true;
 }
 
 CDVDVideoCodecIMX::~CDVDVideoCodecIMX()
@@ -508,8 +511,8 @@ void CDVDVideoCodecIMX::Dispose(void)
   Enter();
 
   // Release last buffer
-  if(m_lastBuffer)
-    SAFE_RELEASE(m_lastBuffer);
+  SAFE_RELEASE(m_lastBuffer);
+  SAFE_RELEASE(m_currentBuffer);
 
   // Invalidate output buffers to prevent the renderer from mapping this memory
   for (int i=0; i<m_vpuFrameBufferNum; i++)
@@ -586,6 +589,8 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
   static unsigned long long previous, current;
   unsigned long long before_dec;
 #endif
+
+  SAFE_RELEASE(m_currentBuffer);
 
   if (!m_vpuHandle)
   {
@@ -741,14 +746,37 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         m_frameInfo.pExtInfo->nFrmWidth  = (((m_frameInfo.pExtInfo->nFrmWidth) + 15) & ~15);
         m_frameInfo.pExtInfo->nFrmHeight = (((m_frameInfo.pExtInfo->nFrmHeight) + 15) & ~15);
 
-        /* quick & dirty fix to get proper timestamping for VP8 codec */
-        if (m_decOpenParam.CodecFormat == VPU_V_VP8)
+        idx = VpuFindBuffer(m_frameInfo.pDisplayFrameBuf->pbufY);
+        if (idx != -1)
         {
-          idx = VpuFindBuffer(m_frameInfo.pDisplayFrameBuf->pbufY);
-          m_outputBuffers[idx]->SetPts(pts);
-        }
+          CDVDVideoCodecIMXBuffer *buffer = m_outputBuffers[idx];
 
-        retStatus |= VC_PICTURE;
+          /* quick & dirty fix to get proper timestamping for VP8 codec */
+          if (m_decOpenParam.CodecFormat == VPU_V_VP8)
+            buffer->SetPts(pts);
+
+          buffer->Lock();
+          buffer->SetDts(dts);
+          buffer->Queue(&m_frameInfo, m_lastBuffer);
+
+          if (!m_usePTS)
+          {
+            buffer->SetPts(DVD_NOPTS_VALUE);
+            buffer->SetDts(DVD_NOPTS_VALUE);
+          }
+
+          // Save last buffer
+          SAFE_RELEASE(m_lastBuffer);
+          m_lastBuffer = buffer;
+          m_lastBuffer->Lock();
+
+          m_currentBuffer = buffer;
+
+          if (m_currentBuffer)
+          {
+            retStatus |= VC_PICTURE;
+          }
+        }
       } //VPU_DEC_OUTPUT_DIS
 
       // According to libfslvpuwrap: If this flag is set then the frame should
@@ -841,7 +869,6 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
     m_previousPts = pts;
   }
   // Store current dts (will be used only if VC_PICTURE is set)
-  m_dts = dts;
 
 #ifdef IMX_PROFILE
   CLog::Log(LOGDEBUG, "%s - returns %x - duration %lld\n", __FUNCTION__, retStatus, XbmcThreads::SystemClockMillis() - previous);
@@ -860,8 +887,8 @@ void CDVDVideoCodecIMX::Reset()
     CLog::Log(LOGDEBUG, "%s - called\n", __FUNCTION__);
 
   // Release last buffer
-  if(m_lastBuffer)
-    SAFE_RELEASE(m_lastBuffer);
+  SAFE_RELEASE(m_lastBuffer);
+  SAFE_RELEASE(m_currentBuffer);
 
   // Invalidate all buffers
   for(int i=0; i < m_vpuFrameBufferNum; i++)
@@ -914,46 +941,42 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   else
     pDvdVideoPicture->iFlags &= ~DVP_FLAG_DROPPED;
 
+  if (m_initInfo.nInterlace)
+    pDvdVideoPicture->iFlags |= DVP_FLAG_INTERLACED;
+  else
+    pDvdVideoPicture->iFlags &= ~DVP_FLAG_INTERLACED;
+
+  // do a sanity check to not deinterlace progressive content
+  if ((pDvdVideoPicture->iFlags & DVP_FLAG_INTERLACED) && (m_currentBuffer->GetFieldType() == VPU_FIELD_NONE))
+  {
+    if (m_warnOnce)
+    {
+      m_warnOnce = false;
+      CLog::Log(LOGWARNING, "Interlaced content reported by VPU, but full frames detected - Please turn off deinterlacing manually.");
+    }
+  }
+
+  if (pDvdVideoPicture->iFlags & DVP_FLAG_INTERLACED)
+  {
+    if (m_currentBuffer->GetFieldType() != VPU_FIELD_BOTTOM && m_currentBuffer->GetFieldType() != VPU_FIELD_BT)
+      pDvdVideoPicture->iFlags |= DVP_FLAG_TOP_FIELD_FIRST;
+  }
+  else
+    pDvdVideoPicture->iFlags &= ~DVP_FLAG_TOP_FIELD_FIRST;
+
   pDvdVideoPicture->format = RENDER_FMT_IMXMAP;
-  pDvdVideoPicture->dts = DVD_NOPTS_VALUE;
   pDvdVideoPicture->iWidth = m_frameInfo.pExtInfo->FrmCropRect.nRight - m_frameInfo.pExtInfo->FrmCropRect.nLeft;
   pDvdVideoPicture->iHeight = m_frameInfo.pExtInfo->FrmCropRect.nBottom - m_frameInfo.pExtInfo->FrmCropRect.nTop;
 
   pDvdVideoPicture->iDisplayWidth = ((pDvdVideoPicture->iWidth * m_frameInfo.pExtInfo->nQ16ShiftWidthDivHeightRatio) + 32767) >> 16;
   pDvdVideoPicture->iDisplayHeight = pDvdVideoPicture->iHeight;
 
-  int idx = VpuFindBuffer(m_frameInfo.pDisplayFrameBuf->pbufY);
-  if (idx != -1)
-  {
-    CDVDVideoCodecIMXBuffer *buffer = m_outputBuffers[idx];
+ // Current buffer is locked already -> hot potato
+  pDvdVideoPicture->pts = m_currentBuffer->GetPts();
+  pDvdVideoPicture->dts = m_currentBuffer->GetDts();
 
-    pDvdVideoPicture->pts = buffer->GetPts();
-    pDvdVideoPicture->dts = m_dts;
-    if (!m_usePTS)
-    {
-      pDvdVideoPicture->pts = DVD_NOPTS_VALUE;
-      pDvdVideoPicture->dts = DVD_NOPTS_VALUE;
-    }
-
-    buffer->Queue(&m_frameInfo, m_lastBuffer);
-
-#ifdef TRACE_FRAMES
-    CLog::Log(LOGDEBUG, "+  %02d dts %f pts %f  (VPU)\n", idx, pDvdVideoPicture->dts, pDvdVideoPicture->pts);
-#endif
-
-    pDvdVideoPicture->IMXBuffer = buffer;
-    pDvdVideoPicture->IMXBuffer->Lock();
-
-    // Save last buffer
-    if (m_lastBuffer)
-      SAFE_RELEASE(m_lastBuffer);
-    m_lastBuffer = buffer;
-    m_lastBuffer->Lock();
-  }
-  else
-  {
-    CLog::Log(LOGERROR, "%s - could not find frame buffer\n", __FUNCTION__);
-  }
+  pDvdVideoPicture->IMXBuffer = m_currentBuffer;
+  m_currentBuffer = NULL;
 
   return true;
 }
@@ -1068,6 +1091,7 @@ void CDVDVideoCodecIMXBuffer::Queue(VpuDecOutFrameInfo *frameInfo,
   m_iHeight = frameInfo->pExtInfo->nFrmHeight;
   m_VirtAddr = m_frameBuffer->pbufVirtY;
   m_phyAddr = m_frameBuffer->pbufY;
+  m_fieldType = frameInfo->eFieldType;
 }
 
 VpuDecRetCode CDVDVideoCodecIMXBuffer::ReleaseFramebuffer(VpuDecHandle *handle)
@@ -1101,6 +1125,16 @@ void CDVDVideoCodecIMXBuffer::SetPts(double pts)
 double CDVDVideoCodecIMXBuffer::GetPts(void) const
 {
   return m_pts;
+}
+
+void CDVDVideoCodecIMXBuffer::SetDts(double dts)
+{
+  m_dts = dts;
+}
+
+double CDVDVideoCodecIMXBuffer::GetDts(void) const
+{
+  return m_dts;
 }
 
 CDVDVideoCodecIMXBuffer *CDVDVideoCodecIMXBuffer::GetPreviousBuffer() const
