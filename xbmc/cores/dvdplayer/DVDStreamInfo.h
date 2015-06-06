@@ -73,6 +73,7 @@ public:
   int bitsperpixel;
   int pid;
   std::string stereo_mode; // stereoscopic 3d mode
+  int workaround_bugs; // info for decoder
 
   // AUDIO
   int channels;

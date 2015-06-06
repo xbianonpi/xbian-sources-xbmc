@@ -522,6 +522,8 @@ bool CMMALVideo::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   // we always qualify even if DVDFactoryCodec does this too.
   if (!CSettings::Get().GetBool("videoplayer.usemmal") || hints.software)
     return false;
+  if (hints.workaround_bugs & FF_BUG_GMC_UNSUPPORTED)
+    return false;
 
   m_hints = hints;
   m_vout_input_pool = (MMAL_POOL_T *)options.m_opaque_pointer;
