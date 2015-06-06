@@ -21,6 +21,7 @@
 
 #include "threads/Thread.h"
 #include "threads/CriticalSection.h"
+#include "settings/Settings.h"
 
 class CVideoSync;
 
