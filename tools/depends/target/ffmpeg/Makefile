@@ -1,7 +1,8 @@
 include ../../Makefile.include
 include FFMPEG-VERSION
 DEPS= ../../Makefile.include FFMPEG-VERSION Makefile ffmpeg_Speed_up_wtv_index_creation.patch \
-  0001-avcodec-add-libdcadec-decoder.patch  0002-avcodec-Fix-libdcadec-include-dir.patch 0003-avcodec-add-profile-define-for-DTS-Express.patch
+  0001-avcodec-add-libdcadec-decoder.patch  0002-avcodec-Fix-libdcadec-include-dir.patch 0003-avcodec-add-profile-define-for-DTS-Express.patch \
+  0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 
 # set to "yes" to enable patching
 # we don't apply patches until we move to a vanilla ffmpeg tarball
@@ -73,6 +74,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); patch -p1 < ../0001-avcodec-add-libdcadec-decoder.patch
 	cd $(PLATFORM); patch -p1 < ../0002-avcodec-Fix-libdcadec-include-dir.patch
 	cd $(PLATFORM); patch -p1 < ../0003-avcodec-add-profile-define-for-DTS-Express.patch
+	cd $(PLATFORM); patch -p1 < ../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 	cd $(PLATFORM);\
 	CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	./configure $(ffmpg_config)

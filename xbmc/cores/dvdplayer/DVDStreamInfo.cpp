@@ -73,6 +73,7 @@ void CDVDStreamInfo::Clear()
   bitspersample = 0;
 
   orientation = 0;
+  workaround_bugs = 0;
 }
 
 bool CDVDStreamInfo::Equal(const CDVDStreamInfo& right, bool withextradata)
@@ -174,6 +175,7 @@ void CDVDStreamInfo::Assign(const CDVDStreamInfo& right, bool withextradata)
   vfr = right.vfr;
   software = right.software;
   stereo_mode = right.stereo_mode;
+  workaround_bugs = right.workaround_bugs;
 
   // AUDIO
   channels      = right.channels;
@@ -231,6 +233,7 @@ void CDVDStreamInfo::Assign(const CDemuxStream& right, bool withextradata)
     bitsperpixel = stream->iBitsPerPixel;
     pid = stream->iPhysicalId;
     stereo_mode = stream->stereo_mode;
+    workaround_bugs = stream->workaround_bugs;
   }
   else if(  right.type == STREAM_SUBTITLE )
   {
