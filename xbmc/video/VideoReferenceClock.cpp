@@ -37,6 +37,8 @@
 #include "video/videosync/VideoSyncDRM.h"
 #elif defined(TARGET_RASPBERRY_PI)
 #include "video/videosync/VideoSyncPi.h"
+#elif defined(HAS_IMXVPU)
+#include "video/videosync/VideoSyncIMX.h"
 #endif
 #if defined(TARGET_WINDOWS)
 #include "video/videosync/VideoSyncD3D.h"
@@ -68,6 +70,13 @@ CVideoReferenceClock::CVideoReferenceClock() : CThread("RefClock")
 
 CVideoReferenceClock::~CVideoReferenceClock()
 {
+}
+
+void CVideoReferenceClock::Start()
+{
+  CSingleExit lock(g_graphicsContext);
+  if(CSettings::Get().GetBool("videoplayer.usedisplayasclock") && !IsRunning())
+    Create();
 }
 
 void CVideoReferenceClock::Stop()
@@ -111,6 +120,8 @@ void CVideoReferenceClock::Process()
     m_pVideoSync = new CVideoSyncCocoa();
 #elif defined(TARGET_RASPBERRY_PI)
     m_pVideoSync = new CVideoSyncPi();
+#elif defined(HAS_IMXVPU)
+    m_pVideoSync = new CVideoSyncIMX();
 #endif
 
     if (m_pVideoSync)

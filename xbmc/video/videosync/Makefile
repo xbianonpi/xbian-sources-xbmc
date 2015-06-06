@@ -2,6 +2,7 @@ SRCS=VideoSyncGLX.cpp \
      VideoSyncCocoa.cpp \
      VideoSyncDRM.cpp \
      VideoSyncPi.cpp \
+     VideoSyncIMX.cpp \
 
 LIB=videosync.a
 

@@ -21,6 +21,7 @@
 
 #include "threads/Thread.h"
 #include "threads/CriticalSection.h"
+#include "settings/Settings.h"
 
 class CVideoSync;
 
@@ -39,6 +40,7 @@ class CVideoReferenceClock : public CThread
     bool    GetClockInfo(int& MissedVblanks, double& ClockSpeed, double& RefreshRate);
     void    SetFineAdjust(double fineadjust);
     void    RefreshChanged();
+    void    Start();
     void    Stop();
 
   private:
