@@ -4138,7 +4138,7 @@ bool CDVDPlayer::SetPlayerState(const std::string& state)
 int CDVDPlayer::GetChapterCount()
 {
   CSingleLock lock(m_StateSection);
-  return m_State.chapter_count;
+  return m_State.chapters.size();
 }
 
 int CDVDPlayer::GetChapter()
@@ -4147,10 +4147,13 @@ int CDVDPlayer::GetChapter()
   return m_State.chapter;
 }
 
-void CDVDPlayer::GetChapterName(std::string& strChapterName)
+void CDVDPlayer::GetChapterName(std::string& strChapterName, int chapterIdx)
 {
   CSingleLock lock(m_StateSection);
-  strChapterName = m_State.chapter_name;
+  if (chapterIdx == -1 && m_State.chapter > 0 && m_State.chapter <= (int) m_State.chapters.size())
+    strChapterName = m_State.chapters[m_State.chapter - 1].first;
+  else if (chapterIdx > 0 && chapterIdx <= (int) m_State.chapters.size())
+    strChapterName = m_State.chapters[chapterIdx - 1].first;
 }
 
 int CDVDPlayer::SeekChapter(int iChapter)
@@ -4168,6 +4171,15 @@ int CDVDPlayer::SeekChapter(int iChapter)
   }
 
   return 0;
+}
+
+int64_t CDVDPlayer::GetChapterPos(int chapterIdx)
+{
+  CSingleLock lock(m_StateSection);
+  if (chapterIdx > 0 && chapterIdx <= (int) m_StateInput.chapters.size())
+    return m_State.chapters[chapterIdx - 1].second;
+
+  return -1;
 }
 
 void CDVDPlayer::AddSubtitle(const std::string& strSubPath)

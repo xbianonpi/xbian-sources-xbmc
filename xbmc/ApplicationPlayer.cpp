@@ -131,7 +131,8 @@ int CApplicationPlayer::GetChapterCount()
     return 0;
 }
 
-void CApplicationPlayer::GetChapterName(std::string& strChapterName)
+void CApplicationPlayer::GetChapterName(std::string& strChapterName,
+                                        int chapterIdx)
 {
   boost::shared_ptr<IPlayer> player = GetInternal();
   if (player)
