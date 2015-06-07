@@ -2179,7 +2179,6 @@ void CDVDPlayer::OnExit()
     CloseStream(m_CurrentTeletext, !m_bAbortRequest);
 
     // destroy objects
-        TriggerResync();
     SAFE_DELETE(m_pDemuxer);
     SAFE_DELETE(m_pSubtitleDemuxer);
     SAFE_DELETE(m_pInputStream);
