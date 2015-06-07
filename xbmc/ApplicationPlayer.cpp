@@ -135,7 +135,16 @@ void CApplicationPlayer::GetChapterName(std::string& strChapterName)
 {
   boost::shared_ptr<IPlayer> player = GetInternal();
   if (player)
-    player->GetChapterName(strChapterName);
+    player->GetChapterName(strChapterName, chapterIdx);
+}
+
+int64_t CApplicationPlayer::GetChapterPos(int chapterIdx)
+{
+  boost::shared_ptr<IPlayer> player = GetInternal();
+  if (player)
+    return player->GetChapterPos(chapterIdx);
+
+  return -1;
 }
 
 bool CApplicationPlayer::HasAudio() const
