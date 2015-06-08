@@ -1384,7 +1384,7 @@ void CPeripheralCecAdapter::SetConfigurationFromSettings(void)
 
 #if defined(CEC_DOUBLE_TAP_TIMEOUT_MS_OLD)
   // double tap prevention timeout in ms. libCEC uses 50ms units for this in 2.2.0, so divide by 50
-  m_configuration.iDoubleTapTimeout50Ms = GetSettingInt("double_tap_timeout_ms") / 50;
+  m_configuration.iDoubleTapTimeout50Ms = (GetSettingInt("double_tap_timeout_ms") / 50 > 10) ? 4 : GetSettingInt("double_tap_timeout_ms") / 50;
 #else
   // backwards compatibility. will be removed once the next major release of libCEC is out
   m_configuration.iDoubleTapTimeoutMs = GetSettingInt("double_tap_timeout_ms");
