@@ -333,8 +333,6 @@ bool CPeripheralCecAdapter::OpenConnection(void)
       if (!bConnectionFailedDisplayed)
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error, g_localizeStrings.Get(36000), g_localizeStrings.Get(36012));
       bConnectionFailedDisplayed = true;
-
-      Sleep(10000);
     }
   }
 
@@ -1402,8 +1400,8 @@ void CPeripheralCecAdapter::ReadLogicalAddresses(int iLocalisedId, cec_logical_a
     addresses.Set(CECDEVICE_AUDIOSYSTEM);
     break;
   case LOCALISED_ID_TV_AVR:
-    addresses.Set(CECDEVICE_TV);
     addresses.Set(CECDEVICE_AUDIOSYSTEM);
+    addresses.Set(CECDEVICE_TV);
     break;
   case LOCALISED_ID_NONE:
   default:
@@ -1484,9 +1482,12 @@ bool CPeripheralCecAdapterUpdateThread::WaitReady(void)
   if (m_configuration.wakeDevices.IsEmpty() && m_configuration.bActivateSource == 0)
     return true;
 
+  CTimer *m_timer = new CTimer(this);
+  m_timer->Start(30000);
+
   // wait for the TV if we're configured to become the active source.
   // wait for the first device in the wake list otherwise.
-  cec_logical_address waitFor = (m_configuration.bActivateSource == 1) ?
+  cec_logical_address waitFor = (m_configuration.bActivateSource == 1 && m_adapter->m_bActiveSourcePending) ?
       CECDEVICE_TV :
       m_configuration.wakeDevices.primary;
 
@@ -1499,6 +1500,7 @@ bool CPeripheralCecAdapterUpdateThread::WaitReady(void)
       bContinue = !m_event.WaitMSec(1000);
   }
 
+  delete m_timer;
   return powerStatus == CEC_POWER_STATUS_ON;
 }
 
@@ -1550,38 +1552,50 @@ CStdString CPeripheralCecAdapterUpdateThread::UpdateAudioSystemStatus(void)
 
 bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
 {
+  // devices to wake are set
+  if (!m_configuration.wakeDevices.IsEmpty() && (m_configuration.wakeDevices.primary != CECDEVICE_TV || m_configuration.bActivateSource == 0))
+  {
+    m_adapter->m_cecAdapter->PowerOnDevices(m_configuration.wakeDevices.primary);
+  }
+
   // the option to make XBMC the active source is set
   if (m_configuration.bActivateSource == 1)
-    m_adapter->m_cecAdapter->SetActiveSource();
+  {
+    m_adapter->ActivateSource();
+  }
 
-  // devices to wake are set
-  cec_logical_addresses tvOnly;
-  tvOnly.Clear(); tvOnly.Set(CECDEVICE_TV);
-  if (!m_configuration.wakeDevices.IsEmpty() && (m_configuration.wakeDevices != tvOnly || m_configuration.bActivateSource == 0))
-    m_adapter->m_cecAdapter->PowerOnDevices(CECDEVICE_BROADCAST);
-
-  // wait until devices are powered up
-  if (!WaitReady())
-    return false;
-
-  UpdateMenuLanguage();
-
-  // request the OSD name of the TV
   CStdString strNotification;
-  cec_osd_name tvName = m_adapter->m_cecAdapter->GetDeviceOSDName(CECDEVICE_TV);
-  strNotification = StringUtils::Format("%s: %s", g_localizeStrings.Get(36016).c_str(), tvName.name);
-
   CStdString strAmpName = UpdateAudioSystemStatus();
   if (!strAmpName.empty())
     strNotification += StringUtils::Format("- %s", strAmpName.c_str());
 
+  // wait until power up
+  if (!WaitReady())
+    return false;
+
+  UpdateMenuLanguage();
+  {
+    CSingleLock lock(m_critSection);
+    m_bIsUpdating = false;
+  }
   m_adapter->m_bIsReady = true;
+
+  CTimer *m_timer = new CTimer(this);
+  m_timer->Start(10000);
+  // wait until we get active source
+  bool bContinue(true);
+  while (!m_adapter->m_cecAdapter->IsLibCECActiveSource() &&
+         bContinue)
+    bContinue = !m_event.WaitMSec(1000);
+  delete m_timer;
+
+  // request the OSD name of the TV
+  cec_osd_name tvName = m_adapter->m_cecAdapter->GetDeviceOSDName(CECDEVICE_TV);
+  strNotification = StringUtils::Format("%s: %s", g_localizeStrings.Get(36016).c_str(), tvName.name);
 
   // and let the gui know that we're done
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000), strNotification);
 
-  CSingleLock lock(m_critSection);
-  m_bIsUpdating = false;
   return true;
 }
 
