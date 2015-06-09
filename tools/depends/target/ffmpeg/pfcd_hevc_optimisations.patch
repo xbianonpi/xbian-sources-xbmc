@@ -1,7 +1,7 @@
-From 6896c2107126002b638392ddcf66a128b96e0788 Mon Sep 17 00:00:00 2001
+From f79345f11918b94327a8a18cb2e13d20b7a0dde5 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 28 Apr 2015 16:18:40 +0100
-Subject: [PATCH 01/74] Added display output
+Subject: [PATCH 01/77] Added display output
 
 ---
  ffmpeg.c | 150 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -200,10 +200,10 @@ index 1ba0a42..3daa2f4 100644
 1.9.1
 
 
-From 82698ded16e7765cd8f0124a5b146bfa296f5d37 Mon Sep 17 00:00:00 2001
+From 3ad348d4628da7c57ba7e8bcfdd1c5ec8e192412 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 29 Apr 2015 16:49:43 +0100
-Subject: [PATCH 02/74] Split transform and intra prediction into commands
+Subject: [PATCH 02/77] Split transform and intra prediction into commands
 
 ---
  libavcodec/hevc.c       | 119 +++++++++++++++++++++++++++++++++++++++++++++++-
@@ -563,10 +563,10 @@ index cb369eb..df2f5a3 100644
 1.9.1
 
 
-From 460eb34272bcfbe34b7d39d43d1479d6bc12e4a6 Mon Sep 17 00:00:00 2001
+From 45876129a0d7e9d477b71116380ce59e5b540099 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 30 Apr 2015 15:23:22 +0100
-Subject: [PATCH 03/74] Added simple VPU test code
+Subject: [PATCH 03/77] Added simple VPU test code
 
 ---
  libavcodec/Makefile             |    7 +
@@ -4783,10 +4783,10 @@ index 0000000..cdc4e4d
 1.9.1
 
 
-From 609cfde95f8cf19cbb581e24793558aac18400b4 Mon Sep 17 00:00:00 2001
+From 21b4c324b6b7681eed533a55712b0ab84247bf40 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@argondesign.com>
 Date: Sat, 2 May 2015 21:15:37 +0100
-Subject: [PATCH 04/74] First working version with uncached memory
+Subject: [PATCH 04/77] First working version with uncached memory
 
 ---
  libavcodec/hevc.c               |  61 +++++-
@@ -5982,10 +5982,10 @@ index 4e3c35c..814fc3c 100644
 1.9.1
 
 
-From d4af65f7506fd7d8fecd50538bf3e1f6e8c93b83 Mon Sep 17 00:00:00 2001
+From ee03c1b3e2ed83470c8991ddc2b39c56185ef4be Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 5 May 2015 09:41:23 +0100
-Subject: [PATCH 05/74] Fixed deblocking
+Subject: [PATCH 05/77] Fixed deblocking
 
 ---
  libavcodec/hevc.c | 20 +++++++++++++++++---
@@ -6057,10 +6057,10 @@ index 43edea1..c86209f 100644
 1.9.1
 
 
-From f4fb45aed7393ab5138580103ced413397fa94a2 Mon Sep 17 00:00:00 2001
+From f1dcb3c698eb2b413cb06b96988c5f22e6713121 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 5 May 2015 11:32:30 +0100
-Subject: [PATCH 06/74] Added 32x32 transform
+Subject: [PATCH 06/77] Added 32x32 transform
 
 ---
  libavcodec/hevc.c               |   8 +-
@@ -7120,10 +7120,10 @@ index 479ae88..90f504a 100644
 1.9.1
 
 
-From bfda4afd4424aee6c38425e1307c0e393b6c4493 Mon Sep 17 00:00:00 2001
+From 2811cf9e36954eda35d73e29849791f8320940c4 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 5 May 2015 16:57:03 +0100
-Subject: [PATCH 07/74] Clear coefficients in advance
+Subject: [PATCH 07/77] Clear coefficients in advance
 
 ---
  libavcodec/hevc.c               | 129 ++++++++++++++++++++++++++++------------
@@ -7472,10 +7472,10 @@ index a660b58..388ceb2 100644
 1.9.1
 
 
-From 1e8adbdb89019f16ff0452264728c4fb77d9b694 Mon Sep 17 00:00:00 2001
+From a3f074c6d9bca3f7de68a36f238b0a66d4cbd619 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 6 May 2015 09:56:43 +0100
-Subject: [PATCH 08/74] Prepared inter offload
+Subject: [PATCH 08/77] Prepared inter offload
 
 ---
  libavcodec/hevc.c       | 118 +++++++++++++++++++++++++++++++++++++++++++-----
@@ -7755,10 +7755,10 @@ index 5ed952a..f2ff50d 100644
 1.9.1
 
 
-From 19b05bd0da09b7cdc3faf86febfc70cf5637f892 Mon Sep 17 00:00:00 2001
+From 46664008d97b2130db6850503dbf70686b779b44 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 6 May 2015 11:08:50 +0100
-Subject: [PATCH 09/74] Inter prediction in separate pass
+Subject: [PATCH 09/77] Inter prediction in separate pass
 
 ---
  libavcodec/hevc.c | 93 +++++++++++++++++++++++++++++++++++++++++++++----------
@@ -7974,10 +7974,10 @@ index 2d7f0f8..e7e923b 100644
 1.9.1
 
 
-From 3cee979413c8db6d719a5bf3968c981084a62604 Mon Sep 17 00:00:00 2001
+From 244f4611b63312fba60e32efc615db93a2888be0 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 6 May 2015 13:03:50 +0100
-Subject: [PATCH 10/74] Added VPU thread
+Subject: [PATCH 10/77] Added VPU thread
 
 ---
  libavcodec/hevc.c    |  11 +++--
@@ -8232,10 +8232,10 @@ index 814fc3c..7dc661a 100644
 1.9.1
 
 
-From 6cb10e92be162536878a96e3d37d18b60ee78598 Mon Sep 17 00:00:00 2001
+From c693045313bf4367f85b3b12c98032c18fda604f Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 6 May 2015 14:02:38 +0100
-Subject: [PATCH 11/74] Corrected movement of head pointer
+Subject: [PATCH 11/77] Corrected movement of head pointer
 
 ---
  libavcodec/hevc.c    |  2 +-
@@ -8329,10 +8329,10 @@ index 7dc661a..3526fce 100644
 1.9.1
 
 
-From 4012cb010ec18602d58b890049e346ce512beda5 Mon Sep 17 00:00:00 2001
+From 3ad41b8017bbe62146332d3fc6fb8727040d88e9 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 6 May 2015 15:03:37 +0100
-Subject: [PATCH 12/74] Added different signal when tail moves
+Subject: [PATCH 12/77] Added different signal when tail moves
 
 ---
  libavcodec/rpi_qpu.c | 11 ++++++-----
@@ -8392,10 +8392,10 @@ index 966a042..8e8805c 100644
 1.9.1
 
 
-From 6e4fc46f673ea6be1bbc726bdc1ae726ec91fc3c Mon Sep 17 00:00:00 2001
+From 80314c0b1e9d168d5f6b3d300b568c223470244b Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 7 May 2015 08:57:11 +0100
-Subject: [PATCH 13/74] Add option to test for gpu_idle
+Subject: [PATCH 13/77] Add option to test for gpu_idle
 
 ---
  libavcodec/hevc.c    |  3 ++-
@@ -8463,10 +8463,10 @@ index 8e8805c..1da2edc 100644
 1.9.1
 
 
-From 60ad94b3183400870ca17762644f4940dbae66ac Mon Sep 17 00:00:00 2001
+From 6ab4eb832d9236360138ae54ca599ba5d031d023 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 7 May 2015 11:01:35 +0100
-Subject: [PATCH 14/74] Added deblocking pass
+Subject: [PATCH 14/77] Added deblocking pass
 
 ---
  libavcodec/hevc.c        | 33 +++++++++++++++++++++++++++------
@@ -8618,10 +8618,10 @@ index 1da2edc..2dd2a8e 100644
 1.9.1
 
 
-From 09009fc0d122498915badd8a3ad31a9acecb6125 Mon Sep 17 00:00:00 2001
+From 08c0c64830cbdb77a75980a4e5dd03a19a18eb37 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 7 May 2015 16:47:47 +0100
-Subject: [PATCH 15/74] Added option to disable deblocking for non-ref frames
+Subject: [PATCH 15/77] Added option to disable deblocking for non-ref frames
 
 ---
  libavcodec/hevc_filter.c | 11 ++++++++++-
@@ -8660,10 +8660,10 @@ index b51400a..c275b0c 100644
 1.9.1
 
 
-From bbb7643bd6f3c57c142d7f8d5e01fc228b72d33e Mon Sep 17 00:00:00 2001
+From ce9dc9925b9850eb8f00dd7e7ebb0549cb488405 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Mon, 11 May 2015 10:00:27 +0100
-Subject: [PATCH 16/74] Moved buffers to VPU memory
+Subject: [PATCH 16/77] Moved buffers to VPU memory
 
 ---
  libavcodec/hevc_filter.c | 15 ++++++++++++-
@@ -8830,10 +8830,10 @@ index b4399fd..0489002 100644
 1.9.1
 
 
-From 7ea909eba07a445fabc346edd4d8654225507deb Mon Sep 17 00:00:00 2001
+From 7a6297410b53d11236a209e6e9f7dde3527186eb Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Mon, 11 May 2015 14:04:37 +0100
-Subject: [PATCH 17/74] Prepared QPU execute code
+Subject: [PATCH 17/77] Prepared QPU execute code
 
 ---
  libavcodec/hevc.c               | 229 ++++++++++++++++++++++++++++++++++------
@@ -9349,10 +9349,10 @@ index 3526fce..2b22d98 100644
 1.9.1
 
 
-From 3edc3a50ad7fdac1f20f88503a289dd2a2372806 Mon Sep 17 00:00:00 2001
+From e2f8ac723091cebeac65a09e5e5da8c41884554c Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 11:47:23 +0100
-Subject: [PATCH 18/74] Drafted chroma interpolation on QPUs
+Subject: [PATCH 18/77] Drafted chroma interpolation on QPUs
 
 ---
  libavcodec/hevc.c          |   7 ++--
@@ -9716,10 +9716,10 @@ index 2214745..b670b12 100644
 1.9.1
 
 
-From 79d422627e0c2d403b35ba92eceb37c500437977 Mon Sep 17 00:00:00 2001
+From b225f764c4e1aabf03cbfbd407d58480c255f14f Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 13:54:11 +0100
-Subject: [PATCH 19/74] Fixed chroma inter prediction
+Subject: [PATCH 19/77] Fixed chroma inter prediction
 
 ---
  libavcodec/hevc.c          |    8 +-
@@ -13634,10 +13634,10 @@ index b670b12..e28f54e 100644
 1.9.1
 
 
-From 44be978cbd2408fc54006f7252c85093bff45c0f Mon Sep 17 00:00:00 2001
+From 584ebff01ed6173a640165e456130d179d14741a Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 14:37:32 +0100
-Subject: [PATCH 20/74] Removed unused luma functions
+Subject: [PATCH 20/77] Removed unused luma functions
 
 ---
  libavcodec/hevc.c          |    4 +-
@@ -16024,10 +16024,10 @@ index e28f54e..7f08c25 100644
 1.9.1
 
 
-From 5d644a8efdeea13b99d8c522b3b3d3c063e919e2 Mon Sep 17 00:00:00 2001
+From 5d5012ac639e311451107eec8a065d9f061962ee Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 14:54:25 +0100
-Subject: [PATCH 21/74] Moved chroma P1 to QPUs
+Subject: [PATCH 21/77] Moved chroma P1 to QPUs
 
 ---
  libavcodec/hevc.c | 38 ++++++++++++++++++++++++++++++++++++++
@@ -16086,10 +16086,10 @@ index f34c4f9..8ded17f 100644
 1.9.1
 
 
-From ccb2da34ee4716c6bac17d1ecb1a082a37b35b69 Mon Sep 17 00:00:00 2001
+From ec4252c14ee6901de9fff97fce48b7601834bd6e Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 15:13:47 +0100
-Subject: [PATCH 22/74] Added B prediction - not quite right
+Subject: [PATCH 22/77] Added B prediction - not quite right
 
 ---
  libavcodec/hevc.c          |  58 ++++++++++++++++++++++++
@@ -16409,10 +16409,10 @@ index 7f08c25..fa14313 100644
 1.9.1
 
 
-From 4d145194fce6779032ea349f7532ab604df95c72 Mon Sep 17 00:00:00 2001
+From 1638183f5c3cd437b46b5f89143616798853f23b Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 13 May 2015 16:12:58 +0100
-Subject: [PATCH 23/74] Round up display size
+Subject: [PATCH 23/77] Round up display size
 
 ---
  ffmpeg.c | 12 +++++++-----
@@ -16458,10 +16458,10 @@ index 3daa2f4..53e32da 100644
 1.9.1
 
 
-From e2000c0ef2a6c626f9f26b84e89a34aeecdea1db Mon Sep 17 00:00:00 2001
+From 63545a3c3734f7779e99d5e1f4d385095f02fa12 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 08:15:55 +0100
-Subject: [PATCH 24/74] Added flush for SAO
+Subject: [PATCH 24/77] Added flush for SAO
 
 ---
  libavcodec/hevc.c        |  2 +-
@@ -16557,10 +16557,10 @@ index 3150cd0..b2b665d 100644
 1.9.1
 
 
-From 45e76a011cc96297c9da9ebe804e4d45631b3d41 Mon Sep 17 00:00:00 2001
+From 565c5bd1840feb55730a0d24f42ba51ebc37f64e Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 08:16:33 +0100
-Subject: [PATCH 25/74] Fixed compilation bug
+Subject: [PATCH 25/77] Fixed compilation bug
 
 ---
  libavcodec/hevc_filter.c | 2 +-
@@ -16583,10 +16583,10 @@ index b2b665d..9fb08bc 100644
 1.9.1
 
 
-From 9ee7d46e3c48df5ffc8986f763b89d1a52734e19 Mon Sep 17 00:00:00 2001
+From 4caf7535365a2323e6e6b485d9dfa9cb5726d645 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 09:17:28 +0100
-Subject: [PATCH 26/74] Stopped using acceleration in unsupported cases
+Subject: [PATCH 26/77] Stopped using acceleration in unsupported cases
 
 ---
  libavcodec/hevc.c       | 15 +++++++--------
@@ -16657,10 +16657,10 @@ index f2ff50d..7096e31 100644
 1.9.1
 
 
-From ae27bc420edaa63be4ab17e0679bf59e2a3f6a7a Mon Sep 17 00:00:00 2001
+From cd2ee2264f86165dd782cec4b1cafa964ffa91f2 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 09:42:16 +0100
-Subject: [PATCH 27/74] Split B prediction into two passes
+Subject: [PATCH 27/77] Split B prediction into two passes
 
 ---
  libavcodec/hevc.c          |   1 +
@@ -17600,10 +17600,10 @@ index fa14313..2e66dbe 100644
 1.9.1
 
 
-From 9b2c4b1b831f8e61dd269735baa98b16b2642a9d Mon Sep 17 00:00:00 2001
+From 365a00d7a50aac730c67bc9ea331801fa21e8c71 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 10:04:55 +0100
-Subject: [PATCH 28/74] Switch to using 16bit temp buffers
+Subject: [PATCH 28/77] Switch to using 16bit temp buffers
 
 ---
  libavcodec/hevc.c          |  2 +-
@@ -17685,10 +17685,10 @@ index 2e66dbe..ded5e40 100644
 1.9.1
 
 
-From 179e7ffadd048ac96f2bc8889fa27d6e7bfb2102 Mon Sep 17 00:00:00 2001
+From 2631728ec406c6d9311b526daa6ada7965917899 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 10:30:44 +0100
-Subject: [PATCH 29/74] Corrected B prediction: matching md5 sum for hobbit50
+Subject: [PATCH 29/77] Corrected B prediction: matching md5 sum for hobbit50
 
 ---
  libavcodec/rpi_shader.c    | 815 ++++++++++++++++++++++-----------------------
@@ -18662,10 +18662,10 @@ index ded5e40..23d674e 100644
 1.9.1
 
 
-From 4b37ed7f8faf2a29eb4784e51dde9f7a31d73e02 Mon Sep 17 00:00:00 2001
+From 61974b3b7955caadcccfe67f70d37be550cbfd5d Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 10:55:07 +0100
-Subject: [PATCH 30/74] P prediction uses 4 tap filters
+Subject: [PATCH 30/77] P prediction uses 4 tap filters
 
 ---
  libavcodec/hevc.c          |  50 ++--
@@ -19556,10 +19556,10 @@ index 23d674e..9bbd9b5 100644
 1.9.1
 
 
-From b3ab1920bc424437a36da3196aa00dcba409b51f Mon Sep 17 00:00:00 2001
+From ce5687c17e129a2e55f28f39d2d333c11bd0c194 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:03:51 +0100
-Subject: [PATCH 31/74] Optimised B0 pass
+Subject: [PATCH 31/77] Optimised B0 pass
 
 ---
  libavcodec/rpi_shader.c    | 424 +++++++++++++++++++++------------------------
@@ -20126,10 +20126,10 @@ index 9bbd9b5..26f1c13 100644
 1.9.1
 
 
-From 9d1cd331ae765c42f3b8003e72ed1db67763dfd6 Mon Sep 17 00:00:00 2001
+From 6bbb5df80c069d8fe2ab11907074a285f62b99b6 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:12:43 +0100
-Subject: [PATCH 32/74] Optimised B pass
+Subject: [PATCH 32/77] Optimised B pass
 
 ---
  libavcodec/rpi_shader.c    | 202 ++++++++++++++++++++-------------------------
@@ -20472,10 +20472,10 @@ index 26f1c13..ab1ec62 100644
 1.9.1
 
 
-From d99b7cafdd66ef619984e241abd06777268aa27e Mon Sep 17 00:00:00 2001
+From 0ea8d84836923afe67ede0caa3b5bd40e902982d Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:17:09 +0100
-Subject: [PATCH 33/74] Used P delay slots more efficiently
+Subject: [PATCH 33/77] Used P delay slots more efficiently
 
 ---
  libavcodec/rpi_shader.c    | 437 ++++++++++++++++++++++-----------------------
@@ -21006,10 +21006,10 @@ index ab1ec62..846d08e 100644
 1.9.1
 
 
-From 836832a07924006c78493fb01295f78b9b549d8e Mon Sep 17 00:00:00 2001
+From 7f0fbb0d4163c9edf74c4ad003f8407ede5a1ac0 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:22:25 +0100
-Subject: [PATCH 34/74] Improved use of delay slots
+Subject: [PATCH 34/77] Improved use of delay slots
 
 ---
  libavcodec/rpi_shader.c    | 503 ++++++++++++++++++++++-----------------------
@@ -21640,10 +21640,10 @@ index 846d08e..13eb0d8 100644
 1.9.1
 
 
-From 53f7b4b345eb5a69df29d6abb86e988ae4d4752e Mon Sep 17 00:00:00 2001
+From b4575df7b3567d967ce0cf72cf6eb50d598b7efe Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:31:23 +0100
-Subject: [PATCH 35/74] Avoid writeback of first B results
+Subject: [PATCH 35/77] Avoid writeback of first B results
 
 ---
  libavcodec/rpi_shader.c    | 229 ++++++++++++++++++++++-----------------------
@@ -21952,10 +21952,10 @@ index 13eb0d8..23b085f 100644
 1.9.1
 
 
-From 195124148ef912e6ad3c1aa7224b3a9a7a23a982 Mon Sep 17 00:00:00 2001
+From f2fbc15c3a6b25050a831f79b114c6eccd3048aa Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:36:24 +0100
-Subject: [PATCH 36/74] Cutdown size of chroma prediction commands
+Subject: [PATCH 36/77] Cutdown size of chroma prediction commands
 
 ---
  libavcodec/hevc.c          |  17 +-
@@ -22676,10 +22676,10 @@ index 23b085f..4aed168 100644
 1.9.1
 
 
-From fbb810a3313dcc591d02be23d0edf3ff6d4e7ac4 Mon Sep 17 00:00:00 2001
+From a0210a8cd37ae2fc75e837ee93e09d3af09f3ac8 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 14 May 2015 11:41:09 +0100
-Subject: [PATCH 37/74] Commented reason for lack of saturation
+Subject: [PATCH 37/77] Commented reason for lack of saturation
 
 ---
  libavcodec/rpi_hevc_transform.s | 2 +-
@@ -22702,10 +22702,10 @@ index 1a4dfb5..6a1959f 100644
 1.9.1
 
 
-From b1f140d49e3173feca91839495c9e3636d3939b9 Mon Sep 17 00:00:00 2001
+From 155e465f24503a2691fb59ccbceb1d09294032fd Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 15:21:33 +0100
-Subject: [PATCH 38/74] ffmpeg: Fix align up of width/height
+Subject: [PATCH 38/77] ffmpeg: Fix align up of width/height
 
 ---
  ffmpeg.c | 20 +++++++++++---------
@@ -22765,10 +22765,10 @@ index 53e32da..9974a6d 100644
 1.9.1
 
 
-From f1afc95dddc572e03826b11060e2939969999e54 Mon Sep 17 00:00:00 2001
+From 09504cd897622ea0a6099b1f1aa16c20987fcbed Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 15:21:49 +0100
-Subject: [PATCH 39/74] hevc: don't redirect when not rpi_enabled
+Subject: [PATCH 39/77] hevc: don't redirect when not rpi_enabled
 
 ---
  libavcodec/hevc.c | 2 +-
@@ -22791,10 +22791,10 @@ index 747f949..ad2b613 100644
 1.9.1
 
 
-From 9c57258a7683e43bf7c0428b4f844e87a8ee534d Mon Sep 17 00:00:00 2001
+From fee4118069e8db4a28b9d48ddbb3a2614eaa1a2e Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 15:22:02 +0100
-Subject: [PATCH 40/74] Use /dev/vcio for mailbox access
+Subject: [PATCH 40/77] Use /dev/vcio for mailbox access
 
 ---
  libavcodec/rpi_mailbox.c | 2 +-
@@ -22817,10 +22817,10 @@ index 536896f..77a56dd 100644
 1.9.1
 
 
-From 60fe0187053ef89acbf6be10e6845577fda4e4bb Mon Sep 17 00:00:00 2001
+From 211ac8b8dd97709cc6bf31bee5c32afe963517f2 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 15:25:25 +0100
-Subject: [PATCH 41/74] Use vcsm for all memory allocations
+Subject: [PATCH 41/77] Use vcsm for all memory allocations
 
 ---
  libavcodec/rpi_qpu.c | 180 +++++++++++++++++++--------------------------------
@@ -23128,10 +23128,10 @@ index 59f5494..729cdb3 100644
 1.9.1
 
 
-From cfe4cca1d949bbefa9fbf2dc8dfd93136bed9f7b Mon Sep 17 00:00:00 2001
+From e6e1787afe0676db73e0cddac74efbe4f229cba0 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 15:43:17 +0100
-Subject: [PATCH 42/74] Enable EARLY_MALLOC and fix sps access bug
+Subject: [PATCH 42/77] Enable EARLY_MALLOC and fix sps access bug
 
 ---
  libavcodec/hevc.c | 5 +++--
@@ -23164,10 +23164,10 @@ index ad2b613..ce56587 100644
 1.9.1
 
 
-From 798d376fb266781dbb7e079ea960342180e37453 Mon Sep 17 00:00:00 2001
+From e87d7d3b13eb64a60ae20aa0ec961ab9fbe1697f Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 16:40:51 +0100
-Subject: [PATCH 43/74] Add copy of av_mod_uintp2 for use with stable ffmpeg
+Subject: [PATCH 43/77] Add copy of av_mod_uintp2 for use with stable ffmpeg
 
 ---
  libavcodec/hevc.c | 8 ++++++++
@@ -23196,10 +23196,10 @@ index ce56587..55c3b55 100644
 1.9.1
 
 
-From 719479256fe6e25798bf1fcf513f3760b0b9f5d7 Mon Sep 17 00:00:00 2001
+From 92bc080ef1c862f493cfb4ace6f0a149d170d9c8 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 17:03:26 +0100
-Subject: [PATCH 44/74] Fix build with RPI not defined
+Subject: [PATCH 44/77] Fix build with RPI not defined
 
 ---
  libavcodec/hevc_cabac.c  | 2 ++
@@ -23242,10 +23242,10 @@ index 9fb08bc..23fe07f 100644
 1.9.1
 
 
-From 4d170c941c4e15ce20d482d4dd6cd5d02c632336 Mon Sep 17 00:00:00 2001
+From c686835fdf48da41d90b989265fc864b2da585dc Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 14 May 2015 17:59:34 +0100
-Subject: [PATCH 45/74] Disable RPI_INTER_QPU for now
+Subject: [PATCH 45/77] Disable RPI_INTER_QPU for now
 
 ---
  libavcodec/hevc.h | 2 +-
@@ -23268,10 +23268,10 @@ index 70303cc..d2a33a4 100644
 1.9.1
 
 
-From 2bb3101215d7ea0569f700fa6581a7a39050389b Mon Sep 17 00:00:00 2001
+From 7ca46e47615c14655dbbd9a0133aad7b2d41cf5d Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Mon, 18 May 2015 11:11:02 +0100
-Subject: [PATCH 46/74] Added support for weighted prediction in P frames
+Subject: [PATCH 46/77] Added support for weighted prediction in P frames
 
 ---
  libavcodec/hevc.c          |  51 +++-
@@ -24126,10 +24126,10 @@ index 4aed168..0a65ab5 100644
 1.9.1
 
 
-From 50538af52618272a9fe8f483ccc19ae2105ba6f9 Mon Sep 17 00:00:00 2001
+From e2f4daa03586b3eba4d141a1164cee19e39732d6 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Wed, 20 May 2015 12:10:58 +0100
-Subject: [PATCH 47/74] ffmpeg: Fix for display seg fault on exit
+Subject: [PATCH 47/77] ffmpeg: Fix for display seg fault on exit
 
 ---
  ffmpeg.c | 3 ++-
@@ -24153,10 +24153,10 @@ index 9974a6d..22ffad4 100644
 1.9.1
 
 
-From c8c5b34b6b1bb9e39bea6c0133b9bebf7f9eb12e Mon Sep 17 00:00:00 2001
+From a05a7d559a3e9b05b75e4af3d13526a1f6304ba5 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 21 May 2015 16:49:03 +0100
-Subject: [PATCH 48/74] Protect access to next_picture in display code
+Subject: [PATCH 48/77] Protect access to next_picture in display code
 
 ---
  ffmpeg.c | 6 ++++--
@@ -24185,10 +24185,10 @@ index 22ffad4..5457de0 100644
 1.9.1
 
 
-From 726f69109aea53d01e36034ef29785e71a6ead9a Mon Sep 17 00:00:00 2001
+From 74ab852a32c3bd9d482c2e25cf8ebe3f6531ed08 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Wed, 20 May 2015 15:19:08 +0100
-Subject: [PATCH 49/74] Revert "Disable RPI_INTER_QPU for now"
+Subject: [PATCH 49/77] Revert "Disable RPI_INTER_QPU for now"
 
 This reverts commit 9e2369c992f660e2bf576773c36337c7a88e27b0.
 ---
@@ -24212,10 +24212,10 @@ index d2a33a4..70303cc 100644
 1.9.1
 
 
-From 202a2d17904fe450c12b11e2fe82ce0e7b017b51 Mon Sep 17 00:00:00 2001
+From 7f728a6139f465da32e047faf88a8089d240deef Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 19 May 2015 08:43:30 +0100
-Subject: [PATCH 50/74] Improved ordering of tasks
+Subject: [PATCH 50/77] Improved ordering of tasks
 
 ---
  libavcodec/hevc.c | 8 ++++----
@@ -24249,10 +24249,10 @@ index fa34e48..79d339c 100644
 1.9.1
 
 
-From 6f3fa457029f92ec2212f61eee3a364c255c97eb Mon Sep 17 00:00:00 2001
+From f6f81480f3a4148a09ed4b75dbb07228e2431637 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 20 May 2015 19:58:19 +0100
-Subject: [PATCH 51/74] Drafted Luma inter prediction
+Subject: [PATCH 51/77] Drafted Luma inter prediction
 
 ---
  libavcodec/rpi_shader.qasm | 594 ++++++++++++++++++++++++++++++++++++++++++---
@@ -25016,10 +25016,10 @@ index 0a65ab5..a0348a0 100644
 1.9.1
 
 
-From a8254ba5330db5e4e40a75aaeb1dc3010b5f106b Mon Sep 17 00:00:00 2001
+From d2eb316fb5c21bd384c28f3815f24ef5af682513 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 20 May 2015 19:58:30 +0100
-Subject: [PATCH 52/74] Added support for fast cache flush in deblocker
+Subject: [PATCH 52/77] Added support for fast cache flush in deblocker
 
 ---
  libavcodec/hevc_filter.c   |   46 +-
@@ -26278,10 +26278,10 @@ index cdc4e4d..95b3125 100644
 1.9.1
 
 
-From 395d78ec0172efa826f881bda7c2b4e620eab547 Mon Sep 17 00:00:00 2001
+From 308456ae7d48cbde8a8f0151db59e7e2cf27b584 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 20 May 2015 21:12:55 +0100
-Subject: [PATCH 53/74] Added multi mailbox - not working
+Subject: [PATCH 53/77] Added multi mailbox - not working
 
 ---
  libavcodec/hevc.c        | 42 +++++++++++++++++++++++++++++----
@@ -26571,10 +26571,10 @@ index 88965e5..9e5ebe7 100644
 1.9.1
 
 
-From f94e31568f85f7bb8e8a77da9d73e8f06e01b9d5 Mon Sep 17 00:00:00 2001
+From 791525c3bd6ea49fe00492e1b98de6804f77ef40 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 21 May 2015 16:50:02 +0100
-Subject: [PATCH 54/74] Pass qpu number in as uniform
+Subject: [PATCH 54/77] Pass qpu number in as uniform
 
 ---
  libavcodec/hevc.c          |    2 +-
@@ -28010,10 +28010,10 @@ index a0348a0..38abba2 100644
 1.9.1
 
 
-From 324fd0f5d43278965ab613a4c0e5922a7e100691 Mon Sep 17 00:00:00 2001
+From a4b5097b7133f5a3b6e78e69d62b1ec55d024da6 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Sat, 23 May 2015 13:20:21 +0100
-Subject: [PATCH 55/74] Add new cache flushing routine
+Subject: [PATCH 55/77] Add new cache flushing routine
 
 ---
  libavcodec/hevc.c          |  8 +++--
@@ -28266,10 +28266,10 @@ index 95b3125..94e6e79 100644
 1.9.1
 
 
-From 208e846bf3d73583c5f9c5ba73bae1688223ecb1 Mon Sep 17 00:00:00 2001
+From 0c4c2a62cda51d2ea4e48ce38b4508adf69d8891 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Sat, 23 May 2015 21:10:10 +0100
-Subject: [PATCH 56/74] Fix multi mailbox extra transform call
+Subject: [PATCH 56/77] Fix multi mailbox extra transform call
 
 ---
  libavcodec/hevc.c | 2 ++
@@ -28293,10 +28293,10 @@ index 1792150..b504e01 100644
 1.9.1
 
 
-From 32f9adefac9acb66671c071e4855d132f85a1ecd Mon Sep 17 00:00:00 2001
+From 61a9545c818f756131b7308902ac429983a64426 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 27 May 2015 16:44:29 +0100
-Subject: [PATCH 57/74] Added support for running luma prediction on QPUs
+Subject: [PATCH 57/77] Added support for running luma prediction on QPUs
 
 ---
  libavcodec/hevc.c          |  249 ++++++++-
@@ -31635,10 +31635,10 @@ index 38abba2..8e720ed 100644
 1.9.1
 
 
-From 82986bdb47a430c7750eeff3714e93fbdcdc2087 Mon Sep 17 00:00:00 2001
+From 76ae1ec2d554c92e25861647ef5da2beaa6a1dd0 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 28 May 2015 15:47:31 +0100
-Subject: [PATCH 58/74] hack: allocate larger buffer to avoid heap corruption
+Subject: [PATCH 58/77] hack: allocate larger buffer to avoid heap corruption
 
 ---
  libavcodec/utils.c | 1 +
@@ -31660,10 +31660,10 @@ index 58fd4f5..bea1635 100644
 1.9.1
 
 
-From ac04efde550a4a9381d3441dfe0c7633bb3e60cd Mon Sep 17 00:00:00 2001
+From e1bd32beef9048f228a8aa3fe3324a5f6509b72b Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Tue, 2 Jun 2015 13:41:02 +0100
-Subject: [PATCH 59/74] Revert "hack: allocate larger buffer to avoid heap
+Subject: [PATCH 59/77] Revert "hack: allocate larger buffer to avoid heap
  corruption"
 
 This reverts commit f06543fd30c83c18a2de794de3ccf9cc5191f379.
@@ -31687,10 +31687,10 @@ index bea1635..58fd4f5 100644
 1.9.1
 
 
-From 2ba9274c058766b5dd8dd9025cfe3593a104a1db Mon Sep 17 00:00:00 2001
+From 3301317b1a3c6d5ede6fae76b7bd81eef464ba69 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 2 Jun 2015 10:58:25 +0100
-Subject: [PATCH 60/74] Added option to simulate QPUs
+Subject: [PATCH 60/77] Added option to simulate QPUs
 
 ---
  libavcodec/hevc.c          | 288 +++++++++++++++++++++++++++++++++++++++++++--
@@ -32168,10 +32168,10 @@ index 58fd4f5..628661a 100644
 1.9.1
 
 
-From 201a462bab81a8998afdd776a226f8db4530a05a Mon Sep 17 00:00:00 2001
+From d9602ed224edf85e6b620349762b939ca8b07534 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 2 Jun 2015 13:17:50 +0100
-Subject: [PATCH 61/74] Increased motion vector memory and fixed block size
+Subject: [PATCH 61/77] Increased motion vector memory and fixed block size
  computation for non-multiple of 2 block sizes
 
 ---
@@ -32366,10 +32366,10 @@ index 5872640..b0f11fb 100644
 1.9.1
 
 
-From b0b2aafd922d19c4cb1b48e2719a94693caee60c Mon Sep 17 00:00:00 2001
+From d63f1fe479f7e97700925737a54f0be8294dc42a Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 2 Jun 2015 14:36:54 +0100
-Subject: [PATCH 62/74] Added support for skip deblock
+Subject: [PATCH 62/77] Added support for skip deblock
 
 ---
  libavcodec/hevc.c        | 10 ++++++++++
@@ -32460,10 +32460,10 @@ index 979ad61..528afac 100644
 1.9.1
 
 
-From 639922e11a4eeb3ec2ceae873c29b8c6c5ec8703 Mon Sep 17 00:00:00 2001
+From 574548653cee24db699bc0a5e46bc5b021fb5d3c Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Tue, 2 Jun 2015 15:22:52 +0100
-Subject: [PATCH 63/74] Added support for skip_frame
+Subject: [PATCH 63/77] Added support for skip_frame
 
 ---
  libavcodec/hevc.c | 17 +++++++++++------
@@ -32508,10 +32508,10 @@ index f40d9aa..2cb4e82 100644
 1.9.1
 
 
-From bcc71229f7acb1ce53390da9542177e2254132c1 Mon Sep 17 00:00:00 2001
+From 5a027872618f2446a7d5d1543f596e4a3937bd74 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 3 Jun 2015 09:15:38 +0100
-Subject: [PATCH 64/74] Fixed cache flushing of luma when using old method
+Subject: [PATCH 64/77] Fixed cache flushing of luma when using old method
 
 ---
  libavcodec/hevc_filter.c | 2 +-
@@ -32534,10 +32534,10 @@ index 528afac..ec1953b 100644
 1.9.1
 
 
-From 4c96edc951676028e2f6a578ca6e9afbbe8d362b Mon Sep 17 00:00:00 2001
+From b7a8190e1b83c856f8acd3640525e1ded53d9f98 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 3 Jun 2015 11:37:27 +0100
-Subject: [PATCH 65/74] Option to parallelise coefficient decode and inter
+Subject: [PATCH 65/77] Option to parallelise coefficient decode and inter
  prediction and deblock for each frame
 
 ---
@@ -33835,10 +33835,10 @@ index d90bdad..3f436f6 100644
 1.9.1
 
 
-From 9942bf5eea0e4a9e170dcd530d01500d6406d975 Mon Sep 17 00:00:00 2001
+From f2f3f4364b9debbfae67da01c4d47008c56d67b5 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 3 Jun 2015 13:43:48 +0100
-Subject: [PATCH 66/74] Avoid lockup bug with RPI_WORKER enabled
+Subject: [PATCH 66/77] Avoid lockup bug with RPI_WORKER enabled
 
 ---
  libavcodec/hevc.c       | 23 +++++++++++------------
@@ -33920,10 +33920,10 @@ index c550743..79fe95c 100644
 1.9.1
 
 
-From 79ddffaf3c9ed02528c2ad6708057749ad7a1eea Mon Sep 17 00:00:00 2001
+From 325e5f6a1b96779e4de3c5f92c9f10cd49aa3ac3 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 3 Jun 2015 15:37:19 +0100
-Subject: [PATCH 67/74] Added code to flush buffers at start of frame
+Subject: [PATCH 67/77] Added code to flush buffers at start of frame
 
 ---
  libavcodec/hevc.c | 74 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
@@ -34048,10 +34048,10 @@ index 6e87d77..4b636e5 100644
 1.9.1
 
 
-From 3cc84ffd1204bb413babd2dbe6037676042ed0cf Mon Sep 17 00:00:00 2001
+From 54b7a761483793fca38d8627237ca0a0feb70746 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Wed, 3 Jun 2015 16:42:24 +0100
-Subject: [PATCH 68/74] Reduce the amount that needs to be flushed
+Subject: [PATCH 68/77] Reduce the amount that needs to be flushed
 
 ---
  libavcodec/hevc.c | 45 ++++++++++++++++-----------------------------
@@ -34164,10 +34164,10 @@ index 4b636e5..e7be402 100644
 1.9.1
 
 
-From a8c9e6a5408a9aaf9a34613ed34873d8611a9ac3 Mon Sep 17 00:00:00 2001
+From ed332a1c6b5a2b3534e1aecf4d4f88e16299fdd7 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 4 Jun 2015 07:59:28 +0100
-Subject: [PATCH 69/74] Corrected support for disabled rpi when using
+Subject: [PATCH 69/77] Corrected support for disabled rpi when using
  RPI_WORKER
 
 ---
@@ -34247,10 +34247,10 @@ index 3f436f6..d2be290 100644
 1.9.1
 
 
-From ea967667e63d3ecb0f692158f0d875f85b3560a2 Mon Sep 17 00:00:00 2001
+From 229fa16b6ae10977187624da249facd765831cb0 Mon Sep 17 00:00:00 2001
 From: Peter de Rivaz <peter.derivaz@gmail.com>
 Date: Thu, 4 Jun 2015 11:52:55 +0100
-Subject: [PATCH 70/74] Draft support for tiles
+Subject: [PATCH 70/77] Draft support for tiles
 
 ---
  libavcodec/hevc.c              | 149 +++++++++++++++++++++++------------------
@@ -34758,10 +34758,10 @@ index 37381ca..ec78823 100644
 1.9.1
 
 
-From fe784f3349486f2c674236c69ae2cebe8f67818c Mon Sep 17 00:00:00 2001
+From 651f0f1ec313c9752061c0550e3edb6fbb2f0f82 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 4 Jun 2015 14:56:56 +0100
-Subject: [PATCH 71/74] Don't add to start of HEVCContext structure - it is
+Subject: [PATCH 71/77] Don't add to start of HEVCContext structure - it is
  special
 
 ---
@@ -34811,10 +34811,10 @@ index b9095a1..383ab88 100644
 1.9.1
 
 
-From f03776be5f056cae61199c826722f2f3ec63254a Mon Sep 17 00:00:00 2001
+From 509a23c9c623cfe8159f664a090adea0828245b3 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 4 Jun 2015 15:48:10 +0100
-Subject: [PATCH 72/74] Move deblocker into second pass
+Subject: [PATCH 72/77] Move deblocker into second pass
 
 ---
  libavcodec/hevc.c | 81 ++++++++++++++++++++++++++++++++++++++++++++-----------
@@ -34967,10 +34967,10 @@ index b5c26f6..761eb45 100644
 1.9.1
 
 
-From 191cf0eed3910b1761bcf5c7ea3f8b93b6e59829 Mon Sep 17 00:00:00 2001
+From 41eb5d8ae62b9322ecf01d18415bf526be80b1f4 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 4 Jun 2015 16:10:23 +0100
-Subject: [PATCH 73/74] Change order of ctu accesses to improve qpu performance
+Subject: [PATCH 73/77] Change order of ctu accesses to improve qpu performance
 
 ---
  libavcodec/hevc.c | 8 ++++----
@@ -35008,10 +35008,10 @@ index 761eb45..9f8c142 100644
 1.9.1
 
 
-From 55095dc82204b342cc6d58429f4b8de87666659a Mon Sep 17 00:00:00 2001
+From 997f3d1e4adf75ec8426848d6ba2069093c395f6 Mon Sep 17 00:00:00 2001
 From: popcornmix <popcornmix@gmail.com>
 Date: Thu, 4 Jun 2015 17:36:35 +0100
-Subject: [PATCH 74/74] Remove unneeded use_for_ref assignment
+Subject: [PATCH 74/77] Remove unneeded use_for_ref assignment
 
 ---
  libavcodec/hevc.c | 5 -----
@@ -35032,6 +35032,496 @@ index 9f8c142..1b5341d 100644
 -                        s->nal_unit_type == NAL_RASL_N); 
      //printf("Wavefront\n");
  #endif
+ 
+-- 
+1.9.1
+
+
+From fd82b4034dd8692da132bc270e581b55574c67c1 Mon Sep 17 00:00:00 2001
+From: Peter de Rivaz <peter.derivaz@gmail.com>
+Date: Mon, 8 Jun 2015 09:36:59 +0100
+Subject: [PATCH 75/77] Removed deblocker thread
+
+---
+ libavcodec/hevc.c | 87 ++++++-------------------------------------------------
+ libavcodec/hevc.h |  4 ---
+ 2 files changed, 9 insertions(+), 82 deletions(-)
+
+diff --git a/libavcodec/hevc.c b/libavcodec/hevc.c
+index 1b5341d..deef3dd 100644
+--- a/libavcodec/hevc.c
++++ b/libavcodec/hevc.c
+@@ -68,11 +68,6 @@
+   static void flush_frame(HEVCContext *s,AVFrame *frame);
+   static void flush_frame3(HEVCContext *s,AVFrame *frame,GPU_MEM_PTR_T *p0,GPU_MEM_PTR_T *p1,GPU_MEM_PTR_T *p2);
+   
+-  // Define INTER_PASS0 to do inter prediction in first pass
+-  //#define INTER_PASS0
+-  // Define LAUNCH_PASS0 to launch QPU/VPU from pass0
+-  //#define LAUNCH_PASS0
+-  
+ #endif
+ 
+ // #define DISABLE_MC
+@@ -145,24 +140,12 @@ static void worker_submit_job(HEVCContext *s)
+ }
+ 
+ // Call this to say we have completed pass1
+-static void worker_complete_middle_job(HEVCContext *s)
+-{
+-  LOG_ENTER
+-  pthread_mutex_lock(&s->worker_mutex);
+-  s->worker_middle++;
+-  s->pass1_job = (s->pass1_job + 1) % RPI_MAX_JOBS; // Move onto the next slot
+-  pthread_cond_broadcast(&s->worker_cond_middle); // Let people know that the middle has moved
+-  pthread_mutex_unlock(&s->worker_mutex);
+-  LOG_EXIT
+-}
+-
+-// Call this to say we have completed pass2
+ static void worker_complete_job(HEVCContext *s)
+ {
+   LOG_ENTER
+   pthread_mutex_lock(&s->worker_mutex);
+   s->worker_head++;
+-  s->pass2_job = (s->pass2_job + 1) % RPI_MAX_JOBS; // Move onto the next slot
++  s->pass1_job = (s->pass1_job + 1) % RPI_MAX_JOBS; // Move onto the next slot
+   pthread_cond_broadcast(&s->worker_cond_head); // Let people know that the head has moved
+   pthread_mutex_unlock(&s->worker_mutex);
+   LOG_EXIT
+@@ -206,7 +189,7 @@ static void *worker_start(void *arg)
+   while(1) {
+     pthread_mutex_lock(&s->worker_mutex);
+ 
+-    while( !s->kill_worker && s->worker_tail - s->worker_middle <= 0)
++    while( !s->kill_worker && s->worker_tail - s->worker_head <= 0)
+     {
+       pthread_cond_wait(&s->worker_cond_tail, &s->worker_mutex);
+     }
+@@ -216,14 +199,10 @@ static void *worker_start(void *arg)
+       break;
+     }
+     LOG_ENTER
+-    // printf("%d %d %d : %d %d %d %d\n",s->poc, x_ctb, y_ctb, s->num_pred_cmds,s->num_mv_cmds,s->num_coeffs[2] >> 8,s->num_coeffs[3] >> 10);
+-#ifndef LAUNCH_PASS0   
++    // printf("%d %d %d : %d %d %d %d\n",s->poc, x_ctb, y_ctb, s->num_pred_cmds,s->num_mv_cmds,s->num_coeffs[2] >> 8,s->num_coeffs[3] >> 10);   
+     rpi_launch_vpu_qpu(s);
+-#endif
+-#ifndef INTER_PASS0
+     // Perform inter prediction
+     rpi_execute_inter_cmds(s);
+-#endif
+     // Wait for transform completion
+     vpu_wait(s->vpu_id);
+     
+@@ -232,28 +211,6 @@ static void *worker_start(void *arg)
+     // Perform deblocking for CTBs in this row
+     rpi_execute_dblk_cmds(s);
+ 
+-    worker_complete_middle_job(s);
+-    LOG_EXIT
+-  }
+-  return NULL;
+-}
+-
+-static void *worker_deblock_start(void *arg)
+-{
+-  HEVCContext *s = (HEVCContext *)arg;
+-  while(1) {
+-    pthread_mutex_lock(&s->worker_mutex);
+-    while( !s->kill_worker && s->worker_middle - s->worker_head <= 0)
+-    {
+-      pthread_cond_wait(&s->worker_cond_middle, &s->worker_mutex);
+-    }
+-    pthread_mutex_unlock(&s->worker_mutex);
+-    
+-    if (s->kill_worker) {
+-      break;
+-    }
+-    LOG_ENTER
+-
+     worker_complete_job(s);
+     LOG_EXIT
+   }
+@@ -2961,12 +2918,8 @@ static void rpi_execute_dblk_cmds(HEVCContext *s)
+             
+ static void rpi_execute_transform(HEVCContext *s)
+ {
+-    int i=2;
+-#ifdef LAUNCH_PASS0
+-    int job = s->pass0_job;
+-#else    
+-    int job = s->pass1_job;
+-#endif    
++    int i=2;   
++    int job = s->pass1_job;   
+     //int j;
+     //int16_t *coeffs = s->coeffs_buf_arm[i];
+     //for(j=s->num_coeffs[i]; j > 0; j-= 16*16, coeffs+=16*16) {
+@@ -3021,11 +2974,7 @@ static void rpi_execute_pred_cmds(HEVCContext *s)
+ 
+ static void rpi_execute_inter_cmds(HEVCContext *s)
+ {
+-#ifdef INTER_PASS0
+-    int job = s->pass0_job;
+-#else
+-    int job = s->pass1_job;
+-#endif    
++    int job = s->pass1_job;   
+     HEVCMvCmd *cmd = s->unif_mv_cmds[job];
+     int n,cidx;
+     AVFrame myref;
+@@ -3430,12 +3379,8 @@ static void rpi_simulate_inter_qpu(HEVCContext *s)
+ 
+ static void rpi_launch_vpu_qpu(HEVCContext *s)
+ {
+-    int k;
+-#ifdef LAUNCH_PASS0
+-    int job = s->pass0_job;
+-#else    
++    int k;   
+     int job = s->pass1_job;
+-#endif		
+     int i;
+     uint32_t *unif_vc = (uint32_t *)s->unif_mvs_ptr[job].vc;  
+ #ifdef RPI_LUMA_QPU
+@@ -3538,10 +3483,12 @@ static void rpi_launch_vpu_qpu(HEVCContext *s)
+ 
+ #ifdef RPI
+ 
++#ifndef RPI_FAST_CACHEFLUSH
+ static void flush_buffer(AVBufferRef *bref) {
+     GPU_MEM_PTR_T *p = av_buffer_pool_opaque(bref);
+     gpu_cache_flush(p);
+ }
++#endif
+ 
+ static void flush_frame(HEVCContext *s,AVFrame *frame) 
+ { 
+@@ -3676,7 +3623,6 @@ static int hls_decode_entry(AVCodecContext *avctxt, void *isFilterThread)
+ #ifdef RPI_WORKER
+     s->pass0_job = 0;
+     s->pass1_job = 0;
+-    s->pass2_job = 0;
+ #endif
+ #ifdef RPI
+     rpi_begin(s);
+@@ -3727,12 +3673,6 @@ static int hls_decode_entry(AVCodecContext *avctxt, void *isFilterThread)
+ #ifdef RPI_WORKER
+             if (s->used_for_ref) {
+               // Split work load onto separate threads so we make as rapid progress as possible with this frame
+-  #ifdef INTER_PASS0
+-              rpi_execute_inter_cmds(s);
+-  #endif
+-  #ifdef LAUNCH_PASS0
+-              rpi_launch_vpu_qpu(s);
+-  #endif 
+               // Pass on this job to worker thread
+               worker_submit_job(s);
+               // Make sure we have space to prepare the next job
+@@ -3774,8 +3714,6 @@ static int hls_decode_entry(AVCodecContext *avctxt, void *isFilterThread)
+     // Wait for the worker to finish all its jobs
+     if (s->enable_rpi) {
+         worker_wait(s);
+-        av_assert0(s->pass0_job==s->pass1_job);
+-        av_assert0(s->pass1_job==s->pass2_job);
+     }
+ #endif
+ 
+@@ -4676,16 +4614,13 @@ static av_cold void hevc_init_worker(HEVCContext *s)
+ {
+     int err;
+     pthread_cond_init(&s->worker_cond_head, NULL);
+-    pthread_cond_init(&s->worker_cond_middle, NULL);
+     pthread_cond_init(&s->worker_cond_tail, NULL);
+     pthread_mutex_init(&s->worker_mutex, NULL);
+ 
+     s->worker_tail=0;
+-    s->worker_middle=0;
+     s->worker_head=0;
+     s->kill_worker=0;
+     err = pthread_create(&s->worker_thread, NULL, worker_start, s);
+-    err = pthread_create(&s->worker_deblock_thread, NULL, worker_deblock_start, s);
+     if (err) {
+         printf("Failed to create worker thread\n");
+         exit(-1);
+@@ -4697,17 +4632,13 @@ static av_cold void hevc_exit_worker(HEVCContext *s)
+     void *res;
+     s->kill_worker=1;
+     pthread_cond_broadcast(&s->worker_cond_tail);
+-    pthread_cond_broadcast(&s->worker_cond_middle);
+     pthread_join(s->worker_thread, &res); 
+-    pthread_join(s->worker_deblock_thread, &res); 
+     
+     pthread_cond_destroy(&s->worker_cond_head);
+-    pthread_cond_destroy(&s->worker_cond_middle);
+     pthread_cond_destroy(&s->worker_cond_tail);
+     pthread_mutex_destroy(&s->worker_mutex);
+ 
+     s->worker_tail=0;
+-    s->worker_middle=0;
+     s->worker_head=0;
+     s->kill_worker=0;
+ }
+diff --git a/libavcodec/hevc.h b/libavcodec/hevc.h
+index 383ab88..223a5d7 100644
+--- a/libavcodec/hevc.h
++++ b/libavcodec/hevc.h
+@@ -927,7 +927,6 @@ typedef struct HEVCContext {
+     //GPU_MEM_PTR_T dummy;
+     int pass0_job; // Pass0 does coefficient decode
+     int pass1_job; // Pass1 does pixel processing
+-    int pass2_job; // Pass2 does reconstruction and deblocking
+     int ctu_count; // Number of CTUs done in pass0 so far
+     int max_ctu_count; // Number of CTUs when we trigger a round of processing
+     int ctu_per_y_chan; // Number of CTUs per luma QPU 
+@@ -959,15 +958,12 @@ typedef struct HEVCContext {
+ 
+ #ifdef RPI_WORKER
+     pthread_t worker_thread;
+-    pthread_t worker_deblock_thread;
+     pthread_cond_t worker_cond_head;
+     pthread_cond_t worker_cond_tail;
+-    pthread_cond_t worker_cond_middle;
+     pthread_mutex_t worker_mutex;
+ 
+     int worker_tail; // Contains the number of posted jobs
+     int worker_head; // Contains the number of completed jobs
+-    int worker_middle; // Contains the number of completed jobs
+     int kill_worker; // set to 1 to terminate the worker
+ #endif
+     
+-- 
+1.9.1
+
+
+From 1af7ec59d398fc729e22238159ede00866c79aee Mon Sep 17 00:00:00 2001
+From: Peter de Rivaz <peter.derivaz@gmail.com>
+Date: Mon, 8 Jun 2015 11:04:43 +0100
+Subject: [PATCH 76/77] Reduced amount of output frame that is invalidated
+
+---
+ libavcodec/hevc.c | 45 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 16 deletions(-)
+
+diff --git a/libavcodec/hevc.c b/libavcodec/hevc.c
+index deef3dd..8d26b7e 100644
+--- a/libavcodec/hevc.c
++++ b/libavcodec/hevc.c
+@@ -66,7 +66,7 @@
+   static void rpi_execute_inter_cmds(HEVCContext *s);
+   static void rpi_begin(HEVCContext *s);
+   static void flush_frame(HEVCContext *s,AVFrame *frame);
+-  static void flush_frame3(HEVCContext *s,AVFrame *frame,GPU_MEM_PTR_T *p0,GPU_MEM_PTR_T *p1,GPU_MEM_PTR_T *p2);
++  static void flush_frame3(HEVCContext *s,AVFrame *frame,GPU_MEM_PTR_T *p0,GPU_MEM_PTR_T *p1,GPU_MEM_PTR_T *p2, int job);
+   
+ #endif
+ 
+@@ -3418,9 +3418,9 @@ static void rpi_launch_vpu_qpu(HEVCContext *s)
+ 
+ #ifdef RPI_MULTI_MAILBOX
+ #ifdef RPI_CACHE_UNIF_MVS
+-    flush_frame3(s, s->frame,&s->coeffs_buf_accelerated[job],&s->y_unif_mvs_ptr[job], &s->unif_mvs_ptr[job]);
++    flush_frame3(s, s->frame,&s->coeffs_buf_accelerated[job],&s->y_unif_mvs_ptr[job], &s->unif_mvs_ptr[job], job);
+ #else
+-    flush_frame3(s, s->frame,&s->coeffs_buf_accelerated[job],NULL,NULL);
++    flush_frame3(s, s->frame,&s->coeffs_buf_accelerated[job],NULL,NULL, job);
+ #endif
+     s->vpu_id = vpu_qpu_post_code( vpu_get_fn(), vpu_get_constants(), s->coeffs_buf_vc[job][2], s->num_coeffs[job][2] >> 8, s->coeffs_buf_vc[job][3], s->num_coeffs[job][3] >> 10, 0,
+                                    qpu_get_fn(QPU_MC_SETUP_UV),
+@@ -3494,6 +3494,7 @@ static void flush_frame(HEVCContext *s,AVFrame *frame)
+ { 
+ #ifdef RPI_FAST_CACHEFLUSH
+     struct vcsm_user_clean_invalid_s iocache = {};
++    GPU_MEM_PTR_T *p = av_buffer_pool_opaque(frame->buf[1]);
+     int n = s->sps->height;
+     int curr_y = 0;
+     int curr_uv = 0;
+@@ -3501,22 +3502,21 @@ static void flush_frame(HEVCContext *s,AVFrame *frame)
+     int sz,base;
+     sz = s->frame->linesize[1] * (n_uv-curr_uv);
+     base = s->frame->linesize[1] * curr_uv;
+-    GPU_MEM_PTR_T *p = av_buffer_pool_opaque(frame->buf[1]);
+     iocache.s[0].handle = p->vcsm_handle;
+     iocache.s[0].cmd = 3; // clean+invalidate
+-    iocache.s[0].addr = p->arm + base;
++    iocache.s[0].addr = (int)(p->arm) + base;
+     iocache.s[0].size  = sz;
+     p = av_buffer_pool_opaque(frame->buf[2]);
+     iocache.s[1].handle = p->vcsm_handle;
+     iocache.s[1].cmd = 3; // clean+invalidate
+-    iocache.s[1].addr = p->arm + base;
++    iocache.s[1].addr = (int)(p->arm) + base;
+     iocache.s[1].size  = sz;
+     p = av_buffer_pool_opaque(frame->buf[0]);
+     sz = s->frame->linesize[0] * (n-curr_y);
+     base = s->frame->linesize[0] * curr_y;
+     iocache.s[2].handle = p->vcsm_handle;
+     iocache.s[2].cmd = 3; // clean+invalidate
+-    iocache.s[2].addr = p->arm + base;
++    iocache.s[2].addr = (int)(p->arm) + base;
+     iocache.s[2].size  = sz;
+     vcsm_clean_invalid( &iocache );
+ #else            
+@@ -3526,33 +3526,46 @@ static void flush_frame(HEVCContext *s,AVFrame *frame)
+ #endif
+ }
+  
+-static void flush_frame3(HEVCContext *s,AVFrame *frame,GPU_MEM_PTR_T *p0,GPU_MEM_PTR_T *p1,GPU_MEM_PTR_T *p2)
++static void flush_frame3(HEVCContext *s,AVFrame *frame,GPU_MEM_PTR_T *p0,GPU_MEM_PTR_T *p1,GPU_MEM_PTR_T *p2, int job)
+ { 
+ #ifdef RPI_FAST_CACHEFLUSH
+     struct vcsm_user_clean_invalid_s iocache = {};
+-    int n = s->sps->height;
+-    int curr_y = 0;
+-    int curr_uv = 0;
+-    int n_uv = n >> s->sps->vshift[1];
++    int n;
++    int curr_y;
++    int curr_uv;
++    int n_uv;
++    GPU_MEM_PTR_T *p = av_buffer_pool_opaque(frame->buf[1]);
+     int sz,base;
++    int (*d)[2] = s->dblk_cmds[job];
++    int low=(*d)[1];
++    int high=(*d)[1];
++    for(n = s->num_dblk_cmds[job]; n>0 ;n--,d++) {
++        int y = (*d)[1];
++        low=FFMIN(low,y);
++        high=FFMAX(high,y);
++    }
++    curr_y = low;
++    n = high+(1 << s->sps->log2_ctb_size);
++    curr_uv = curr_y >> s->sps->vshift[1];
++    n_uv = n >> s->sps->vshift[1];
++   
+     sz = s->frame->linesize[1] * (n_uv-curr_uv);
+     base = s->frame->linesize[1] * curr_uv;
+-    GPU_MEM_PTR_T *p = av_buffer_pool_opaque(frame->buf[1]);
+     iocache.s[0].handle = p->vcsm_handle;
+     iocache.s[0].cmd = 3; // clean+invalidate
+-    iocache.s[0].addr = p->arm + base;
++    iocache.s[0].addr = (int)(p->arm) + base;
+     iocache.s[0].size  = sz;
+     p = av_buffer_pool_opaque(frame->buf[2]);
+     iocache.s[1].handle = p->vcsm_handle;
+     iocache.s[1].cmd = 3; // clean+invalidate
+-    iocache.s[1].addr = p->arm + base;
++    iocache.s[1].addr = (int)(p->arm) + base;
+     iocache.s[1].size  = sz;
+     p = av_buffer_pool_opaque(frame->buf[0]);
+     sz = s->frame->linesize[0] * (n-curr_y);
+     base = s->frame->linesize[0] * curr_y;
+     iocache.s[2].handle = p->vcsm_handle;
+     iocache.s[2].cmd = 3; // clean+invalidate
+-    iocache.s[2].addr = p->arm + base;
++    iocache.s[2].addr = (int)(p->arm) + base;
+     iocache.s[2].size  = sz;
+ 
+     iocache.s[3].handle = p0->vcsm_handle;
+-- 
+1.9.1
+
+
+From a06b492db4411a6ea2f30c94cfd1328e385cc32e Mon Sep 17 00:00:00 2001
+From: Peter de Rivaz <peter.derivaz@gmail.com>
+Date: Mon, 8 Jun 2015 11:55:29 +0100
+Subject: [PATCH 77/77] Packed 16x16 and 32x32 into the same buffer
+
+---
+ libavcodec/hevc.c       | 24 +++++++++++++++---------
+ libavcodec/hevc_cabac.c |  9 ++++++++-
+ libavcodec/rpi_qpu.c    |  2 +-
+ 3 files changed, 24 insertions(+), 11 deletions(-)
+
+diff --git a/libavcodec/hevc.c b/libavcodec/hevc.c
+index 8d26b7e..107ed2a 100644
+--- a/libavcodec/hevc.c
++++ b/libavcodec/hevc.c
+@@ -297,12 +297,12 @@ static int pic_arrays_init(HEVCContext *s, const HEVCSPS *sps)
+         s->coeffs_buf_arm[job][0] = (int16_t*) s->coeffs_buf_default[job].arm;
+         if (!s->coeffs_buf_arm[job][0])
+             goto fail;
+-        gpu_malloc_cached(sizeof(int16_t) * coefs_per_row * 2, &s->coeffs_buf_accelerated[job]);
++        gpu_malloc_cached(sizeof(int16_t) * (coefs_per_row + 32*32), &s->coeffs_buf_accelerated[job]);  // We prefetch past the end so provide an extra blocks worth of data
+         s->coeffs_buf_arm[job][2] = (int16_t*) s->coeffs_buf_accelerated[job].arm;
+         s->coeffs_buf_vc[job][2] = s->coeffs_buf_accelerated[job].vc;
+         if (!s->coeffs_buf_arm[job][2])
+             goto fail;    
+-        s->coeffs_buf_arm[job][3] = coefs_per_row + s->coeffs_buf_arm[job][2];
++        s->coeffs_buf_arm[job][3] = coefs_per_row + s->coeffs_buf_arm[job][2];  // This points to just beyond the end of the buffer.  Coefficients fill in backwards.
+         s->coeffs_buf_vc[job][3] = sizeof(int16_t) * coefs_per_row + s->coeffs_buf_vc[job][2];
+       }
+     }
+@@ -2920,15 +2920,20 @@ static void rpi_execute_transform(HEVCContext *s)
+ {
+     int i=2;   
+     int job = s->pass1_job;   
+-    //int j;
+-    //int16_t *coeffs = s->coeffs_buf_arm[i];
+-    //for(j=s->num_coeffs[i]; j > 0; j-= 16*16, coeffs+=16*16) {
+-    //    s->hevcdsp.idct[4-2](coeffs, 16);
+-    //}
++    /*int j;
++    int16_t *coeffs = s->coeffs_buf_arm[job][i];
++    for(j=s->num_coeffs[job][i]; j > 0; j-= 16*16, coeffs+=16*16) {
++        s->hevcdsp.idct[4-2](coeffs, 16);
++    }
++    i=3;
++    coeffs = s->coeffs_buf_arm[job][i] - s->num_coeffs[job][i];
++    for(j=s->num_coeffs[job][i]; j > 0; j-= 32*32, coeffs+=32*32) {
++        s->hevcdsp.idct[5-2](coeffs, 32);
++    }*/
+     
+     gpu_cache_flush(&s->coeffs_buf_accelerated[job]);
+     s->vpu_id = vpu_post_code( vpu_get_fn(), vpu_get_constants(), s->coeffs_buf_vc[job][2], 
+-                               s->num_coeffs[job][2] >> 8, s->coeffs_buf_vc[job][3], 
++                               s->num_coeffs[job][2] >> 8, s->coeffs_buf_vc[job][3] - sizeof(int16_t) * s->num_coeffs[job][3], 
+                                s->num_coeffs[job][3] >> 10, 0, &s->coeffs_buf_accelerated[job]);
+     //vpu_execute_code( vpu_get_fn(), vpu_get_constants(), s->coeffs_buf_vc[2], s->num_coeffs[2] >> 8, s->coeffs_buf_vc[3], s->num_coeffs[3] >> 10, 0);
+     //gpu_cache_flush(&s->coeffs_buf_accelerated);
+@@ -3422,7 +3427,8 @@ static void rpi_launch_vpu_qpu(HEVCContext *s)
+ #else
+     flush_frame3(s, s->frame,&s->coeffs_buf_accelerated[job],NULL,NULL, job);
+ #endif
+-    s->vpu_id = vpu_qpu_post_code( vpu_get_fn(), vpu_get_constants(), s->coeffs_buf_vc[job][2], s->num_coeffs[job][2] >> 8, s->coeffs_buf_vc[job][3], s->num_coeffs[job][3] >> 10, 0,
++    s->vpu_id = vpu_qpu_post_code( vpu_get_fn(), vpu_get_constants(), s->coeffs_buf_vc[job][2], s->num_coeffs[job][2] >> 8, 
++                                                                      s->coeffs_buf_vc[job][3] - sizeof(int16_t) * s->num_coeffs[job][3], s->num_coeffs[job][3] >> 10, 0,
+                                    qpu_get_fn(QPU_MC_SETUP_UV),
+                                    (uint32_t)(unif_vc+(s->mvs_base[job][0 ] - (uint32_t*)s->unif_mvs_ptr[job].arm)),
+                                    (uint32_t)(unif_vc+(s->mvs_base[job][1 ] - (uint32_t*)s->unif_mvs_ptr[job].arm)),
+diff --git a/libavcodec/hevc_cabac.c b/libavcodec/hevc_cabac.c
+index 79fe95c..18e33d4 100644
+--- a/libavcodec/hevc_cabac.c
++++ b/libavcodec/hevc_cabac.c
+@@ -1099,7 +1099,14 @@ void ff_hevc_hls_residual_coding(HEVCContext *s, int x0, int y0,
+     if (s->enable_rpi) {
+         int n = trafo_size * trafo_size;
+         if (use_vpu) {
+-            coeffs = s->coeffs_buf_arm[s->pass0_job][log2_trafo_size - 2] + s->num_coeffs[s->pass0_job][log2_trafo_size - 2];
++            // We support size 4 and size 5.
++            // Size 4 grows from the front  (Coeffs_buf_arm[2] points to start of buf)
++            // Size 5 grows from the back   (Coeffs_buf_arm[3] points to end of buf)
++            // num_coeffs is indexed by log2_trafo_size-2
++            if (log2_trafo_size == 4)
++                coeffs = s->coeffs_buf_arm[s->pass0_job][log2_trafo_size - 2] + s->num_coeffs[s->pass0_job][log2_trafo_size - 2];
++            else
++                coeffs = s->coeffs_buf_arm[s->pass0_job][log2_trafo_size - 2] - s->num_coeffs[s->pass0_job][log2_trafo_size - 2] - n;
+             s->num_coeffs[s->pass0_job][log2_trafo_size - 2] += n;
+         } else {
+             coeffs = s->coeffs_buf_arm[s->pass0_job][0] + s->num_coeffs[s->pass0_job][0];
+diff --git a/libavcodec/rpi_qpu.c b/libavcodec/rpi_qpu.c
+index ec78823..6d86f06 100644
+--- a/libavcodec/rpi_qpu.c
++++ b/libavcodec/rpi_qpu.c
+@@ -4,7 +4,7 @@
+ // define RPI_TIME_TOTAL_VPU to print out how much time is spent in the VPI code
+ //#define RPI_TIME_TOTAL_VPU
+ // define RPI_TIME_TOTAL_POSTED to print out how much time is spent in the multi execute QPU/VPU combined
+-//#define RPI_TIME_TOTAL_POSTED
++#define RPI_TIME_TOTAL_POSTED
+ // define RPI_ASYNC to run the VPU in a separate thread, need to make a separate call to check for completion
+ #define RPI_ASYNC
  
 -- 
 1.9.1
