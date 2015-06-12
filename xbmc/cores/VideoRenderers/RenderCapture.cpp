@@ -21,7 +21,6 @@
 #include "RenderCapture.h"
 #include "utils/log.h"
 #include "windowing/WindowingFactory.h"
-#include "utils/fastmemcpy.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 
@@ -260,7 +259,7 @@ void CRenderCaptureGL::PboToBuffer()
 
   if (pboPtr)
   {
-    fast_memcpy(m_pixels, pboPtr, m_bufferSize);
+    memcpy(m_pixels, pboPtr, m_bufferSize);
     SetState(CAPTURESTATE_DONE);
   }
   else
@@ -454,12 +453,12 @@ void CRenderCaptureDX::SurfaceToBuffer()
     //if pitch is same, do a direct copy, otherwise copy one line at a time
     if (lockedRect.Pitch == m_width * 4)
     {
-      fast_memcpy(m_pixels, lockedRect.pBits, m_width * m_height * 4);
+      memcpy(m_pixels, lockedRect.pBits, m_width * m_height * 4);
     }
     else
     {
       for (unsigned int y = 0; y < m_height; y++)
-        fast_memcpy(m_pixels + y * m_width * 4, (uint8_t*)lockedRect.pBits + y * lockedRect.Pitch, m_width * 4);
+        memcpy(m_pixels + y * m_width * 4, (uint8_t*)lockedRect.pBits + y * lockedRect.Pitch, m_width * 4);
     }
     m_copySurface->UnlockRect();
     SetState(CAPTURESTATE_DONE);
