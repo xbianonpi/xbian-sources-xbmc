@@ -2099,6 +2099,7 @@ void CUtil::ScanForExternalSubtitles(const std::string& strMovie, std::vector<st
 
 int CUtil::ScanArchiveForSubtitles( const std::string& strArchivePath, const std::string& strMovieFileNameNoExt, std::vector<std::string>& vecSubtitles )
 {
+  CLog::Log(LOGDEBUG, "ScanArchiveForSubtitles:: Scanning archive %s", strArchivePath.c_str());
   int nSubtitlesAdded = 0;
   CFileItemList ItemList;
  
@@ -2125,8 +2126,7 @@ int CUtil::ScanArchiveForSubtitles( const std::string& strArchivePath, const std
   {
    std::string strPathInRar = ItemList[it]->GetPath();
    std::string strExt = URIUtils::GetExtension(strPathInRar);
-   
-   CLog::Log(LOGDEBUG, "ScanArchiveForSubtitles:: Found file %s", strPathInRar.c_str());
+  
    // always check any embedded rar archives
    // checking for embedded rars, I moved this outside the sub_ext[] loop. We only need to check this once for each file.
    if (URIUtils::IsRAR(strPathInRar) || URIUtils::IsZIP(strPathInRar))
