@@ -18,10 +18,10 @@ DEPS= ../../Makefile.include FFMPEG-VERSION Makefile ffmpeg_Speed_up_wtv_index_c
 APPLY_PATCHES=yes
 
 # configuration settings
-ffmpg_config = --prefix=$(PREFIX) --extra-version="xbmc-$(VERSION)"
-ffmpg_config += --cc=$(CC) --cxx=$(CXX)
+ffmpg_config = --prefix=$(PREFIX) --extra-version="kodi-$(VERSION)"
+ffmpg_config += --cc=$(CC) --cxx=$(CXX) --ar=$(AR) --ranlib=$(RANLIB)
 ffmpg_config += --disable-devices --disable-doc
-ffmpg_config += --disable-ffplay --disable-ffmpeg
+ffmpg_config += --disable-ffplay --disable-ffmpeg --disable-sdl
 ffmpg_config += --disable-ffprobe --disable-ffserver
 ffmpg_config += --enable-gpl --enable-runtime-cpudetect
 ffmpg_config += --enable-postproc --enable-pthreads
@@ -29,6 +29,8 @@ ffmpg_config += --enable-muxer=spdif --enable-muxer=adts
 ffmpg_config += --enable-muxer=asf --enable-muxer=ipod
 ffmpg_config += --enable-encoder=ac3 --enable-encoder=aac
 ffmpg_config += --enable-encoder=wmav2 --enable-protocol=http
+ffmpg_config += --pkg-config=/usr/bin/pkg-config
+
 ifeq ($(CROSS_COMPILING), yes)
   ffmpg_config += --arch=$(CPU) --enable-cross-compile
 endif
@@ -77,7 +79,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
 	cd $(PLATFORM); patch -p3 < ../ffmpeg_Speed_up_wtv_index_creation.patch
 	cd $(PLATFORM); patch -p1 < ../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
-	cd $(PLATFORM); patch -p1 --dry-run < ../hevcdsp_ARM_NEON_optimized_epel_functions.patch
+	#cd $(PLATFORM); patch -p1 --dry-run < ../hevcdsp_ARM_NEON_optimized_epel_functions.patch
 	cd $(PLATFORM); patch -p1 < ../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
 	cd $(PLATFORM); patch -p1 < ../0001-avcodec-add-libdcadec-decoder.patch
 	cd $(PLATFORM); patch -p1 < ../0002-avcodec-Fix-libdcadec-include-dir.patch
