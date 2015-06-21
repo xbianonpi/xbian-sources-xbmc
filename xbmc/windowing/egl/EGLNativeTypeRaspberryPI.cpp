@@ -28,6 +28,9 @@
 #include "linux/RBP.h"
 #include "utils/StringUtils.h"
 #include "settings/Settings.h"
+#include "guilib/GraphicContext.h"
+#include "guilib/StereoscopicsManager.h"
+#include "rendering/RenderSystem.h"
 #include <cassert>
 #include "peripherals/Peripherals.h"
 #include "peripherals/bus/PeripheralBus.h"
@@ -347,6 +350,7 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
 
   DestroyDispmaxWindow();
 
+  RENDER_STEREO_MODE stereo_mode = g_graphicsContext.GetStereoMode();
   if(GETFLAGS_GROUP(res.dwFlags) && GETFLAGS_MODE(res.dwFlags))
   {
     if (res.dwFlags & (D3DPRESENTFLAG_MODE3DSBS|D3DPRESENTFLAG_MODE3DTB))
@@ -356,9 +360,9 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
       property.property = HDMI_PROPERTY_3D_STRUCTURE;
       if (CSettings::Get().GetBool("videoplayer.framepacking") && CSettings::Get().GetBool("videoplayer.supportmvc"))
         property.param1 = HDMI_3D_FORMAT_FRAME_PACKING;
-      else if (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS)
+      else if (stereo_mode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
         property.param1 = HDMI_3D_FORMAT_SBS_HALF;
-      else if (res.dwFlags & D3DPRESENTFLAG_MODE3DTB)
+      else if (stereo_mode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL)
         property.param1 = HDMI_3D_FORMAT_TB_HALF;
       else
         property.param1 = HDMI_3D_FORMAT_NONE;
@@ -381,19 +385,17 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
 
     if (success == 0)
     {
-      CLog::Log(LOGDEBUG, "EGL set HDMI mode (%d,%d)=%d%s%s\n",
+      CLog::Log(LOGDEBUG, "EGL set HDMI mode (%d,%d)=%d %s\n",
                           GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success,
-                          (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS) ? " SBS":"",
-                          (res.dwFlags & D3DPRESENTFLAG_MODE3DTB) ? " TB":"");
+                          CStereoscopicsManager::Get().ConvertGuiStereoModeToString(stereo_mode));
 
       m_event.WaitMSec(10000);
     }
     else
     {
-      CLog::Log(LOGERROR, "EGL failed to set HDMI mode (%d,%d)=%d%s%s\n",
+      CLog::Log(LOGERROR, "EGL failed to set HDMI mode (%d,%d)=%d %s\n",
                           GETFLAGS_GROUP(res.dwFlags), GETFLAGS_MODE(res.dwFlags), success,
-                          (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS) ? " SBS":"",
-                          (res.dwFlags & D3DPRESENTFLAG_MODE3DTB) ? " TB":"");
+                          CStereoscopicsManager::Get().ConvertGuiStereoModeToString(stereo_mode));
     }
 
     m_desktopRes = res;
@@ -454,9 +456,9 @@ bool CEGLNativeTypeRaspberryPI::SetNativeResolution(const RESOLUTION_INFO &res)
   DISPMANX_TRANSFORM_T transform = DISPMANX_NO_ROTATE;
   DISPMANX_UPDATE_HANDLE_T dispman_update = m_DllBcmHost->vc_dispmanx_update_start(0);
 
-  if (res.dwFlags & D3DPRESENTFLAG_MODE3DSBS)
+  if (stereo_mode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
     transform = DISPMANX_STEREOSCOPIC_SBS;
-  else if (res.dwFlags & D3DPRESENTFLAG_MODE3DTB)
+  else if (stereo_mode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL)
     transform = DISPMANX_STEREOSCOPIC_TB;
   else
     transform = DISPMANX_STEREOSCOPIC_MONO;
@@ -563,10 +565,8 @@ static void SetResolutionString(RESOLUTION_INFO &res)
   res.iWidth = gui_width;
   res.iHeight = gui_height;
 
-  res.strMode = StringUtils::Format("%dx%d (%dx%d) @ %.2f%s%s%s - Full Screen", res.iScreenWidth, res.iScreenHeight, res.iWidth, res.iHeight, res.fRefreshRate,
-    res.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "",
-    res.dwFlags & D3DPRESENTFLAG_MODE3DTB   ? " 3DTB" : "",
-    res.dwFlags & D3DPRESENTFLAG_MODE3DSBS  ? " 3DSBS" : "");
+  res.strMode = StringUtils::Format("%dx%d (%dx%d) @ %.2f%s - Full Screen", res.iScreenWidth, res.iScreenHeight, res.iWidth, res.iHeight, res.fRefreshRate,
+    res.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "");
 }
 
 static SDTV_ASPECT_T get_sdtv_aspect_from_display_aspect(float display_aspect)
