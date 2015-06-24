@@ -30,16 +30,16 @@ namespace PERIPHERALS
   class CPeripheralBusPLATFORM : public CPeripheralBusUSB
   {
   public:
-    CPeripheralBusPLATFORM(CPeripherals *manager, const CStdString &threadname = "PeripBusPLATFORMUdev", PeripheralBusType type = PERIPHERAL_BUS_PLATFORM);
+    CPeripheralBusPLATFORM(CPeripherals *manager, const std::string &threadname = "PeripBusPLATFORMUdev", PeripheralBusType type = PERIPHERAL_BUS_PLATFORM);
     virtual ~CPeripheralBusPLATFORM(void) {};
 
     virtual void Clear(void);
 
     bool PerformDeviceScan(PeripheralScanResults &results);
 
-    virtual void OnDeviceChanged(const CStdString &strLocation);
-    virtual void OnDeviceAdded(const CStdString &strLocation) {};
-    int GetCableState(const CStdString &strLocation);
+    void OnDeviceChanged(const std::string &strLocation);
+    void OnDeviceAdded(const std::string &strLocation) {};
+    int GetCableState(const std::string &strLocation);
 
   protected:
     virtual void Process(void);

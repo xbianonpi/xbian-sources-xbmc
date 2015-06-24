@@ -76,7 +76,7 @@ extern "C" {
 
 using namespace PERIPHERALS;
 
-CPeripheralBusUSB::CPeripheralBusUSB(CPeripherals *manager, const CStdString &threadname, PeripheralBusType type) :
+CPeripheralBusUSB::CPeripheralBusUSB(CPeripherals *manager, const std::string &threadname, PeripheralBusType type) :
     CPeripheralBus(threadname, manager, type)
 {
   /* the Process() method in this class overrides the one in CPeripheralBus, so leave this set to true */
