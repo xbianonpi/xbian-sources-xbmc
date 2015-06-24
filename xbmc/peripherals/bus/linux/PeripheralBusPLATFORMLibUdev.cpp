@@ -29,7 +29,7 @@ extern "C" {
 
 using namespace PERIPHERALS;
 
-CPeripheralBusPLATFORM::CPeripheralBusPLATFORM(CPeripherals *manager, const CStdString &threadname, PeripheralBusType type) :
+CPeripheralBusPLATFORM::CPeripheralBusPLATFORM(CPeripherals *manager, const std::string &threadname, PeripheralBusType type) :
     CPeripheralBusUSB(manager, "PeripBusPLATFORMUdev", type)
 {
   udev_monitor_filter_add_match_subsystem_devtype(m_udevMon, "platform", NULL);
@@ -51,12 +51,12 @@ bool CPeripheralBusPLATFORM::PerformDeviceScan(PeripheralScanResults &results)
   devices = udev_enumerate_get_list_entry(enumerate);
 
   bool bContinue(true);
-  CStdString strPath, t;
+  std::string strPath, t;
   udev_list_entry_foreach(dev_list_entry, devices)
   {
     strPath = udev_list_entry_get_name(dev_list_entry);
-    dev = udev_device_new_from_syspath(m_udev, strPath);
-    if (!strPath || !dev)
+    dev = udev_device_new_from_syspath(m_udev, strPath.c_str());
+    if (strPath.empty() || !dev)
       bContinue = false;
 
     if (bContinue)
@@ -93,13 +93,13 @@ bool CPeripheralBusPLATFORM::PerformDeviceScan(PeripheralScanResults &results)
   return true;
 }
 
-int CPeripheralBusPLATFORM::GetCableState(const CStdString &strLocation)
+int CPeripheralBusPLATFORM::GetCableState(const std::string &strLocation)
 {
-  struct udev_device         *dev = udev_device_new_from_syspath(m_udev, strLocation);
+  struct udev_device         *dev = udev_device_new_from_syspath(m_udev, strLocation.c_str());
   std::string                 files[] = { "cable_state", "status", "state" };
   std::vector<std::string>    cableState(files, files + 3);
 
-  CStdString t;
+  std::string t;
   int        state = CABLE_UNKNOWN;
 
   if (!dev)
@@ -130,7 +130,7 @@ void CPeripheralBusPLATFORM::Process(void)
   m_bIsStarted = false;
 }
 
-void CPeripheralBusPLATFORM::OnDeviceChanged(const CStdString &strLocation)
+void CPeripheralBusPLATFORM::OnDeviceChanged(const std::string &strLocation)
 {
   CSingleLock lock(m_critSection);
   CPeripheral *peripheral = GetPeripheral(strLocation);
