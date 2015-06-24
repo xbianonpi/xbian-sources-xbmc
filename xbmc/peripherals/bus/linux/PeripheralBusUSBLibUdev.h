@@ -32,7 +32,7 @@ namespace PERIPHERALS
   class CPeripheralBusUSB : public CPeripheralBus
   {
   public:
-    CPeripheralBusUSB(CPeripherals *manager, const CStdString &threadname = "PeripBusUSBUdev", PeripheralBusType type = PERIPHERAL_BUS_USB);
+    CPeripheralBusUSB(CPeripherals *manager, const std::string &threadname = "PeripBusUSBUdev", PeripheralBusType type = PERIPHERAL_BUS_USB);
     virtual ~CPeripheralBusUSB(void);
 
     virtual void Clear(void);
