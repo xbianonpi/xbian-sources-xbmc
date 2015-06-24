@@ -93,9 +93,9 @@ bool CPeripheralBusPLATFORM::PerformDeviceScan(PeripheralScanResults &results)
   return true;
 }
 
-int CPeripheralBusPLATFORM::GetCableState(const CStdString &strLocation)
+int CPeripheralBusPLATFORM::GetCableState(const std::string &strLocation)
 {
-  struct udev_device         *dev = udev_device_new_from_syspath(m_udev, strLocation);
+  struct udev_device         *dev = udev_device_new_from_syspath(m_udev, strLocation.c_str());
   std::string                 files[] = { "cable_state", "status", "state" };
   std::vector<std::string>    cableState(files, files + 3);
 
@@ -130,7 +130,7 @@ void CPeripheralBusPLATFORM::Process(void)
   m_bIsStarted = false;
 }
 
-void CPeripheralBusPLATFORM::OnDeviceChanged(const CStdString &strLocation)
+void CPeripheralBusPLATFORM::OnDeviceChanged(const std::string &strLocation)
 {
   CSingleLock lock(m_critSection);
   CPeripheral *peripheral = GetPeripheral(strLocation);

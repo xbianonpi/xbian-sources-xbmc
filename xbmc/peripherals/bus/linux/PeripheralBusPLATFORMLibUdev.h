@@ -37,9 +37,9 @@ namespace PERIPHERALS
 
     bool PerformDeviceScan(PeripheralScanResults &results);
 
-    virtual void OnDeviceChanged(const CStdString &strLocation);
-    virtual void OnDeviceAdded(const CStdString &strLocation) {};
-    int GetCableState(const CStdString &strLocation);
+    void OnDeviceChanged(const std::string &strLocation);
+    void OnDeviceAdded(const std::string &strLocation) {};
+    int GetCableState(const std::string &strLocation);
 
   protected:
     virtual void Process(void);
