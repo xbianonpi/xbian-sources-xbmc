@@ -43,6 +43,17 @@ public:
 private:
   static bool m_initialized;
   static CLinuxInputDevices m_devices;
+#ifdef TARGET_RASPBERRY_PI
+  bool LoadXML(const std::string strFileName);
+  void *LoadImage(const std::string texturePath, int &width, int &height);
+  int64_t m_last_mouse_move_time;
+  struct
+  {
+    void *pixels;
+    int width, height;
+  } m_cursors[4];
+  int m_mouse_state;
+#endif
 };
 
 #endif
