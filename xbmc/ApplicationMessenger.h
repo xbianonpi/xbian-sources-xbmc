@@ -116,6 +116,8 @@ namespace MUSIC_INFO
 #define TMSG_DISPLAY_SETUP      1000
 #define TMSG_DISPLAY_DESTROY    1001
 
+#define TMSG_DISPLAY_RECONFIGURE 1002
+
 typedef struct
 {
   unsigned int dwMessage;
@@ -257,6 +259,7 @@ public:
    */
   void SetPVRManagerState(bool onOff);
   
+  void SetupDisplayReconfigure();
   bool SetupDisplay();
   bool DestroyDisplay();
   void StartAndroidActivity(const std::vector<std::string> &params);

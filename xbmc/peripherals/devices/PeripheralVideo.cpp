@@ -24,6 +24,7 @@
 #include "guilib/GraphicContext.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "guilib/LocalizeStrings.h"
+#include "ApplicationMessenger.h"
 
 using namespace PERIPHERALS;
 
@@ -61,7 +62,6 @@ void CPeripheralVideo::OnTimeout()
   if (!GetSettingBool("probe_resolutions"))
     return;
 
-  g_Windowing.UpdateResolutions();
-  g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+  CApplicationMessenger::Get().SetupDisplayReconfigure();
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, "VIDEO", g_localizeStrings.Get(13289));
 }

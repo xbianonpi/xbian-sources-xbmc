@@ -63,6 +63,8 @@
 #include "pvr/PVRManager.h"
 #include "windows/GUIWindowLoginScreen.h"
 
+#include "xbmc/windowing/WindowingFactory.h"
+
 #include "utils/GlobalsHandling.h"
 #if defined(TARGET_ANDROID)
   #include "xbmc/android/activity/XBMCApp.h"
@@ -820,6 +822,13 @@ void CApplicationMessenger::ProcessMessage(ThreadMessage *pMsg)
     }
     break;
 
+    case TMSG_DISPLAY_RECONFIGURE:
+    {
+      g_Windowing.UpdateResolutions();
+      g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+    }
+    break;
+
     case TMSG_UPDATE_CURRENT_ITEM:
     {
       CFileItem* item = (CFileItem*)pMsg->lpVoid;
@@ -1331,6 +1340,12 @@ void CApplicationMessenger::ShowVolumeBar(bool up)
 {
   ThreadMessage tMsg = {TMSG_VOLUME_SHOW};
   tMsg.param1 = up ? ACTION_VOLUME_UP : ACTION_VOLUME_DOWN;
+  SendMessage(tMsg, false);
+}
+
+void CApplicationMessenger::SetupDisplayReconfigure()
+{
+  ThreadMessage tMsg = {TMSG_DISPLAY_RECONFIGURE};
   SendMessage(tMsg, false);
 }
 
