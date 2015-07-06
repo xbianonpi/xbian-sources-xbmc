@@ -5661,7 +5661,12 @@ msgctxt "#13289"
 msgid "Probing available resolutions"
 msgstr "Probing available resolutions"
 
-#empty strings from id 13290 to 13291
+#: peripheral/devices/PeripheralCECAdapter.cpp
+msgctxt "#13290"
+msgid "Probe & re-apply resolutions when CEC activated"
+msgstr "Probe & re-apply resolutions when CEC activated"
+
+#empty strings from id 13291
 
 msgctxt "#13292"
 msgid "A/V cable:"

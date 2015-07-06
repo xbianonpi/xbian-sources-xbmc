@@ -47,6 +47,7 @@
 
   <peripheral bus="platform" name="generic_video,hdmi_video" mapTo="video">
     <setting key="enabled" type="bool" value="1" label="305" order="1" configurable="0"/>
-    <setting key="probe_resolutions" type="bool" value="1" label="13288" order="2" />
+    <setting key="probe_resolutions_cable_change" type="bool" value="1" label="13288" order="2" />
+    <setting key="probe_resolutions_on_activated" type="bool" value="1" label="13289" order="3" />
   </peripheral>
 </peripherals>
