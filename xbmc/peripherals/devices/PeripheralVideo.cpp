@@ -59,7 +59,7 @@ void CPeripheralVideo::OnDeviceChanged(int state)
 
 void CPeripheralVideo::OnTimeout()
 {
-  if (!GetSettingBool("probe_resolutions"))
+  if (!GetSettingBool("probe_resolutions_cable_change"))
     return;
 
   CApplicationMessenger::Get().SetupDisplayReconfigure();
