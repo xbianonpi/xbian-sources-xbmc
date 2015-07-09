@@ -155,7 +155,7 @@ DIRECTORY_ARCHIVES += xbmc/network/linux/network_linux.a
 DIRECTORY_ARCHIVES += xbmc/powermanagement/android/powermanagement_android.a
 DIRECTORY_ARCHIVES += xbmc/storage/android/storage_android.a
 DIRECTORY_ARCHIVES += xbmc/windowing/X11/windowing_X11.a
-DIRECTORY_ARCHIVES += xbmc/network/linux/android-ifaddrs/android-ifaddrs.a
+DIRECTORY_ARCHIVES += xbmc/network/linux/android-ifaddrs/ifaddrs.a
 else
 DIRECTORY_ARCHIVES += xbmc/input/linux/input_linux.a
 DIRECTORY_ARCHIVES += xbmc/input/touch/input_touch.a
