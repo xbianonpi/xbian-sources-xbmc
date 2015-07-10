@@ -394,6 +394,9 @@ bool CNetwork::WakeOnLan(const char* mac)
   unsigned char buf [128];
   unsigned char *ptr;
 
+  if (GetFirstConnectedFamily() == AF_INET6)
+    return false;
+
   // Fetch the hardware address
   if (!in_ether(mac, ethaddr))
   {
@@ -524,6 +527,9 @@ static const char* ConnectHostPort(SOCKET soc, const struct sockaddr_in& addr, s
 
 bool CNetwork::PingHost(unsigned long ipaddr, unsigned short port, unsigned int timeOutMs, bool readability_check)
 {
+  if (GetFirstConnectedFamily() == AF_INET6)
+    return false;
+
   if (port == 0) // use icmp ping
     return PingHost (ipaddr, timeOutMs);
 
