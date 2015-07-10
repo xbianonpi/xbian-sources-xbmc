@@ -247,15 +247,12 @@ bool CNetwork::IsLocalHost(const std::string& hostname)
       && StringUtils::EqualsNoCase(hostname, myhostname))
     return true;
 
-  std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-  std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
-  while (iter != ifaces.end())
+  myhostname = CanonizeIPv6(hostname);
+  if (ConvIPv4(myhostname) || ConvIPv6(myhostname))
   {
-    CNetworkInterface* iface = *iter;
-    if (iface && iface->GetCurrentIPAddress() == hostname)
-      return true;
-
-     ++iter;
+    for (auto &&iface: GetInterfaceList())
+      if (iface && iface->GetCurrentIPAddress() == myhostname)
+        return true;
   }
 
   return false;
@@ -263,15 +260,9 @@ bool CNetwork::IsLocalHost(const std::string& hostname)
 
 CNetworkInterface* CNetwork::GetFirstConnectedInterface()
 {
-   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
-   while (iter != ifaces.end())
-   {
-      CNetworkInterface* iface = *iter;
-      if (iface && iface->IsConnected())
-         return iface;
-      ++iter;
-   }
+   for (auto &&iface: GetInterfaceList())
+     if (iface && iface->IsConnected())
+       return iface;
 
    return NULL;
 }
@@ -330,26 +321,25 @@ bool CNetwork::AddrMatch(const std::string &addr, const std::string &match_ip, c
   return false;
 }
 
+bool CNetwork::HasInterfaceForIP(const std::string &address)
+{
+  if (address.empty())
+    return false;
+
+  for (auto &&iface: GetInterfaceList())
+    if (iface && iface->IsConnected() &&
+        AddrMatch(address, iface->GetCurrentIPAddress(), iface->GetCurrentNetmask()))
+        return true;
+
+  return false;
+}
+
 bool CNetwork::HasInterfaceForIP(unsigned long address)
 {
-   unsigned long subnet;
-   unsigned long local;
-   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
-   while (iter != ifaces.end())
-   {
-      CNetworkInterface* iface = *iter;
-      if (iface && iface->IsConnected())
-      {
-         subnet = ntohl(inet_addr(iface->GetCurrentNetmask().c_str()));
-         local = ntohl(inet_addr(iface->GetCurrentIPAddress().c_str()));
-         if( (address & subnet) == (local & subnet) )
-            return true;
-      }
-      ++iter;
-   }
+  struct in_addr in = { htonl(address) };
+  std::string addr = inet_ntoa(in);
 
-   return false;
+  return HasInterfaceForIP(addr);
 }
 
 bool CNetwork::IsAvailable(bool wait /*= false*/)
@@ -372,15 +362,9 @@ bool CNetwork::IsConnected()
 
 CNetworkInterface* CNetwork::GetInterfaceByName(const std::string& name)
 {
-   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
-   std::vector<CNetworkInterface*>::const_iterator iter = ifaces.begin();
-   while (iter != ifaces.end())
-   {
-      CNetworkInterface* iface = *iter;
-      if (iface && iface->GetName() == name)
-         return iface;
-      ++iter;
-   }
+   for (auto &&iface: GetInterfaceList())
+     if (iface && iface->GetName() == name)
+       return iface;
 
    return NULL;
 }
