@@ -21,9 +21,11 @@
 
 #include <string>
 #include <vector>
+#include <forward_list>
 
 #include "system.h"
 #include "threads/Event.h"
+#include "threads/CriticalSection.h"
 
 #include "settings/lib/ISettingCallback.h"
 #include <sys/socket.h>
@@ -120,7 +122,8 @@ public:
    virtual bool GetHostName(std::string& hostname);
 
    // Return the list of interfaces
-   virtual std::vector<CNetworkInterface*>& GetInterfaceList(void) = 0;
+   virtual std::forward_list<CNetworkInterface*>& GetInterfaceList(void) = 0;
+
    CNetworkInterface* GetInterfaceByName(const std::string& name);
 
    // Return the first interface which is active
@@ -293,6 +296,9 @@ public:
 
    // Return true if given name or ip address corresponds to localhost
    bool IsLocalHost(const std::string& hostname);
+
+protected:
+   CCriticalSection m_lock;
 
 private:
    CEvent  m_signalNetworkChange;
