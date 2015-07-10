@@ -144,9 +144,17 @@ public:
    bool IsConnected(void);
 
    // Return true if the magic packet was send
+   // TODO: current implementation uses ARP for MAC resolution.
+   //       as IPv6 has no ARP, it will provide expected result
+   //       only if target host is accessible via IPv4.
+   //       (anyhow it's use is safe regardless actual.
+   //       configuration, returns false for IPv6 only stack)
    bool WakeOnLan(const char *mac);
 
    // Return true if host replies to ping
+   // TODO: no IPv6 support yet. pings on IPv6 follows different
+   //       code paths/functions than IPv4 and needed code is ~40lines.
+   //       Implementation via system call to 'ping6' is possible the same way as current 'ping' utilisation
    bool PingHost(unsigned long host, unsigned short port, unsigned int timeout_ms = 2000, bool readability_check = false);
    virtual bool PingHost(unsigned long host, unsigned int timeout_ms = 2000) = 0;
 
