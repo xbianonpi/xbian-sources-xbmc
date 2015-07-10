@@ -25,6 +25,7 @@
 #include "system.h"
 
 #include "settings/lib/ISettingCallback.h"
+#include <sys/socket.h>
 
 enum EncMode { ENC_NONE = 0, ENC_WEP = 1, ENC_WPA = 2, ENC_WPA2 = 3 };
 enum NetworkAssignment { NETWORK_DASH = 0, NETWORK_DHCP = 1, NETWORK_STATIC = 2, NETWORK_DISABLED = 3 };
@@ -95,6 +96,10 @@ public:
 
    virtual void GetSettings(NetworkAssignment& assignment, std::string& ipAddress, std::string& networkMask, std::string& defaultGateway, std::string& essId, std::string& key, EncMode& encryptionMode) = 0;
    virtual void SetSettings(NetworkAssignment& assignment, std::string& ipAddress, std::string& networkMask, std::string& defaultGateway, std::string& essId, std::string& key, EncMode& encryptionMode) = 0;
+
+   // tells if interface itself is configured with IPv6 or IPv4 address
+   virtual bool isIPv6() { return false; }
+   virtual bool isIPv4() { return true; }
 };
 
 class CNetwork
@@ -118,6 +123,14 @@ public:
 
    // Return the first interface which is active
    virtual CNetworkInterface* GetFirstConnectedInterface(void);
+
+   // Return address family of GetFirstConnectedInterface() interface. With respect to above
+   // comment this means:
+   //  - in case of returned AF_INET6 - host is configured with IPv6 stack only (we don't need
+   //    iterate over interfaces list further, or trying socket() results to confirm this)
+   //  - AF_INET - host is configured with IPv4 stack. IPv6 availability unknown, we would need
+   //    to loop over the list.
+   virtual int GetFirstConnectedFamily() { return (GetFirstConnectedInterface()->isIPv4() ? AF_INET : AF_INET6); }
 
    // Return true if there is a interface for the same network as address
    bool HasInterfaceForIP(unsigned long address);
@@ -145,7 +158,58 @@ public:
    void StartServices();
    void StopServices(bool bWait);
 
+   // tests if string is VALID IPv6 or VALID IPv4 address
+   // VALID means the string is correctly specifying IP address according to RFCs.
+   // They are dual purpose, if (sockaddr_in(6)*) is passed as second parameter,
+   // provided string is also converted into sockaddr_in(6) structure for direct use
+   // in system-networking API calls. Address and family will be set.
+   static bool ConvIPv6(const std::string &address, struct sockaddr_in6 *sa = NULL);
+   static bool ConvIPv4(const std::string &address, struct sockaddr_in  *sa = NULL);
+
    static int ParseHex(char *str, unsigned char *addr);
+
+   // IPv6/IPv4 compatible function returning text representation of provided
+   // AF_INET(6) structure. When providing sockaddr_in(6), cast to (sockaddr*)
+   // Returned IPv4 is x.x.x.x representation with no leading zeroes.
+   // IPv6 is canonised. If NULL or structure otherwise invalid - empty string
+   // is returned.
+   static std::string GetIpStr(const struct sockaddr *sa);
+
+   // Canonisation of IPv6 address. In respect to RFC 2373, provided string
+   // in any legal representations will be canonised to it's shortest
+   // possible form e.g.
+   // 12AB:0000:0000:CD30:0000:0000:0000:0000 -> 12AB:0:0:CD30::
+   static std::string CanonizeIPv6(const std::string &address);
+
+   // Networking API calls are providing IPv6 mask information
+   // in the same data structure as address itself (128bit information)
+   // e.g. FFFF:FFFF:FFFF:FFF0:0000:0000:0000:0000
+   // This function returns decimal value specifying how many of the
+   // leftmost contiguous bits of the address comprise
+   // the prefix. This representation is called prefix-length.
+   // Above mask represents prefix of length 60 and formal (and canonised)
+   // address/mask specification would look like this:
+   // 12AB:0:0:CD30::/60
+   // This is also the common preferred way of displaying IPv6 addresses
+   // return 0-128, -1 in case of error (for instance string's notation
+   //                  doesn't comply to standard)
+   static int     PrefixLengthIPv6(const std::string &address);
+
+   // fully IPv4/IPv6 compatible (IPv6 part is limited to addr/mask match only (IPv4 way))
+   // TODO: beside addr/match matching IPv6 introduced NetworkDiscoveryProtocol(NDP)
+   //       currently not implemented.
+   static bool AddrMatch(const std::string &addr, const std::string &match_ip, const std::string &match_mask);
+
+   // Per platform implementation. CNetwork class has both IPv6/IPv4 support,
+   // but doesn't require each derived class to support IPv6 as well.
+   // By default we assume IPv6 support not existend (or IPv6 stack unconfigured).
+   // As the class functions do check that internally, it makes the calls safe
+   // with no prior checking for actual stack availability.
+   // In such situations, all calls with IPv6-like parameters will return
+   // false, -1, or std::string being empty.
+   // static functions providing only type<>type conversions or formal
+   // valididy check are unaffected.
+   static bool SupportsIPv6(void) { return false; }
 
    // Return true if given name or ip address corresponds to localhost
    bool IsLocalHost(const std::string& hostname);
