@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "system.h"
+#include "threads/Event.h"
 
 #include "settings/lib/ISettingCallback.h"
 #include <sys/socket.h>
@@ -292,6 +293,10 @@ public:
 
    // Return true if given name or ip address corresponds to localhost
    bool IsLocalHost(const std::string& hostname);
+
+private:
+   CEvent  m_signalNetworkChange;
+   bool    m_bStop;
 };
 
 #ifdef HAS_LINUX_NETWORK
