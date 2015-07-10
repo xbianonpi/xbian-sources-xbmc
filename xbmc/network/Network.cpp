@@ -18,6 +18,8 @@
  *
  */
 
+#include <stdlib.h>
+
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -30,9 +32,6 @@
 #include "utils/SystemInfo.h"
 #include "win32/WIN32Util.h"
 #include "utils/CharsetConverter.h"
-#endif
-#ifdef TARGET_DARWIN
-#include <stdlib.h> // for malloc() and free()
 #endif
 #include "utils/StringUtils.h"
 #include "xbmc/interfaces/AnnouncementManager.h"
