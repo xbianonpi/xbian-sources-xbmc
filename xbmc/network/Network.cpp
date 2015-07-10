@@ -32,6 +32,7 @@
 #include "utils/CharsetConverter.h"
 #endif
 #include "utils/StringUtils.h"
+#include "xbmc/interfaces/AnnouncementManager.h"
 
 /* slightly modified in_ether taken from the etherboot project (http://sourceforge.net/projects/etherboot) */
 bool in_ether (const char *bufp, unsigned char *addr)
@@ -381,6 +382,13 @@ void CNetwork::NetworkMessage(EMESSAGE message, int param)
       CNetworkServices::Get().Stop(false); // tell network services to stop, but don't wait for them yet
       CLog::Log(LOGDEBUG, "%s - Waiting for network services to stop",__FUNCTION__);
       CNetworkServices::Get().Stop(true); // wait for network services to stop
+      break;
+
+    case NETWORK_CHANGED:
+      CLog::Log(LOGDEBUG, "%s - Network setup changed. Will restart network services",__FUNCTION__);
+      ANNOUNCEMENT::CAnnouncementManager::Get().Announce(ANNOUNCEMENT::Network, "network", "OnInterfacesChange");
+      NetworkMessage(SERVICES_DOWN, 0);
+      NetworkMessage(SERVICES_UP, 0);
       break;
   }
 }
