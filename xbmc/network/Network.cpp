@@ -131,13 +131,17 @@ int NetworkAccessPoint::FreqToChannel(float frequency)
 }
 
 
-CNetwork::CNetwork()
+CNetwork::CNetwork() :
+  m_bStop(false)
 {
   CApplicationMessenger::Get().NetworkMessage(SERVICES_UP, 0);
+  m_signalNetworkChange.Reset();
 }
 
 CNetwork::~CNetwork()
 {
+  m_bStop = true;
+  m_signalNetworkChange.Set();
   CApplicationMessenger::Get().NetworkMessage(SERVICES_DOWN, 0);
 }
 
@@ -372,14 +376,15 @@ bool CNetwork::HasInterfaceForIP(unsigned long address)
 
 bool CNetwork::IsAvailable(bool wait /*= false*/)
 {
-  if (wait)
+  std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+
+  while (!m_bStop && wait && !ifaces.size())
   {
-    // NOTE: Not implemented in linuxport branch as 99.9% of the time
-    //       we have the network setup already.  Trunk code has a busy
-    //       wait for 5 seconds here.
+    m_signalNetworkChange.WaitMSec(5000);
+    ifaces = GetInterfaceList();
+    m_signalNetworkChange.Reset();
   }
 
-  std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
   return (ifaces.size() != 0);
 }
 
@@ -414,6 +419,7 @@ void CNetwork::NetworkMessage(EMESSAGE message, int param)
       break;
 
     case NETWORK_CHANGED:
+      m_signalNetworkChange.Set();
       CLog::Log(LOGDEBUG, "%s - Network setup changed. Will restart network services",__FUNCTION__);
       ANNOUNCEMENT::CAnnouncementManager::Get().Announce(ANNOUNCEMENT::Network, "network", "OnInterfacesChange");
       NetworkMessage(SERVICES_DOWN, 0);
