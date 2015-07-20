@@ -441,6 +441,8 @@ void CDVDPlayerVideo::Process()
 
       m_stalled = true;
       m_started = false;
+
+      g_renderManager.DiscardBuffer();
     }
     else if (pMsg->IsType(CDVDMsg::VIDEO_NOSKIP))
     {
