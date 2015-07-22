@@ -360,9 +360,9 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
   RESOLUTION_INFO res;
   for (size_t i = 0; i < probe_str.size(); i++)
   {
-    if(!StringUtils::StartsWith(probe_str[i], "S:") && !StringUtils::StartsWith(probe_str[i], "U:") &&
-       !StringUtils::StartsWith(probe_str[i], "V:") && !StringUtils::StartsWith(probe_str[i], "D:") &&
-       !StringUtils::StartsWith(probe_str[i], "H:") && !StringUtils::StartsWith(probe_str[i], "T:"))
+    if(!StringUtils::StartsWithNoCase(probe_str[i], "S:") && !StringUtils::StartsWithNoCase(probe_str[i], "U:") &&
+       !StringUtils::StartsWithNoCase(probe_str[i], "V:") && !StringUtils::StartsWithNoCase(probe_str[i], "D:") &&
+       !StringUtils::StartsWithNoCase(probe_str[i], "H:") && !StringUtils::StartsWithNoCase(probe_str[i], "T:"))
       continue;
 
     if(ModeToResolution(probe_str[i], &res))
@@ -530,7 +530,10 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iHeight= h;
   res->iScreenWidth = w;
   res->iScreenHeight= h;
-  res->fRefreshRate = r;
+  if (StringUtils::isasciilowercaseletter(mode[0]))
+    res->fRefreshRate = (float)r * 1000 / 1001;
+  else
+    res->fRefreshRate = (float)r;
   res->dwFlags |= p[0] == 'p' ? D3DPRESENTFLAG_PROGRESSIVE : D3DPRESENTFLAG_INTERLACED;
 
   res->iScreen       = 0;
@@ -538,7 +541,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iSubtitles    = (int)(0.965 * res->iHeight);
 
   res->fPixelRatio  *= !m_sar ? 1.0f : (float)m_sar / res->iScreenWidth * res->iScreenHeight;
-  res->strMode       = StringUtils::Format("%4sx%4s @ %.2f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
+  res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
                                            StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
                                            res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
                                            res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "- 3DSBS" : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "- 3DTB" : "");
