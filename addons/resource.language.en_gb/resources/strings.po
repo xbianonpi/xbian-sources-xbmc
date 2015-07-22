@@ -16737,13 +16737,3 @@ msgstr ""
 msgctxt "#38121"
 msgid "This option supports 8 channel DTS HD decoding, but may use more CPU. It is only available when DTS and DTS-HD audio passthrough is disabled"
 msgstr ""
-
-#: system/settings/rbp.xml
-msgctxt "#38210"
-msgid "Prefer PTS timestamps"
-msgstr ""
-
-#: system/settings/rbp.xml
-msgctxt "#38211"
-msgid "Try enabling this if you have stutter with video files"
-msgstr ""
