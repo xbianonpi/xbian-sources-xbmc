@@ -9,10 +9,10 @@ Date:   Tue Mar 25 19:43:07 2014 +0000
 
     By replacing with an O(N) loop, this takes virtually zero time
 
-diff --git a/lib/ffmpeg/libavformat/wtvdec.c b/lib/ffmpeg/libavformat/wtvdec.c
+diff --git a/libavformat/wtvdec.c b/libavformat/wtvdec.c
 index e423370..70898bd 100644
---- a/lib/ffmpeg/libavformat/wtvdec.c
-+++ b/lib/ffmpeg/libavformat/wtvdec.c
+--- a/libavformat/wtvdec.c
++++ b/libavformat/wtvdec.c
 @@ -980,21 +980,23 @@ static int read_header(AVFormatContext *s)
                  pb = wtvfile_open(s, root, root_size, ff_timeline_table_0_entries_Events_le16);
                  if (pb) {

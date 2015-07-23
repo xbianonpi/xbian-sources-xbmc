@@ -70,7 +70,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
-	cd $(PLATFORM); patch -p3 < ../ffmpeg_Speed_up_wtv_index_creation.patch
+	cd $(PLATFORM); patch -p1 < ../ffmpeg_Speed_up_wtv_index_creation.patch
 	cd $(PLATFORM); patch -p1 < ../0001-avcodec-add-libdcadec-decoder.patch
 	cd $(PLATFORM); patch -p1 < ../0002-avcodec-Fix-libdcadec-include-dir.patch
 	cd $(PLATFORM); patch -p1 < ../0003-avcodec-add-profile-define-for-DTS-Express.patch
