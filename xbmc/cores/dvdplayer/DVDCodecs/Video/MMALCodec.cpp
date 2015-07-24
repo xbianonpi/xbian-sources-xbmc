@@ -106,7 +106,6 @@ CMMALVideo::CMMALVideo()
 
   m_interlace_mode = MMAL_InterlaceProgressive;
   m_interlace_method = VS_INTERLACEMETHOD_NONE;
-  m_startframe = false;
   m_decoderPts = DVD_NOPTS_VALUE;
 
   m_dec = NULL;
@@ -713,7 +712,6 @@ bool CMMALVideo::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
     return false;
 
   Prime();
-  m_startframe = false;
   m_preroll = !m_hints.stills;
   m_speed = DVD_PLAYSPEED_NORMAL;
 
@@ -800,8 +798,6 @@ int CMMALVideo::Decode(uint8_t* pData, int iSize, double dts, double pts)
 
        mmal_buffer_header_reset(buffer);
        buffer->cmd = 0;
-       if (!m_startframe && pts == DVD_NOPTS_VALUE)
-         pts = 0;
        buffer->pts = pts == DVD_NOPTS_VALUE ? MMAL_TIME_UNKNOWN : pts;
        buffer->dts = dts == DVD_NOPTS_VALUE ? MMAL_TIME_UNKNOWN : dts;
        if (m_hints.ptsinvalid) buffer->pts = MMAL_TIME_UNKNOWN;
@@ -829,9 +825,6 @@ int CMMALVideo::Decode(uint8_t* pData, int iSize, double dts, double pts)
 
        if (demuxer_bytes == 0)
        {
-         pthread_mutex_lock(&m_output_mutex);
-         m_startframe = true;
-         pthread_mutex_unlock(&m_output_mutex);
          EDEINTERLACEMODE deinterlace_request = CMediaSettings::Get().GetCurrentVideoSettings().m_DeinterlaceMode;
          EINTERLACEMETHOD interlace_method = g_renderManager.AutoInterlaceMethod(CMediaSettings::Get().GetCurrentVideoSettings().m_InterlaceMethod);
 
@@ -956,7 +949,6 @@ void CMMALVideo::Reset(void)
     SendCodecConfigData();
     Prime();
   }
-  m_startframe = false;
   m_decoderPts = DVD_NOPTS_VALUE;
   m_preroll = !m_hints.stills && (m_speed == DVD_PLAYSPEED_NORMAL || m_speed == DVD_PLAYSPEED_PAUSE);
   m_codecControlFlags = 0;
