@@ -50,6 +50,9 @@
 #elif defined(HAS_SDL)
   #include "LinuxRenderer.h"
 #endif
+#ifdef TARGET_RASPBERRY_PI
+#include "linux/RBP.h"
+#endif
 
 #include "RenderCapture.h"
 
@@ -170,14 +173,24 @@ void CXBMCRenderManager::WaitPresentTime(double presenttime)
   if(fps <= 0)
   {
     /* smooth video not enabled */
+#ifdef TARGET_RASPBERRY_PI
+    while (GetPresentTime() < presenttime)
+      g_RBP.WaitVsync();
+#else
     CDVDClock::WaitAbsoluteClock(presenttime * DVD_TIME_BASE);
+#endif
     return;
   }
 
   CDVDClock *dvdclock = CDVDClock::GetMasterClock();
   if(dvdclock != NULL && dvdclock->GetSpeedAdjust() != 0.0)
   {
+#ifdef TARGET_RASPBERRY_PI
+    while (GetPresentTime() < presenttime)
+      g_RBP.WaitVsync();
+#else
     CDVDClock::WaitAbsoluteClock(presenttime * DVD_TIME_BASE);
+#endif
     m_presenterr = 0;
     m_presentcorr = 0;
     return;
