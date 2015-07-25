@@ -61,6 +61,9 @@ CRBP::CRBP()
   m_OMX             = new COMXCore();
   m_display = DISPMANX_NO_HANDLE;
   m_p = NULL;
+  m_x = 0;
+  m_y = 0;
+  m_enabled = 0;
   m_mb = mbox_open();
   vcsm_init();
 }
@@ -498,7 +501,11 @@ void CRBP::update_cursor(int x, int y, bool enabled)
   int y2 = y * display.Height() / gui.Height();
 
   //printf("%s %d,%d (%d)\n", __func__, x, y, enabled);
-  mailbox_set_cursor_position(m_mb, enabled, x2, y2);
+  if (m_x != x2 || m_y != y2 || m_enabled != enabled)
+    mailbox_set_cursor_position(m_mb, enabled, x2, y2);
+  m_x = x2;
+  m_y = y2;
+  m_enabled = enabled;
 }
 
 void CRBP::uninit_cursor()
