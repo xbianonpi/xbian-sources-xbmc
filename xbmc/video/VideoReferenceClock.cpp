@@ -48,6 +48,9 @@
 #if defined(TARGET_DARWIN_IOS)
 #include "video/videosync/VideoSyncIos.h"
 #endif
+#if defined(TARGET_RASPBERRY_PI)
+#include "linux/RBP.h"
+#endif
 
 using namespace std;
 
@@ -367,8 +370,12 @@ int64_t CVideoReferenceClock::Wait(int64_t Target)
     //sleep until the timestamp has passed
     SleepTime = (int)((Target - (Now + ClockOffset)) * 1000 / m_SystemFrequency);
     if (SleepTime > 0)
-      ::Sleep(SleepTime);
-
+#ifdef TARGET_RASPBERRY_PI
+    while (CurrentHostCounter() - Now < SleepTime)
+      g_RBP.WaitVsync();
+#else
+    ::Sleep(SleepTime);
+#endif
     Now = CurrentHostCounter();
     return Now + ClockOffset;
   }
