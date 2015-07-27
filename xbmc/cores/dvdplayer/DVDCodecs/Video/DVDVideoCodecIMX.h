@@ -26,6 +26,7 @@
 #include "guilib/Geometry.h"
 #include "DVDVideoCodec.h"
 #include "DVDStreamInfo.h"
+#include "guilib/DispResource.h"
 
 #include <vector>
 #include <linux/ipu.h>
@@ -88,13 +89,14 @@ protected:
 
 // iMX context class that handles all iMX hardware
 // related stuff
-class CIMXContext : private CThread
+class CIMXContext : private CThread, IDispResource
 {
 public:
   CIMXContext();
   ~CIMXContext();
 
   void RequireConfiguration() { m_checkConfigRequired = true; }
+  bool AdaptScreen();
   bool Configure();
   bool Close();
 
@@ -144,6 +146,8 @@ public:
   void *GetCaptureBuffer() const { if (m_bufferCapture) return m_bufferCapture->buf_vaddr; else return NULL; }
   void WaitCapture();
 
+  void OnResetDevice();
+
 private:
   struct IPUTask
   {
@@ -166,6 +170,8 @@ private:
     // The actual task
     struct ipu_task task;
   };
+
+  bool GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *fbVar);
 
   bool PushTask(const IPUTask &);
   void PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *source,
@@ -213,6 +219,8 @@ private:
   bool                           m_CaptureDone;
   bool                           m_checkConfigRequired;
   static const int               m_fbPages;
+
+  std::string                    m_deviceName;
 };
 
 
