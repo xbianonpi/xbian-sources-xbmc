@@ -296,12 +296,13 @@ bool CWinSystemEGL::CreateNewWindow(const CStdString& name, bool fullScreen, RES
     CLog::Log(LOGERROR, "%s: Could not create new window",__FUNCTION__);
     return false;
   }
-  Show();
 
   CSingleLock lock(m_resourceSection);
   // tell any shared resources
   for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
     (*i)->OnResetDevice();
+
+  Show();
 
   return true;
 }
