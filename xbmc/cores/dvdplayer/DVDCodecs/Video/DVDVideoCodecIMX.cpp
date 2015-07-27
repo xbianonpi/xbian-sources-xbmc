@@ -25,6 +25,7 @@
 #include "threads/Atomics.h"
 #include "utils/log.h"
 #include "DVDClock.h"
+#include "windowing/WindowingFactory.h"
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -1302,6 +1303,7 @@ CIMXContext::CIMXContext()
   , m_g2dHandle(NULL)
   , m_bufferCapture(NULL)
   , m_checkConfigRequired(true)
+  , m_deviceName("/dev/fb1")
 {
   // Limit queue to 2
   m_input.resize(2);
@@ -1313,17 +1315,9 @@ CIMXContext::~CIMXContext()
   Close();
 }
 
-
-bool CIMXContext::Configure()
+bool CIMXContext::GetFBInfo(struct fb_var_screeninfo *fbVar)
 {
-
-  if (!m_checkConfigRequired)
-    return false;
-
-  SetBlitRects(CRectInt(), CRectInt());
-  m_fbCurrentPage = 0;
-
-  int fb0 = open("/dev/fb0", O_RDWR, 0);
+  int fb0 = open("/dev/fb0", O_RDONLY | O_NONBLOCK, 0);
 
   if (fb0 < 0)
   {
@@ -1331,8 +1325,7 @@ bool CIMXContext::Configure()
     return false;
   }
 
-  struct fb_var_screeninfo fbVar;
-  if (ioctl(fb0, FBIOGET_VSCREENINFO, &fbVar) < 0)
+  if (ioctl(fb0, FBIOGET_VSCREENINFO, fbVar) < 0)
   {
     CLog::Log(LOGWARNING, "iMX : Failed to read primary screen resolution\n");
     close(fb0);
@@ -1340,29 +1333,29 @@ bool CIMXContext::Configure()
   }
 
   close(fb0);
+  return true;
+}
 
-  if (m_fbHandle)
-    Close();
+bool CIMXContext::AdaptScreen(bool force)
+{
+  if (m_fbHandle <= 0 || (!IsRunning() && !force))
+    return false;
 
-  CLog::Log(LOGNOTICE, "iMX : Initialize render buffers\n");
+  struct fb_var_screeninfo fbVar;
+  GetFBInfo(&fbVar);
+
+  CSingleLock lk(m_pageSwapLock);
 
   memcpy(&m_fbVar, &fbVar, sizeof(fbVar));
 
-  const char *deviceName = "/dev/fb1";
-
-  m_fbHandle = open(deviceName, O_RDWR | O_NONBLOCK, 0);
-  if (m_fbHandle < 0)
-  {
-    CLog::Log(LOGWARNING, "iMX : Failed to open framebuffer: %s\n", deviceName);
-    return false;
-  }
+  CLog::Log(LOGNOTICE, "iMX : Initialize render buffers\n");
 
   m_fbWidth = m_fbVar.xres;
   m_fbHeight = m_fbVar.yres;
 
   if (ioctl(m_fbHandle, FBIOGET_VSCREENINFO, &m_fbVar) < 0)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to query variable screen info at %s\n", deviceName);
+    CLog::Log(LOGWARNING, "iMX : Failed to query variable screen info at %s\n", m_deviceName.c_str());
     return false;
   }
 
@@ -1380,7 +1373,7 @@ bool CIMXContext::Configure()
     m_fbVar.nonstd = _4CC('R', 'G', 'B', '4');
     m_fbVar.bits_per_pixel = 32;
   }
-  m_fbVar.activate = FB_ACTIVATE_NOW;
+  m_fbVar.activate |= FB_ACTIVATE_FORCE;
   m_fbVar.xres = m_fbWidth;
   m_fbVar.yres = m_fbHeight;
   // One additional line that is required for deinterlacing
@@ -1389,7 +1382,7 @@ bool CIMXContext::Configure()
 
   if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) < 0)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to setup %s\n", deviceName);
+    CLog::Log(LOGWARNING, "iMX : Failed to setup %s\n", m_deviceName.c_str());
     close(m_fbHandle);
     m_fbHandle = 0;
     return false;
@@ -1398,7 +1391,7 @@ bool CIMXContext::Configure()
   struct fb_fix_screeninfo fb_fix;
   if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) < 0)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", deviceName);
+    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", m_deviceName.c_str());
     close(m_fbHandle);
     m_fbHandle = 0;
     return false;
@@ -1413,6 +1406,41 @@ bool CIMXContext::Configure()
 
   CLog::Log(LOGDEBUG, "iMX : Allocated %d render buffers\n", m_fbPages);
 
+  Unblank();
+  return true;
+}
+
+void CIMXContext::OnResetDevice()
+{
+  CLog::Log(LOGINFO, "iMX : Changing screen parameters\n");
+  Blank();
+  AdaptScreen();
+}
+
+bool CIMXContext::Configure()
+{
+
+  if (!m_checkConfigRequired)
+    return false;
+
+  SetBlitRects(CRectInt(), CRectInt());
+  m_fbCurrentPage = 0;
+
+  struct fb_var_screeninfo fbVar;
+  GetFBInfo(&fbVar);
+
+  if (m_fbHandle)
+    Close();
+
+  m_fbHandle = open(m_deviceName.c_str(), O_RDWR | O_NONBLOCK, 0);
+  if (m_fbHandle < 0)
+  {
+    CLog::Log(LOGWARNING, "iMX : Failed to open framebuffer: %s\n", m_deviceName.c_str());
+    return false;
+  }
+
+  AdaptScreen(true);
+
   m_ipuHandle = open("/dev/mxc_ipu", O_RDWR, 0);
   if (m_ipuHandle < 0)
   {
@@ -1423,7 +1451,6 @@ bool CIMXContext::Configure()
   }
 
   Clear();
-  Unblank();
 
   // Start the ipu thread
   Create();
@@ -2053,11 +2080,13 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
 
 void CIMXContext::OnStartup()
 {
+  g_Windowing.Register(this);
   CLog::Log(LOGNOTICE, "iMX : IPU thread started");
 }
 
 void CIMXContext::OnExit()
 {
+  g_Windowing.Unregister(this);
   CLog::Log(LOGNOTICE, "iMX : IPU thread terminated");
 }
 
