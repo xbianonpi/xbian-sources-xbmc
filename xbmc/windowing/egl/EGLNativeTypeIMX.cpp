@@ -397,7 +397,7 @@ bool CEGLNativeTypeIMX::ShowWindow(bool show)
     ioctl(fd, FBIO_WAITFORVSYNC, 0);
     close(fd);
   }
-  set_sysfs_str("/sys/class/graphics/fb0/blank", show?"0":"1");
+  SysfsUtils::SetInt("/sys/class/graphics/fb0/blank", show ? 0 : 1 );
 
   m_show = show;
   return true;
