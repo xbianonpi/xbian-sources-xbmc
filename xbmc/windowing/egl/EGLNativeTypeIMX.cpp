@@ -183,7 +183,7 @@ void CEGLNativeTypeIMX::Destroy()
   if (!m_readonly)
   {
     CLog::Log(LOGDEBUG, "%s changing mode to %s\n", __FUNCTION__, m_init.strId.c_str());
-    set_sysfs_str("/sys/class/graphics/fb0/mode", m_init.strId.c_str());
+    SysfsUtils::SetString("/sys/class/graphics/fb0/mode", m_init.strId + "\n");
   }
 
   system("/usr/bin/splash --force -i -m 'stopping xbmc...'");
@@ -402,7 +402,7 @@ bool CEGLNativeTypeIMX::ShowWindow(bool show)
     ioctl(fd, FBIO_WAITFORVSYNC, 0);
     close(fd);
   }
-  set_sysfs_str("/sys/class/graphics/fb0/blank", show?"0":"1");
+  SysfsUtils::SetInt("/sys/class/graphics/fb0/blank", show ? 0 : 1 );
 
   m_show = show;
   return true;
