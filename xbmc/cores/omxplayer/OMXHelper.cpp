@@ -44,6 +44,9 @@ static bool PredicateVideoPriority(const SelectionStream& lh, const SelectionStr
 
 bool OMXPlayerUnsuitable(bool m_HasVideo, bool m_HasAudio, CDVDDemux* m_pDemuxer, CDVDInputStream* m_pInputStream, CSelectionStreams &m_SelectionStreams)
 {
+  // if no OMXPlayer acceleration then it is not suitable
+  if (!CSettings::Get().GetBool("videoplayer.useomxplayer"))
+    return true;
   // if no MMAL acceleration stick with omxplayer regardless
   if (!CSettings::Get().GetBool("videoplayer.usemmal"))
     return false;

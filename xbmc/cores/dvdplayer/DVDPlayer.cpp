@@ -519,10 +519,11 @@ void CDVDPlayer::CreatePlayers()
 {
   CSingleLock lock(m_players_lock);
 #ifdef HAS_OMXPLAYER
-  if (m_omxplayer_mode && OMXPlayerUnsuitable(m_HasVideo, m_HasAudio, m_pDemuxer, m_pInputStream, m_SelectionStreams))
+  bool omx_suitable = !OMXPlayerUnsuitable(m_HasVideo, m_HasAudio, m_pDemuxer, m_pInputStream, m_SelectionStreams);
+  if (m_omxplayer_mode != omx_suitable)
   {
     DestroyPlayers();
-    m_omxplayer_mode = false;
+    m_omxplayer_mode = omx_suitable;
   }
 #endif
   if (m_players_created)
