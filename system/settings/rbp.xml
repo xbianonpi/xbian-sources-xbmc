@@ -38,7 +38,7 @@
             <dependency type="enable" setting="videoplayer.supportmvc">true</dependency>
           </dependencies>
           <level>2</level>
-          <default>true</default>
+          <default>false</default>
           <control type="toggle" />
         </setting>
       </group>
