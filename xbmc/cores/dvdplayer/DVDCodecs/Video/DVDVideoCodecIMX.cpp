@@ -1518,7 +1518,7 @@ bool CIMXContext::GetPageInfo(CIMXBuffer *info, int page)
 bool CIMXContext::Blank()
 {
   if (!m_fbHandle) return false;
-  return ioctl(m_fbHandle, FBIOBLANK, 1) == 0;
+  return ioctl(m_fbHandle, FBIOBLANK, FB_BLANK_NORMAL) == 0;
 }
 
 bool CIMXContext::Unblank()
