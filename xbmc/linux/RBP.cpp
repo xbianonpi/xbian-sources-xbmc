@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include "settings/Settings.h"
+#include "settings/AdvancedSettings.h"
 #include "utils/log.h"
 
 #include "cores/omxplayer/OMXImage.h"
@@ -45,7 +46,7 @@ CRBP::~CRBP()
 
 void CRBP::InitializeSettings()
 {
-  if (g_advancedSettings.m_cacheMemBufferSize == ~0U)
+  if (m_initialized && g_advancedSettings.m_cacheMemBufferSize == ~0U)
     g_advancedSettings.m_cacheMemBufferSize = m_arm_mem < 256 ? 1024 * 1024 * 2 : 1024 * 1024 * 20;
 }
 
@@ -225,18 +226,6 @@ void CRBP::Deinitialize()
   m_omx_image_init  = false;
   m_initialized     = false;
   m_omx_initialized = false;
-}
-
-double CRBP::AdjustHDMIClock(double adjust)
-{
-  char response[80];
-  vc_gencmd(response, sizeof response, "hdmi_adjust_clock %f", adjust);
-  float new_adjust = 1.0f;
-  char *p = strchr(response, '=');
-  if (p)
-    new_adjust = atof(p+1);
-  CLog::Log(LOGDEBUG, "CRBP::%s(%.4f) = %.4f", __func__, adjust, new_adjust);
-  return new_adjust;
 }
 
 void CRBP::SuspendVideoOutput()

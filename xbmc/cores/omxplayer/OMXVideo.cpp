@@ -645,7 +645,7 @@ bool COMXVideo::Open(CDVDStreamInfo &hints, OMXClock *clock, EDEINTERLACEMODE de
   switch(hints.orientation)
   {
     case 90:
-§§§      m_transform = OMX_DISPLAY_ROT90;
+      m_transform = OMX_DISPLAY_ROT90;
       break;
     case 180:
       m_transform = OMX_DISPLAY_ROT180;
