@@ -17,7 +17,7 @@ DEPENDS = \
 	libamplayer libssh taglib libusb libnfs libmp3lame \
 	pythonmodule-pil libxslt ffmpeg platform libdcadec
 
-FFMPEG_DEPENDS = gnutls
+FFMPEG_DEPENDS = gnutls libdcadec
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
@@ -96,7 +96,7 @@ nettle: gmp
 pythonmodule-pil: $(ZLIB) libjpeg-turbo libpng freetype2 python26
 libsdl2: $(LINUX_SYSTEM_LIBS)
 libxslt: libgcrypt
-ffmpeg: $(ICONV) $(ZLIB) bzip2 libvorbis libdcadec $(FFMPEG_DEPENDS)
+ffmpeg: $(ICONV) $(ZLIB) bzip2 libvorbis $(FFMPEG_DEPENDS)
 libcec: platform
 
 .installed-$(PLATFORM): $(DEPENDS)

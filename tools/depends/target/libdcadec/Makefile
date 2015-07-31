@@ -9,9 +9,7 @@ ARCHIVE=$(SOURCE).tar.gz
 
 # configuration settings
 
-LIBDYLIB=$(PLATFORM)/.libs/lib$(LIBNAME).a
-
-CLEAN_FILES=$(ARCHIVE) $(PLATFORM)
+LIBDYLIB=$(PLATFORM)/.libs/$(LIBNAME).a
 
 CFLAGS += -std=gnu99
 
