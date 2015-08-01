@@ -45,4 +45,12 @@
       </group>
     </category>
   </section>
+  <section id="system">
+    <category id="audiooutput">
+      <group id="3">
+        <setting id="audiooutput.ac3transcode" help="36429">
+        </setting>
+      </group>
+    </category>
+  </section>
 </settings>
