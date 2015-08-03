@@ -109,7 +109,6 @@ public:
   virtual void RegisterRenderFeaturesCallBack(const void *ctx, RenderFeaturesCallBackFn fn);
 
   static void SettingOptionsRenderMethodsFiller(const CSetting *setting, std::vector< std::pair<std::string, int> > &list, int &current, void *data);
-  static RESOLUTION FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight, unsigned int m_sourceWidth, unsigned int m_sourceHeight, unsigned m_iFlags, bool bRelaxPixelRatio = false);
 
 protected:
   void       ChooseBestResolution(float fps);

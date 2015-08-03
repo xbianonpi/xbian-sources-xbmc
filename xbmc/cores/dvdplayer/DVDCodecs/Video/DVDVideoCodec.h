@@ -325,4 +325,6 @@ public:
     * Decoder request to re-open
     */
    virtual void Reopen() {};
+
+  virtual bool GetInterlaced() { return false; }
 };

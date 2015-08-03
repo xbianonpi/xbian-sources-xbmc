@@ -291,7 +291,6 @@ CApplication::CApplication(void)
   m_ePlayState = PLAY_STATE_NONE;
   m_skinReverting = false;
   m_cecStandby = false;
-  m_res.strMode = "";
   m_ourVT = -1;
 
 #ifdef HAS_GLX
@@ -825,8 +824,6 @@ bool CApplication::CreateGUI(bool showXBMCSplash)
             info.iHeight,
             info.strMode.c_str());
 
-  m_res = info;
-  CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
   g_windowManager.Initialize();
 
   return true;
@@ -1465,11 +1462,6 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, CSettings::SETTING_MUSICPLAYER_REPLAYGAINAVOIDCLIPPING))
     m_replayGainSettings.bAvoidClipping = ((CSettingBool*)setting)->GetValue();
-
-  if (StringUtils::EqualsNoCase(settingId, "videoscreen.screenmode") || StringUtils::EqualsNoCase(settingId, "videoscreen.resolution")) {
-    m_res = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
-    CLog::Log(LOGDEBUG, "%s: -- base resolution changed to '%s'", __func__, m_res.strMode.c_str());
-  }
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)

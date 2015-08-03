@@ -313,6 +313,7 @@ public:
   virtual void SetDropState(bool bDrop);
   virtual const char* GetName() { return (const char*)m_pFormatName; }
   virtual unsigned GetAllowedReferences();
+  virtual bool GetInterlaced() { return m_initInfo.nInterlace; }
 
   static void Enter();
   static void Leave();

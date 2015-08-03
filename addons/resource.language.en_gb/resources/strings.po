@@ -6719,7 +6719,12 @@ msgctxt "#13558"
 msgid "Adjust display resolution"
 msgstr ""
 
-#empty strings from id 13559 to 13599
+#: system/settings/settings.xml
+msgctxt "#13559"
+msgid "Include interlaced modes"
+msgstr ""
+
+#empty strings from id 13560 to 13599
 
 #: system/settings/darwin.xml
 msgctxt "#13600"
@@ -16207,7 +16212,11 @@ msgctxt "#36218"
 msgid "This category contains the electronic programming guide (EPG) settings."
 msgstr ""
 
-#empty string with id 36219
+#. Description of setting "Videos -> Playback -> Include interlaced modes" with label #13559
+#: system/settings/settings.xml
+msgctxt "#36219"
+msgid "Interlaced modes will be used for interlaced content (deinterlacing will be deactivated)."
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#36220"
