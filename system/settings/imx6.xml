@@ -5,6 +5,11 @@
       <group id="3">
         <setting id="videoplayer.adjustresolution">
           <visible>true</visible>
+          <default>true</default>
+        </setting>
+        <setting id="videoplayer.adjustresolutioninterlaced">
+          <default>true</default>
+          <visible>true</visible>
         </setting>
       </group>
     </category>

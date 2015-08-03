@@ -239,13 +239,28 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
   {
     bool i_found = false;
 
+    // if interlaced mode
+    if (!bRelaxPixelRatio && m_iFlags & CONF_FLAGS_INTERLACED && CSettings::Get().GetBool("videoplayer.adjustresolutioninterlaced"))
+      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+      {
+        const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+        if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+        ||    info.iScreenHeight != m_sourceHeight
+        ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+          continue;
+
+        current = (RESOLUTION)i;
+        curr    = info;
+        i_found = true;
+      }
+
     if (!bRelaxPixelRatio && !i_found && fRefreshRate != trunc(fRefreshRate))
       for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
-
         if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
-        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001
+        || ((info.dwFlags & D3DPRESENTFLAG_INTERLACED) && !(m_iFlags & CONF_FLAGS_INTERLACED)))
           continue;
 
         current = (RESOLUTION)i;

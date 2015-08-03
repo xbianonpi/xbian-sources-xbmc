@@ -80,7 +80,7 @@
 #define CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT 0x000000
 #define CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT 0x008000
 
-
+#define CONF_FLAGS_INTERLACED          0x010000
 
 namespace RenderManager {
 
@@ -89,6 +89,7 @@ namespace RenderManager {
   unsigned int GetFlagsColorPrimaries(unsigned int color_primaries);
   unsigned int GetFlagsColorTransfer(unsigned int color_transfer);
   unsigned int GetStereoModeFlags(const std::string& mode);
+  unsigned int GetInterlacedModeFlag(bool interlaced);
   std::string  GetStereoModeInvert(const std::string& mode);
 
 }
