@@ -108,6 +108,11 @@ namespace RenderManager {
     return convert[mode];
   }
 
+  unsigned int GetInterlacedModeFlag(bool interlaced)
+  {
+    return interlaced ? CONF_FLAGS_INTERLACED : 0;
+  }
+
   std::string GetStereoModeInvert(const std::string& mode)
   {
     static std::map<std::string, std::string> convert;
