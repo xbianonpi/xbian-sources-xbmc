@@ -359,7 +359,7 @@ void CWinSystemEGL::UpdateResolutions()
 {
   CWinSystemBase::UpdateResolutions();
 
-  RESOLUTION_INFO resDesktop, curDisplay;
+  RESOLUTION_INFO curDisplay, resDesktop = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetCurrentResolution());
   std::vector<RESOLUTION_INFO> resolutions;
 
   if (!m_egl->ProbeResolutions(resolutions) || resolutions.empty())
@@ -401,13 +401,13 @@ void CWinSystemEGL::UpdateResolutions()
   /* ProbeResolutions includes already all resolutions.
    * Only get desktop resolution so we can replace xbmc's desktop res
    */
-  if (!g_application.m_res.strMode.empty())
-    resDesktop = g_application.m_res;
-  else if (CDisplaySettings::Get().GetDisplayResolution() != RES_DESKTOP)
+  if (resDesktop.strMode.empty() || CDisplaySettings::Get().GetCurrentResolution() != CDisplaySettings::Get().GetDisplayResolution())
     resDesktop = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
-  else if (m_egl->GetNativeResolution(&curDisplay))
-    resDesktop = curDisplay;
+  if (CDisplaySettings::Get().GetCurrentResolution() == RES_DESKTOP)
+    if (m_egl->GetNativeResolution(&curDisplay))
+      resDesktop = curDisplay;
 
+  CLog::Log(LOGDEBUG, "Looking for resolution %s", resDesktop.strMode.c_str());
   RESOLUTION ResDesktop = RES_INVALID;
 
   for (size_t i = 0; i < resolutions.size(); i++)
@@ -422,26 +422,14 @@ void CWinSystemEGL::UpdateResolutions()
       ResDesktop = (RESOLUTION)(i + (int)RES_DESKTOP);
     }
 
-  // don't swap resolutions if current matches previous index
-  if(CDisplaySettings::Get().GetCurrentResolution() == ResDesktop)
-    return;
-  else if (ResDesktop != RES_INVALID)
+  if (ResDesktop == RES_INVALID)
   {
-    CDisplaySettings::Get().SetCurrentResolution(ResDesktop);
-    return;
+    ResDesktop = CDisplaySettings::Get().GetDisplayResolution();
+    CLog::Log(LOGNOTICE, "New screen doesn't provide previous resolution. Will change to %d (%s)", ResDesktop,
+                                   CDisplaySettings::Get().GetResolutionInfo(ResDesktop).strMode.c_str());
   }
 
-  // if new screen doesn't provide resolution we need, we try to find closest to previous
-  float weight;
-  ResDesktop = CBaseRenderer::FindClosestResolution(g_application.m_res.fRefreshRate, 1.0f, (RESOLUTION)0, weight,
-                               g_application.m_res.iWidth, g_application.m_res.iHeight, g_application.m_res.dwFlags, true);
-
-  if (ResDesktop != RES_INVALID)
-  {
-    CLog::Log(LOGNOTICE, "New screen doesn't provide previous resolution. Will change to %d", ResDesktop);
-    CDisplaySettings::Get().SetCurrentResolution(ResDesktop, true);
-    g_application.m_res = CDisplaySettings::Get().GetResolutionInfo(CDisplaySettings::Get().GetDisplayResolution());
-  }
+  CDisplaySettings::Get().SetCurrentResolution(ResDesktop);
 }
 
 bool CWinSystemEGL::IsExtSupported(const char* extension)
