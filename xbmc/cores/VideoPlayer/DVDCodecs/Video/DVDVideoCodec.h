@@ -311,6 +311,8 @@ public:
    */
   virtual void Reopen() {};
 
+  virtual bool GetInterlaced() { return false; }
+
 protected:
   CProcessInfo &m_processInfo;
 };

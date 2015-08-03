@@ -766,6 +766,7 @@ int CVideoPlayerVideo::OutputPicture(const DVDVideoPicture* src, double pts)
   }
 
   flags |= stereo_flags;
+  flags |= GetInterlacedModeFlag(m_pVideoCodec->GetInterlaced());
 
   if(!m_renderManager.Configure(picture,
                                 config_framerate,

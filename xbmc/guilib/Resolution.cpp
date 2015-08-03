@@ -61,21 +61,21 @@ float RESOLUTION_INFO::DisplayRatio() const
   return iWidth * fPixelRatio / iHeight;
 }
 
-RESOLUTION CResolutionUtils::ChooseBestResolution(float fps, int width, bool is3D)
+RESOLUTION CResolutionUtils::ChooseBestResolution(float fps, int width, int height, bool is3D)
 {
   RESOLUTION res = g_graphicsContext.GetVideoResolution();
   float weight;
-  if (!FindResolutionFromOverride(fps, width, is3D, res, weight, false)) //find a refreshrate from overrides
+  if (!FindResolutionFromOverride(fps, width, height, is3D, res, weight, false)) //find a refreshrate from overrides
   {
-    if (!FindResolutionFromOverride(fps, width, is3D, res, weight, true))//if that fails find it from a fallback
-      FindResolutionFromFpsMatch(fps, width, is3D, res, weight);//if that fails use automatic refreshrate selection
+    if (!FindResolutionFromOverride(fps, width, height, is3D, res, weight, true))//if that fails find it from a fallback
+      FindResolutionFromFpsMatch(fps, width, height, is3D, res, weight);//if that fails use automatic refreshrate selection
   }
   CLog::Log(LOGNOTICE, "Display resolution ADJUST : %s (%d) (weight: %.3f)",
             g_graphicsContext.GetResInfo(res).strMode.c_str(), res, weight);
   return res;
 }
 
-bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, bool is3D, RESOLUTION &resolution, float& weight, bool fallback)
+bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, int height, bool is3D, RESOLUTION &resolution, float& weight, bool fallback)
 {
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(resolution);
 
@@ -129,12 +129,12 @@ bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, bool is3
   return false; //no override found
 }
 
-void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, bool is3D, RESOLUTION &resolution, float& weight)
+void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int height, bool is3D, RESOLUTION &resolution, float& weight)
 {
   const float maxWeight = 0.0021f;
   RESOLUTION_INFO curr;
 
-  resolution = FindClosestResolution(fps, width, is3D, 1.0, resolution, weight);
+  resolution = FindClosestResolution(fps, width, height, is3D, 1.0, resolution, weight);
   curr = g_graphicsContext.GetResInfo(resolution);
 
   if (weight >= maxWeight) //not a very good match, try a 2:3 cadence instead
@@ -142,7 +142,7 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, bool is3
     CLog::Log(LOGDEBUG, "Resolution %s (%d) not a very good match for fps %.3f (weight: %.3f), trying 2:3 cadence",
         curr.strMode.c_str(), resolution, fps, weight);
 
-    resolution = FindClosestResolution(fps, width, is3D, 2.5, resolution, weight);
+    resolution = FindClosestResolution(fps, width, height, is3D, 2.5, resolution, weight);
     curr = g_graphicsContext.GetResInfo(resolution);
 
     if (weight >= maxWeight) //2:3 cadence not a good match
@@ -193,7 +193,7 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, bool is3
   }
 }
 
-RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is3D, float multiplier, RESOLUTION current, float& weight, bool bRelaxPixelRatio)
+RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int height, bool is3D, float multiplier, RESOLUTION current, float& weight)
 {
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
   RESOLUTION orig_res  = CDisplaySettings::GetInstance().GetCurrentResolution();
@@ -205,43 +205,61 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is
 
   float fRefreshRate = fps;
 
-  float last_diff = fRefreshRate;
+  float last_diff = FLT_MAX;
 
   int curr_diff = std::abs(width - curr.iScreenWidth);
   int loop_diff = 0;
 
   // CHANGERESOLUTION
-  if (CSettings::Get().GetBool("videoplayer.adjustresolution") || bRelaxPixelRatio)
+  if (CSettings::GetInstance().GetBool("videoplayer.adjustresolution"))
   {
     bool i_found = false;
 
-    if (!bRelaxPixelRatio && !i_found && fRefreshRate != trunc(fRefreshRate))
-      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    // if interlaced mode
+    if (m_iFlags & CONF_FLAGS_INTERLACED && CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced"))
+      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
-
-        if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
-        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001)
+        if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+        ||    info.iScreenHeight != height
+        ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
 
         current = (RESOLUTION)i;
         curr    = info;
         i_found = true;
+      }
 
-        if (info.iScreenWidth == width)
+    if (!i_found)
+      for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
+      {
+        const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
+        if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
+        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
+        ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
+        || (!CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced") && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
+        ||   width > info.iScreenWidth || height > info.iScreenHeight
+        ||   pow(info.iScreenWidth*info.iScreenHeight - width*height, 2) > last_diff)
+          continue;
+
+        current = (RESOLUTION)i;
+        curr    = info;
+        i_found = true;
+        last_diff = pow(curr.iScreenWidth*curr.iScreenHeight - width*height, 2);
+
+        if (info.iScreenWidth == width && info.iScreenHeight == height)
           break;
       }
 
-    for (size_t i = (int)RES_DESKTOP; !i_found && i < CDisplaySettings::Get().ResolutionInfoSize(); i++)
+    last_diff = FLT_MAX;
+    for (size_t i = (int)RES_DESKTOP; !i_found && i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
     {
       const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
 
-      if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
-      ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) >
-          pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2)
+      if (width > info.iScreenWidth || height > info.iScreenHeight
+      ||  pow(info.iScreenWidth*info.iScreenHeight - width*height, 2) > last_diff
       ||  info.iScreen != curr.iScreen
-      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
-      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.001))
+      ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
                info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
@@ -251,6 +269,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, bool is
 
       current = (RESOLUTION)i;
       curr    = info;
+      last_diff = pow(curr.iScreenWidth*curr.iScreenHeight - width*height, 2);
     }
   }
 

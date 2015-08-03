@@ -22,6 +22,7 @@
 
 #include <cstdlib> // std::abs(int) prototype
 #include <algorithm>
+#include <float.h>
 #include "BaseRenderer.h"
 #include "settings/DisplaySettings.h"
 #include "settings/MediaSettings.h"
