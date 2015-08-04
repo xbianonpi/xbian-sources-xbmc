@@ -36,6 +36,7 @@
 #include "pvr/PVRManager.h"
 #include "pvr/recordings/PVRRecordings.h"
 #include "pvr/timers/PVRTimers.h"
+#include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "utils/Variant.h"
 
@@ -367,7 +368,8 @@ bool CPVRClients::SwitchChannel(const CPVRChannelPtr &channel)
     CSingleLock lock(m_critSection);
     if (m_bIsSwitchingChannels)
     {
-      CLog::Log(LOGDEBUG, "PVRClients - %s - can't switch to channel '%s'. waiting for the previous switch to complete", __FUNCTION__, channel->ChannelName().c_str());
+      if (g_advancedSettings.CanLogComponent(LOGPVR))
+        CLog::Log(LOGDEBUG, "PVRClients - %s - can't switch to channel '%s'. waiting for the previous switch to complete", __FUNCTION__, channel->ChannelName().c_str());
       return false;
     }
     m_bIsSwitchingChannels = true;
@@ -1111,7 +1113,8 @@ int CPVRClients::RegisterClient(AddonPtr client)
   if (!client->Enabled() || !database.Open())
     return -1;
 
-  CLog::Log(LOGDEBUG, "%s - registering add-on '%s'", __FUNCTION__, client->Name().c_str());
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "%s - registering add-on '%s'", __FUNCTION__, client->Name().c_str());
 
   // check whether we already know this client
   iClientId = database.GetAddonId(client); //database->GetClientId(client->ID());
@@ -1396,7 +1399,8 @@ bool CPVRClients::UpdateAddons(void)
 
     if (bDisable)
     {
-      CLog::Log(LOGDEBUG, "%s - disabling add-on '%s'", __FUNCTION__, (*it)->Name().c_str());
+      if (g_advancedSettings.CanLogComponent(LOGPVR))
+        CLog::Log(LOGDEBUG, "%s - disabling add-on '%s'", __FUNCTION__, (*it)->Name().c_str());
       CAddonMgr::GetInstance().DisableAddon((*it)->ID());
       usableClients--;
     }

@@ -23,6 +23,7 @@
 #include "settings/Settings.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
+#include "settings/AdvancedSettings.h"
 
 #include "pvr/PVRDatabase.h"
 #include "pvr/PVRManager.h"
@@ -243,7 +244,8 @@ bool CPVRChannelGroups::UpdateGroupsEntries(const CPVRChannelGroups &groups)
     // user defined group wasn't found
     if (existingGroup.GroupType() == PVR_GROUP_TYPE_DEFAULT && !group)
     {
-      CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - user defined group %s with id '%u' does not exist on the client anymore; deleting it", __FUNCTION__, existingGroup.GroupName().c_str(), existingGroup.GroupID());
+      if (g_advancedSettings.CanLogComponent(LOGPVR))
+        CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - user defined group %s with id '%u' does not exist on the client anymore; deleting it", __FUNCTION__, existingGroup.GroupName().c_str(), existingGroup.GroupID());
       DeleteGroup(*m_groups.at(iGroupPtr));
     }
   }
@@ -278,10 +280,12 @@ bool CPVRChannelGroups::LoadUserDefinedChannelGroups(void)
   if (bSyncWithBackends)
   {
     GetGroupsFromClients();
-    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" new user defined %s channel groups fetched from clients", __FUNCTION__, (m_groups.size() - iSize), m_bRadio ? "radio" : "TV");
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" new user defined %s channel groups fetched from clients", __FUNCTION__, (m_groups.size() - iSize), m_bRadio ? "radio" : "TV");
   }
   else
-    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - 'synchannelgroups' is disabled; skipping groups from clients", __FUNCTION__);
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - 'synchannelgroups' is disabled; skipping groups from clients", __FUNCTION__);
 
   std::vector<CPVRChannelGroupPtr> emptyGroups;
 
@@ -293,7 +297,8 @@ bool CPVRChannelGroups::LoadUserDefinedChannelGroups(void)
     {
       if (!(*it)->Load())
       {
-        CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - failed to load channel group '%s'", __FUNCTION__, (*it)->GroupName().c_str());
+        if (g_advancedSettings.CanLogComponent(LOGPVR))
+          CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - failed to load channel group '%s'", __FUNCTION__, (*it)->GroupName().c_str());
         return false;
       }
 
@@ -305,7 +310,8 @@ bool CPVRChannelGroups::LoadUserDefinedChannelGroups(void)
 
   for (std::vector<CPVRChannelGroupPtr>::iterator it = emptyGroups.begin(); it != emptyGroups.end(); ++it)
   {
-    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - deleting empty group '%s'", __FUNCTION__, (*it)->GroupName().c_str());
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - deleting empty group '%s'", __FUNCTION__, (*it)->GroupName().c_str());
     DeleteGroup(*(*it));
   }
 
@@ -324,7 +330,8 @@ bool CPVRChannelGroups::Load(void)
   // remove previous contents
   Clear();
 
-  CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - loading all %s channel groups", __FUNCTION__, m_bRadio ? "radio" : "TV");
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - loading all %s channel groups", __FUNCTION__, m_bRadio ? "radio" : "TV");
 
   // create the internal channel group
   CPVRChannelGroupPtr internalGroup = CPVRChannelGroupPtr(new CPVRChannelGroupInternal(m_bRadio));
@@ -332,7 +339,8 @@ bool CPVRChannelGroups::Load(void)
 
   // load groups from the database
   database->Get(*this);
-  CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" %s groups fetched from the database", __FUNCTION__, m_groups.size(), m_bRadio ? "radio" : "TV");
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" %s groups fetched from the database", __FUNCTION__, m_groups.size(), m_bRadio ? "radio" : "TV");
 
   // load channels of internal group
   if (!internalGroup->Load())
@@ -352,7 +360,8 @@ bool CPVRChannelGroups::Load(void)
   CPVRChannelGroupPtr lastPlayedGroup = GetLastPlayedGroup();
   SetSelectedGroup(lastPlayedGroup ? lastPlayedGroup : internalGroup);
 
-  CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" %s channel groups loaded", __FUNCTION__, m_groups.size(), m_bRadio ? "radio" : "TV");
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - %" PRIuS" %s channel groups loaded", __FUNCTION__, m_groups.size(), m_bRadio ? "radio" : "TV");
 
   // need at least 1 group
   return m_groups.size() > 0;
@@ -361,7 +370,8 @@ bool CPVRChannelGroups::Load(void)
 bool CPVRChannelGroups::PersistAll(void)
 {
   bool bReturn(true);
-  CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - persisting all changes in channel groups", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRChannelGroups - %s - persisting all changes in channel groups", __FUNCTION__);
 
   CSingleLock lock(m_critSection);
   for (std::vector<CPVRChannelGroupPtr>::iterator it = m_groups.begin(); it != m_groups.end(); ++it)

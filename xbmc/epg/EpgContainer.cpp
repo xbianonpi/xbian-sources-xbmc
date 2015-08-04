@@ -520,7 +520,8 @@ bool CEpgContainer::DeleteEpg(const CEpg &epg, bool bDeleteFromDatabase /* = fal
   if (epgEntry == m_epgs.end())
     return false;
 
-  CLog::Log(LOGDEBUG, "deleting EPG table %s (%d)", epg.Name().c_str(), epg.EpgID());
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "deleting EPG table %s (%d)", epg.Name().c_str(), epg.EpgID());
   if (bDeleteFromDatabase && !m_bIgnoreDbForClient && m_database.IsOpen())
     m_database.Delete(*epgEntry->second);
 
@@ -828,7 +829,8 @@ void CEpgContainer::UpdateRequest(int clientID, unsigned int channelID)
 
 void CEpgContainer::UpdateEpgEvents()
 {
-  CLog::Log(LOGDEBUG, "EPGContainer - %s", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "EPGContainer - %s", __FUNCTION__);
   CSingleLock lock(m_critSection);
   CDateTime now = CDateTime::GetUTCDateTime();
   int count = 0;
@@ -848,7 +850,8 @@ void CEpgContainer::UpdateEpgEvents()
         ++event;
     }
     m_lastEpgEventPurge = now;
-    CLog::Log(LOGDEBUG, "EPGContainer - %s - %d item(s) purged", __FUNCTION__, count);
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "EPGContainer - %s - %d item(s) purged", __FUNCTION__, count);
   }
 
   // Fill updated entries
@@ -877,7 +880,8 @@ void CEpgContainer::UpdateEpgEvents()
       ++count;
     }
   }
-  CLog::Log(LOGDEBUG, "EPGContainer - %s - %d item(s) updated", __FUNCTION__, count);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "EPGContainer - %s - %d item(s) updated", __FUNCTION__, count);
 }
 
 void CEpgContainer::CleanupEpgEvents(const CEpgPtr& epg)
