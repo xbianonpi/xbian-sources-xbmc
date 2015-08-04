@@ -24,6 +24,7 @@
 #include "utils/log.h"
 #include "threads/SingleLock.h"
 #include "video/VideoDatabase.h"
+#include "settings/AdvancedSettings.h"
 
 #include "utils/URIUtils.h"
 #include "utils/StringUtils.h"
@@ -179,7 +180,8 @@ void CPVRRecordings::Update(void)
   m_bIsUpdating = true;
   lock.Leave();
 
-  CLog::Log(LOGDEBUG, "CPVRRecordings - %s - updating recordings", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRRecordings - %s - updating recordings", __FUNCTION__);
   UpdateFromClients();
 
   lock.Enter();
@@ -290,7 +292,8 @@ bool CPVRRecordings::SetRecordingsPlayCount(const CFileItemPtr &item, int count)
   {
     bResult = true;
 
-    CLog::Log(LOGDEBUG, "CPVRRecordings - %s - item path %s", __FUNCTION__, item->GetPath().c_str());
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "CPVRRecordings - %s - item path %s", __FUNCTION__, item->GetPath().c_str());
     CFileItemList items;
     if (item->m_bIsFolder)
     {
@@ -299,15 +302,18 @@ bool CPVRRecordings::SetRecordingsPlayCount(const CFileItemPtr &item, int count)
     else
       items.Add(item);
 
-    CLog::Log(LOGDEBUG, "CPVRRecordings - %s - will set watched for %d items", __FUNCTION__, items.Size());
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "CPVRRecordings - %s - will set watched for %d items", __FUNCTION__, items.Size());
     for (int i=0;i<items.Size();++i)
     {
-      CLog::Log(LOGDEBUG, "CPVRRecordings - %s - setting watched for item %d", __FUNCTION__, i);
+      if (g_advancedSettings.CanLogComponent(LOGPVR))
+        CLog::Log(LOGDEBUG, "CPVRRecordings - %s - setting watched for item %d", __FUNCTION__, i);
 
       CFileItemPtr pItem=items[i];
       if (pItem->m_bIsFolder)
       {
-        CLog::Log(LOGDEBUG, "CPVRRecordings - %s - path %s is a folder, will call recursively", __FUNCTION__, pItem->GetPath().c_str());
+        if (g_advancedSettings.CanLogComponent(LOGPVR))
+          CLog::Log(LOGDEBUG, "CPVRRecordings - %s - path %s is a folder, will call recursively", __FUNCTION__, pItem->GetPath().c_str());
         if (pItem->GetLabel() != "..")
         {
           SetRecordingsPlayCount(pItem, count);

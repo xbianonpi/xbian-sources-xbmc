@@ -25,6 +25,7 @@
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/log.h"
+#include "settings/AdvancedSettings.h"
 
 using namespace PVR;
 
@@ -51,7 +52,8 @@ bool CPVRChannelGroupsContainer::Update(bool bChannelsOnly /* = false */)
   m_bUpdateChannelsOnly = bChannelsOnly;
   lock.Leave();
 
-  CLog::Log(LOGDEBUG, "CPVRChannelGroupsContainer - %s - updating %s", __FUNCTION__, bChannelsOnly ? "channels" : "channel groups");
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CPVRChannelGroupsContainer - %s - updating %s", __FUNCTION__, bChannelsOnly ? "channels" : "channel groups");
   bool bReturn = m_groupsRadio->Update(bChannelsOnly) &&
        m_groupsTV->Update(bChannelsOnly);
 
