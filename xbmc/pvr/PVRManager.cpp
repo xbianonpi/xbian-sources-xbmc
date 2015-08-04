@@ -43,6 +43,7 @@
 #include "interfaces/AnnouncementManager.h"
 #include "video/VideoDatabase.h"
 #include "network/Network.h"
+#include "settings/AdvancedSettings.h"
 
 #include "PVRManager.h"
 #include "PVRDatabase.h"
@@ -102,7 +103,8 @@ CPVRManager::~CPVRManager(void)
 {
   CAnnouncementManager::Get().RemoveAnnouncer(this);
   Stop();
-  CLog::Log(LOGDEBUG,"PVRManager - destroyed");
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG,"PVRManager - destroyed");
 }
 
 void CPVRManager::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)
@@ -331,7 +333,8 @@ bool CPVRManager::UpgradeOutdatedAddons(void)
     SetState(ManagerStateStarted);
     g_EpgContainer.Start();
 
-    CLog::Log(LOGDEBUG, "PVRManager - %s - restarted", __FUNCTION__);
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG, "PVRManager - %s - restarted", __FUNCTION__);
     return true;
   }
 
@@ -503,7 +506,8 @@ void CPVRManager::Process(void)
   SetState(ManagerStateStarted);
 
   /* main loop */
-  CLog::Log(LOGDEBUG, "PVRManager - %s - entering main loop", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "PVRManager - %s - entering main loop", __FUNCTION__);
   g_EpgContainer.Start();
 
   bool bRestart(false);
@@ -615,7 +619,8 @@ bool CPVRManager::Load(void)
   if (!IsInitialising() || !m_addons || !m_addons->HasConnectedClients())
     return false;
 
-  CLog::Log(LOGDEBUG, "PVRManager - %s - active clients found. continue to start", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "PVRManager - %s - active clients found. continue to start", __FUNCTION__);
 
   /* reset observer for pvr windows */
   for (std::size_t i = 0; i != ARRAY_SIZE(m_pvrWindowIds); i++)
@@ -736,7 +741,8 @@ bool CPVRManager::ContinueLastChannel(void)
     return true;
   }
 
-  CLog::Log(LOGDEBUG, "PVRManager - %s - no last played channel to continue playback found", __FUNCTION__);
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "PVRManager - %s - no last played channel to continue playback found", __FUNCTION__);
 
   return false;
 }
@@ -847,7 +853,10 @@ int CPVRManager::GetCurrentEpg(CFileItemList &results) const
   if (channel)
     iReturn = channel->GetEPG(results);
   else
-    CLog::Log(LOGDEBUG,"PVRManager - %s - no current channel set", __FUNCTION__);
+  {
+    if (g_advancedSettings.CanLogComponent(LOGPVR))
+      CLog::Log(LOGDEBUG,"PVRManager - %s - no current channel set", __FUNCTION__);
+  }
 
   return iReturn;
 }
@@ -1014,8 +1023,9 @@ bool CPVRManager::OpenLiveStream(const CFileItem &channel)
   if (!channel.HasPVRChannelInfoTag())
     return bReturn;
 
-  CLog::Log(LOGDEBUG,"PVRManager - %s - opening live stream on channel '%s'",
-      __FUNCTION__, channel.GetPVRChannelInfoTag()->ChannelName().c_str());
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG,"PVRManager - %s - opening live stream on channel '%s'",
+        __FUNCTION__, channel.GetPVRChannelInfoTag()->ChannelName().c_str());
 
   // check if we're allowed to play this file
   if (IsParentalLocked(channel.GetPVRChannelInfoTag()))
@@ -1269,8 +1279,9 @@ bool CPVRManager::PerformChannelSwitch(const CPVRChannelPtr &channel, bool bPrev
     CSingleLock lock(m_critSection);
     if (m_bIsSwitchingChannels)
     {
-      CLog::Log(LOGDEBUG, "PVRManager - %s - can't switch to channel '%s'. waiting for the previous switch to complete",
-          __FUNCTION__, channel->ChannelName().c_str());
+      if (g_advancedSettings.CanLogComponent(LOGPVR))
+        CLog::Log(LOGDEBUG, "PVRManager - %s - can't switch to channel '%s'. waiting for the previous switch to complete",
+            __FUNCTION__, channel->ChannelName().c_str());
       return false;
     }
 
@@ -1285,7 +1296,8 @@ bool CPVRManager::PerformChannelSwitch(const CPVRChannelPtr &channel, bool bPrev
     m_bIsSwitchingChannels = true;
   }
 
-  CLog::Log(LOGDEBUG, "PVRManager - %s - switching to channel '%s'", __FUNCTION__, channel->ChannelName().c_str());
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "PVRManager - %s - switching to channel '%s'", __FUNCTION__, channel->ChannelName().c_str());
 
   // will be deleted by CPVRChannelSwitchJob::DoWork()
   CFileItem* previousFile = m_currentFile;

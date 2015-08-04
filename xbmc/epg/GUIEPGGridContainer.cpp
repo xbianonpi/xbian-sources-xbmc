@@ -33,6 +33,7 @@
 #include "utils/Variant.h"
 #include "threads/SystemClock.h"
 
+#include "settings/AdvancedSettings.h"
 #include "Epg.h"
 #include "GUIEPGGridContainer.h"
 
@@ -1054,7 +1055,8 @@ void CGUIEPGGridContainer::UpdateItems()
 
   /******************************************* END ******************************************/
 
-  CLog::Log(LOGDEBUG, "CGUIEPGGridContainer - %s completed successfully in %u ms", __FUNCTION__, (unsigned int)(XbmcThreads::SystemClockMillis()-tick));
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CGUIEPGGridContainer - %s completed successfully in %u ms", __FUNCTION__, (unsigned int)(XbmcThreads::SystemClockMillis()-tick));
 }
 
 void CGUIEPGGridContainer::ChannelScroll(int amount)
@@ -1921,8 +1923,9 @@ void CGUIEPGGridContainer::SetStartEnd(CDateTime start, CDateTime end)
   m_gridStart = CDateTime(start.GetYear(), start.GetMonth(), start.GetDay(), start.GetHour(), start.GetMinute() >= 30 ? 30 : 0, 0);
   m_gridEnd = CDateTime(end.GetYear(), end.GetMonth(), end.GetDay(), end.GetHour(), end.GetMinute() >= 30 ? 30 : 0, 0);
 
-  CLog::Log(LOGDEBUG, "CGUIEPGGridContainer - %s - start=%s end=%s",
-      __FUNCTION__, m_gridStart.GetAsLocalizedDateTime(false, true).c_str(), m_gridEnd.GetAsLocalizedDateTime(false, true).c_str());
+  if (g_advancedSettings.CanLogComponent(LOGPVR))
+    CLog::Log(LOGDEBUG, "CGUIEPGGridContainer - %s - start=%s end=%s",
+        __FUNCTION__, m_gridStart.GetAsLocalizedDateTime(false, true).c_str(), m_gridEnd.GetAsLocalizedDateTime(false, true).c_str());
 }
 
 void CGUIEPGGridContainer::UpdateLayout()
