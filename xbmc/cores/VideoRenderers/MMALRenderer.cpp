@@ -367,7 +367,6 @@ void CMMALRenderer::SubmitFrame(MMAL_BUFFER_HEADER_T *buffer)
       #if defined(MMAL_DEBUG_VERBOSE)
       CLog::Log(LOGDEBUG, "%s::%s - buffer:%p vfps:%.3f dfps:%.3f vsync:%d dsync:%d", CLASSNAME, __func__, buffer, m_fps, g_graphicsContext.GetFPS(), m_vsyncCount, CSettings::Get().GetBool("videoplayer.usedisplayasclock"));
       #endif
-      CSingleExit lock(g_graphicsContext);
       m_vsyncCount = g_RBP.WaitVsync(m_vsyncCount) + 1;
       #if defined(MMAL_DEBUG_VERBOSE)
       CLog::Log(LOGDEBUG, "%s::%s - done vsync:%d", CLASSNAME, __func__, m_vsyncCount);
