@@ -99,7 +99,6 @@ protected:
   unsigned int         m_destWidth;
   unsigned int         m_destHeight;
   int                  m_neededBuffers;
-  int                  m_vsyncCount;
 
   CRect                     m_src_rect;
   CRect                     m_dst_rect;
@@ -116,5 +115,4 @@ protected:
   bool init_vout(ERenderFormat format);
   void ReleaseBuffers();
   void UnInitMMAL();
-  void SubmitFrame(MMAL_BUFFER_HEADER_T *buffer);
 };
