@@ -66,7 +66,6 @@ CRBP::CRBP()
   m_enabled = 0;
   m_mb = mbox_open();
   vcsm_init();
-  m_vsync_count = 0;
 }
 
 CRBP::~CRBP()
@@ -144,45 +143,11 @@ void CRBP::LogFirmwareVerison()
   CLog::Log(LOGNOTICE, "Config:\n%s", response);
 }
 
-static void vsync_callback_static(DISPMANX_UPDATE_HANDLE_T u, void *arg)
-{
-  CRBP *rbp = reinterpret_cast<CRBP*>(arg);
-  rbp->VSyncCallback();
-}
-
-void CRBP::VSyncCallback()
-{
-  CSingleLock lock(m_vsync_lock);
-  m_vsync_count++;
-  m_vsync_cond.notifyAll();
-}
-
-unsigned int CRBP::WaitVsync(unsigned int target)
-{
-  CSingleLock lock(m_vsync_lock);
-  if (target == ~0U)
-    target = m_vsync_count+1;
-
-  if (m_display == DISPMANX_NO_HANDLE)
-  {
-    CLog::Log(LOGDEBUG, "CRBP::%s skipping while display closed", __func__);
-    return m_vsync_count;
-  }
-
-  while (m_vsync_count < target)
-    if (!m_vsync_cond.wait(lock, 100))
-      break;
-
-  return m_vsync_count;
-}
-
 DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
 {
   if (m_display == DISPMANX_NO_HANDLE)
   {
     m_display = vc_dispmanx_display_open( 0 /*screen*/ );
-    int s = vc_dispmanx_vsync_callback(m_display, vsync_callback_static, (void *)this);
-    assert(s == 0);
     init_cursor();
   }
   return m_display;
@@ -191,11 +156,9 @@ DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
 void CRBP::CloseDisplay(DISPMANX_DISPLAY_HANDLE_T display)
 {
   assert(display == m_display);
-  int s = vc_dispmanx_vsync_callback(m_display, NULL, NULL);
-  assert(s == 0);
-  uninit_cursor();
   vc_dispmanx_display_close(m_display);
   m_display = DISPMANX_NO_HANDLE;
+  uninit_cursor();
 }
 
 void CRBP::GetDisplaySize(int &width, int &height)
@@ -247,6 +210,35 @@ unsigned char *CRBP::CaptureDisplay(int width, int height, int *pstride, bool sw
     *pstride = stride;
   return image;
 }
+
+
+static void vsync_callback(DISPMANX_UPDATE_HANDLE_T u, void *arg)
+{
+  CEvent *sync = (CEvent *)arg;
+  sync->Set();
+}
+
+void CRBP::WaitVsync()
+{
+  int s;
+  DISPMANX_DISPLAY_HANDLE_T m_display = vc_dispmanx_display_open( 0 /*screen*/ );
+  if (m_display == DISPMANX_NO_HANDLE)
+  {
+    CLog::Log(LOGDEBUG, "CRBP::%s skipping while display closed", __func__);
+    return;
+  }
+  m_vsync.Reset();
+  s = vc_dispmanx_vsync_callback(m_display, vsync_callback, (void *)&m_vsync);
+  if (s == 0)
+  {
+    m_vsync.WaitMSec(1000);
+  }
+  else assert(0);
+  s = vc_dispmanx_vsync_callback(m_display, NULL, NULL);
+  assert(s == 0);
+  vc_dispmanx_display_close( m_display );
+}
+
 
 void CRBP::Deinitialize()
 {
