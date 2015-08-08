@@ -182,7 +182,7 @@ void CEGLNativeTypeIMX::Destroy()
 
   SetNativeResolution(m_init);
 
-  system("/usr/bin/splash --force -i -m 'stopping xbmc...'");
+  system("/usr/bin/splash --force -i -m 'stopping kodi...'");
 #endif
   return;
 }
