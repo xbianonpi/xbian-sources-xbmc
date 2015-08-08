@@ -186,7 +186,7 @@ void CEGLNativeTypeIMX::Destroy()
     SysfsUtils::SetString("/sys/class/graphics/fb0/mode", m_init.strId + "\n");
   }
 
-  system("/usr/bin/splash --force -i -m 'stopping xbmc...'");
+  system("/usr/bin/splash --force -i -m 'stopping kodi...'");
 #endif
   return;
 }
