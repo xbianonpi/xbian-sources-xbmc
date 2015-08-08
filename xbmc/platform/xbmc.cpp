@@ -44,7 +44,7 @@ extern "C" int XBMC_Run(bool renderGUI, CFileItemList &playlist)
   struct stat buf;
   if (stat(filename.c_str(), &buf) != -1)
   {
-    system("/usr/bin/splash --force -i -m 'starting xbmc...'");
+    system("/usr/bin/splash --force -i -m 'starting kodi...'");
     showXBMCSplash = false;
   }
 
