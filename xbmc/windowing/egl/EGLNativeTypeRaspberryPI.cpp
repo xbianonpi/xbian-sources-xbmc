@@ -683,7 +683,7 @@ void CEGLNativeTypeRaspberryPI::GetSupportedModes(HDMI_RES_GROUP_T group, std::v
       CLog::Log(LOGDEBUG, "EGL mode %d: %s (%.2f) %s%s:%x\n", i, res.strMode.c_str(), res.fPixelRatio,
           tv->native ? "N" : "", tv->scan_mode ? "I" : "", tv->code);
 
-      if (tv->frame_rate == 24 || tv->frame_rate == 30 || tv->frame_rate == 60)
+      if (tv->frame_rate == 24 || tv->frame_rate == 30 || tv->frame_rate == 48 || tv->frame_rate == 60 || tv->frame_rate == 72)
       {
         RESOLUTION_INFO res2 = res;
         res2.fRefreshRate  = (float)tv->frame_rate * (1000.0f/1001.0f);
