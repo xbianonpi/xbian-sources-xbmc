@@ -324,8 +324,8 @@ bool CNfsConnection::Connect(const CURL& url, std::string &relativePath)
     m_exportPath = exportPath;
     m_hostName = url.GetHostName();
     //read chunksize only works after mount
-    m_readChunkSize = m_pLibNfs->nfs_get_readmax(m_pNfsContext);
-    m_writeChunkSize = m_pLibNfs->nfs_get_writemax(m_pNfsContext);
+    m_readChunkSize = 262144; /*m_pLibNfs->nfs_get_readmax(m_pNfsContext);*/
+    m_writeChunkSize = 262144; /*m_pLibNfs->nfs_get_writemax(m_pNfsContext);*/
 
     if(contextRet == CONTEXT_NEW)
     {
