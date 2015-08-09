@@ -190,6 +190,7 @@ private:
   int                            m_fbCurrentPage;
   int                            m_fbWidth;
   int                            m_fbHeight;
+  bool                           m_fbInterlaced;
   int                            m_fbLineLength;
   int                            m_fbPageSize;
   int                            m_fbPhysSize;
