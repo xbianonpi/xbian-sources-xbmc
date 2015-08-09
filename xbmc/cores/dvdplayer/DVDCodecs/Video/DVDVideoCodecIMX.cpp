@@ -35,6 +35,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <linux/fb.h>
 
 #define IMX_VDI_MAX_WIDTH 968
 #define FRAME_ALIGN 16
@@ -44,6 +45,7 @@
 #define Align(ptr,align)  (((unsigned int)ptr + (align) - 1)/(align)*(align))
 #define Align2(ptr,align)  (((unsigned int)ptr)/(align)*(align))
 
+#define BIT(nr) (1UL << (nr))
 
 // Global instance
 CIMXContext g_IMXContext;
@@ -1346,6 +1348,7 @@ bool CIMXContext::AdaptScreen()
 
   m_fbWidth = fbVar.xres;
   m_fbHeight = fbVar.yres;
+  m_fbInterlaced = fbVar.vmode & FB_VMODE_INTERLACED;
 
   if (!GetFBInfo(m_deviceName, &m_fbVar))
     return false;
@@ -1367,6 +1370,12 @@ bool CIMXContext::AdaptScreen()
   m_fbVar.activate |= FB_ACTIVATE_FORCE;
   m_fbVar.xres = m_fbWidth;
   m_fbVar.yres = m_fbHeight;
+
+  if (m_fbInterlaced)
+    m_fbVar.vmode |= FB_VMODE_INTERLACED;
+  else
+    m_fbVar.vmode &= ~FB_VMODE_INTERLACED;
+
   // One additional line that is required for deinterlacing
   m_fbVar.yres_virtual = (m_fbVar.yres+1) * m_fbPages;
   m_fbVar.xres_virtual = m_fbVar.xres;
@@ -1557,7 +1566,7 @@ void CIMXContext::SetInterpolatedFrame(bool flag)
 void CIMXContext::SetDeInterlacing(bool flag)
 {
   bool sav_deInt = m_deInterlacing;
-  m_deInterlacing = flag;
+  m_deInterlacing = m_fbInterlaced ? false : flag;
   // If deinterlacing configuration changes then fb has to be reconfigured
   if (sav_deInt != m_deInterlacing)
   {
