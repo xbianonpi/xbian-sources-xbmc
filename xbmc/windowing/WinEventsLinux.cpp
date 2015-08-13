@@ -180,28 +180,40 @@ bool CWinEventsLinux::MessagePump()
   bool ret = false;
   XBMC_Event event = {0};
 #ifdef TARGET_RASPBERRY_PI
+  bool active = CInputManager::Get().IsMouseActive();
   int64_t Now = CurrentHostCounter();
-  int state = CInputManager::Get().GetMouseState() - 1;
-  if (m_mouse_state != state)
+  if (!active)
   {
-    //printf("%s: %d->%d\n", __func__, m_mouse_state, state);
-    if (state >= 0 && state < (int)(sizeof m_cursors/sizeof *m_cursors) && m_cursors[state].pixels)
+    if (m_mouse_state != -1)
     {
-      g_RBP.set_cursor(m_cursors[state].pixels, m_cursors[state].width, m_cursors[state].height, 0, 0);
+      g_RBP.update_cursor(0, 0, 0);
+      m_mouse_state = -1;
     }
-    m_mouse_state = state;
+  }
+  else
+  {
+    int state = CInputManager::Get().GetMouseState() - 1;
+    if (m_mouse_state != state)
+    {
+      //printf("%s: %d->%d\n", __func__, m_mouse_state, state);
+      if (state >= 0 && state < (int)(sizeof m_cursors/sizeof *m_cursors) && m_cursors[state].pixels)
+      {
+        g_RBP.set_cursor(m_cursors[state].pixels, m_cursors[state].width, m_cursors[state].height, 0, 0);
+      }
+      m_mouse_state = state;
+    }
   }
 #endif
   while (1)
   {
     event = m_devices.ReadEvent();
 #ifdef TARGET_RASPBERRY_PI
-    if (event.type == XBMC_MOUSEMOTION || event.type == XBMC_MOUSEBUTTONDOWN || event.type == XBMC_MOUSEBUTTONUP)
+    if (active && (event.type == XBMC_MOUSEMOTION || event.type == XBMC_MOUSEBUTTONDOWN || event.type == XBMC_MOUSEBUTTONUP))
     {
       if (event.type == XBMC_MOUSEMOTION)
         g_RBP.update_cursor(event.motion.x, event.motion.y, 1);
       m_last_mouse_move_time = Now;
-      //printf("%s: %d,%d %d %d,%d (%d,%d)\n", __func__, event.motion.type, event.motion.which, event.motion.state, event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel);
+      //printf("%s: %d,%d %d %d,%d (%d,%d) act:%d\n", __func__, event.motion.type, event.motion.which, event.motion.state, event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel, CInputManager::Get().IsMouseActive());
     }
 #endif
     if (event.type != XBMC_NOEVENT)
@@ -215,8 +227,11 @@ bool CWinEventsLinux::MessagePump()
   }
 
 #ifdef TARGET_RASPBERRY_PI
-  if (Now - m_last_mouse_move_time > 5 * 1000000000LL)
+  if (active && Now - m_last_mouse_move_time > 5 * 1000000000LL)
+  {
     g_RBP.update_cursor(0, 0, 0);
+    m_mouse_state = -1;
+  }
 #endif
   return ret;
 }
