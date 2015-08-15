@@ -307,6 +307,7 @@ public:
   virtual bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options);
   virtual void Dispose();
   virtual int  Decode(BYTE *pData, int iSize, double dts, double pts);
+  virtual void SetSkipMode();
   virtual void Reset();
   virtual bool ClearPicture(DVDVideoPicture *pDvdVideoPicture);
   virtual bool GetPicture(DVDVideoPicture *pDvdVideoPicture);
@@ -335,6 +336,7 @@ protected:
   CDecMemInfo                  m_decMemInfo;        // VPU dedicated memory description
   VpuDecHandle                 m_vpuHandle;         // Handle for VPU library calls
   VpuDecInitInfo               m_initInfo;          // Initial info returned from VPU at decoding start
+  bool                         m_dropRequest;       // Current drop state
   bool                         m_dropState;         // Current drop state
   int                          m_vpuFrameBufferNum; // Total number of allocated frame buffers
   VpuFrameBuffer              *m_vpuFrameBuffers;   // Table of VPU frame buffers description
