@@ -1117,6 +1117,7 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
       m_warnOnce = false;
       CLog::Log(LOGWARNING, "Interlaced content reported by VPU, but full frames detected - Please turn off deinterlacing manually.");
     }
+    pDvdVideoPicture->iFlags &= ~DVP_FLAG_INTERLACED;
   }
 
   if (pDvdVideoPicture->iFlags & DVP_FLAG_INTERLACED)
