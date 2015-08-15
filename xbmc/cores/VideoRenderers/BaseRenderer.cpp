@@ -36,6 +36,9 @@
 #include "settings/AdvancedSettings.h"
 #include "cores/VideoRenderers/RenderFlags.h"
 
+#if defined(HAS_IMXVPU)
+#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
 #include "Application.h"
 
 CBaseRenderer::CBaseRenderer()
@@ -725,6 +728,15 @@ void CBaseRenderer::CalculateFrameAspectRatio(unsigned int desired_width, unsign
 
 void CBaseRenderer::ManageDisplay()
 {
+#ifdef HAS_IMXVPU
+  extern CIMXContext g_IMXContext;
+  RENDER_STEREO_MODE stereo = g_graphicsContext.GetStereoMode();
+
+  // this hack is needed to get the 2D mode of a 3D movie going
+  if (m_format == RENDER_FMT_IMXMAP && stereo)
+    g_graphicsContext.SetStereoView(RENDER_STEREO_VIEW_LEFT);
+#endif
+
   m_viewRect = g_graphicsContext.GetViewWindow();
 
   m_sourceRect.x1 = 0.0f;
@@ -773,6 +785,30 @@ void CBaseRenderer::ManageDisplay()
   }
 
   CalcNormalDisplayRect(m_viewRect.x1, m_viewRect.y1, m_viewRect.Width(), m_viewRect.Height(), GetAspectRatio() * CDisplaySettings::GetInstance().GetPixelRatio(), CDisplaySettings::GetInstance().GetZoomAmount(), CDisplaySettings::GetInstance().GetVerticalShift());
+#ifdef HAS_IMXVPU
+  if (m_format != RENDER_FMT_IMXMAP)
+    return;
+
+  if (stereo)
+    g_graphicsContext.SetStereoView(RENDER_STEREO_VIEW_OFF);
+
+  switch (stereo)
+  {
+    case RENDER_STEREO_MODE_SPLIT_HORIZONTAL:
+      m_destRect.y2 *= 2.0;
+      m_sourceRect.y2 *= 2.0;
+    break;
+    case RENDER_STEREO_MODE_SPLIT_VERTICAL:
+      m_destRect.x2 *= 2.0;
+      m_sourceRect.x2 *= 2.0;
+    break;
+
+    default:
+    break;
+  }
+
+  g_IMXContext.SetBlitRects(m_sourceRect, m_destRect);
+#endif
 }
 
 void CBaseRenderer::SetViewMode(int viewMode)

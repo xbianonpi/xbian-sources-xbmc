@@ -95,25 +95,23 @@ public:
   CIMXContext();
   ~CIMXContext();
 
-  void RequireConfiguration() { m_checkConfigRequired = true; }
   bool AdaptScreen();
-  bool Configure();
-  bool Close();
+  bool TaskRestart();
+  bool CloseDevices();
+  bool OpenDevices();
 
   bool Blank();
   bool Unblank();
   bool SetVSync(bool enable);
 
-  bool IsValid() const { return m_checkConfigRequired == false; }
+  bool IsValid() const { return IsRunning() && m_bFbIsConfigured; }
 
   // Populates a CIMXBuffer with attributes of a page
   bool GetPageInfo(CIMXBuffer *info, int page);
 
   // Blitter configuration
-  void SetDeInterlacing(bool flag);
-  void SetDoubleRate(bool flag);
+  void SetFieldData(uint8_t fieldFmt);
   bool DoubleRate() const;
-  void SetInterpolatedFrame(bool flag);
 
   void SetBlitRects(const CRect &srcRect, const CRect &dstRect);
 
@@ -121,14 +119,13 @@ public:
   // source_p (previous buffer) is required for de-interlacing
   // modes LOW_MOTION and MED_MOTION.
   bool Blit(int targetPage, CIMXBuffer *source_p,
-            CIMXBuffer *source,
-            bool topBottomFields = true);
+            CIMXBuffer *source);
 
   // Same as blit but runs in another thread and returns after the task has
   // been queued. BlitAsync renders always to the current backbuffer and
   // swaps the pages.
   bool BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source,
-                 bool topBottomFields = true, CRect *dest = NULL);
+                 CRect *dest = NULL);
 
   // Shows a page vsynced
   bool ShowPage(int page);
@@ -175,8 +172,11 @@ private:
 
   bool PushTask(const IPUTask &);
   void PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *source,
-                   bool topBottomFields, CRect *dest = NULL);
+                   CRect *dest = NULL);
   bool DoTask(IPUTask &ipu, int targetPage);
+
+  void Dispose();
+  void MemMap(struct fb_fix_screeninfo *fb_fix = NULL);
 
   virtual void OnStartup();
   virtual void OnExit();
@@ -198,14 +198,14 @@ private:
   uint8_t                       *m_fbVirtAddr;
   struct fb_var_screeninfo       m_fbVar;
   int                            m_ipuHandle;
-  int                            m_currentFieldFmt;
+  uint8_t                        m_currentFieldFmt;
   bool                           m_vsync;
-  bool                           m_deInterlacing;
   CRect                          m_srcRect;
   CRect                          m_dstRect;
   CRectInt                       m_inputRect;
   CRectInt                       m_outputRect;
   CRectInt                      *m_pageCrops;
+  bool                           m_bFbIsConfigured;
 
   CCriticalSection               m_pageSwapLock;
   TaskQueue                      m_input;
@@ -218,7 +218,6 @@ private:
   void                           *m_g2dHandle;
   struct g2d_buf                 *m_bufferCapture;
   bool                           m_CaptureDone;
-  bool                           m_checkConfigRequired;
   static const int               m_fbPages;
 
   std::string                    m_deviceName;
@@ -356,3 +355,4 @@ protected:
   FILE                        *m_dump;
 #endif
 };
+
