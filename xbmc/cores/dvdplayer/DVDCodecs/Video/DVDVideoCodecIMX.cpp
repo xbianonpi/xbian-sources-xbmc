@@ -26,6 +26,7 @@
 #include "utils/log.h"
 #include "DVDClock.h"
 #include "windowing/WindowingFactory.h"
+#include "guilib/GraphicContext.h"
 
 #include <cassert>
 #include <sys/stat.h>
@@ -448,8 +449,6 @@ bool CDVDVideoCodecIMX::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
     return false;
   }
 
-  g_IMXContext.RequireConfiguration();
-
 #ifdef DUMP_STREAM
   m_dump = fopen("stream.dump", "wb");
   if (m_dump != NULL)
@@ -786,6 +785,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
 #endif
       if (m_frameReported)
         m_bytesToBeConsumed += inData.nSize;
+
       ret = VPU_DecDecodeBuf(m_vpuHandle, &inData, &decRet);
 #ifdef IMX_PROFILE_BUFFERS
       unsigned long long dec_single_call = XbmcThreads::SystemClockMillis()-before_dec;
@@ -935,7 +935,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
       // According to libfslvpuwrap: If this flag is set then the frame should
       // be dropped. It is just returned to gather decoder information but not
       // for display.
-      if (decRet & VPU_DEC_OUTPUT_MOSAIC_DIS)
+      else if (decRet & VPU_DEC_OUTPUT_MOSAIC_DIS)
       {
         ret = VPU_DecGetOutputFrame(m_vpuHandle, &m_frameInfo);
         if(ret != VPU_DEC_RET_SUCCESS)
@@ -953,35 +953,36 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         }
       } //VPU_DEC_OUTPUT_MOSAIC_DIS
 
-      if (decRet & VPU_DEC_OUTPUT_REPEAT)
+      else if (decRet & VPU_DEC_OUTPUT_REPEAT)
       {
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame repeat.\n", __FUNCTION__);
       }
-      if (decRet & VPU_DEC_OUTPUT_DROPPED)
+      else if (decRet & VPU_DEC_OUTPUT_DROPPED)
       {
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame dropped.\n", __FUNCTION__);
       }
-      if (decRet & VPU_DEC_NO_ENOUGH_BUF)
+      else if (decRet & VPU_DEC_NO_ENOUGH_BUF)
       {
           CLog::Log(LOGERROR, "%s - No frame buffer available.\n", __FUNCTION__);
       }
-      if (decRet & VPU_DEC_SKIP)
+      else if (decRet & VPU_DEC_SKIP)
       {
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame skipped.\n", __FUNCTION__);
       }
-      if (decRet & VPU_DEC_FLUSH)
+      else if (decRet & VPU_DEC_FLUSH)
       {
         CLog::Log(LOGNOTICE, "%s - VPU requires a flush.\n", __FUNCTION__);
         Reset();
         retStatus = VC_FLUSHED;
       }
-      if (decRet & VPU_DEC_OUTPUT_EOS)
+      else if (decRet & VPU_DEC_OUTPUT_EOS)
       {
         CLog::Log(LOGNOTICE, "%s - EOS encountered.\n", __FUNCTION__);
       }
+
       if ((decRet & VPU_DEC_NO_ENOUGH_INBUF) ||
           (decRet & VPU_DEC_OUTPUT_DIS))
       {
@@ -1307,26 +1308,33 @@ CIMXContext::CIMXContext()
   , m_fbVirtAddr(NULL)
   , m_ipuHandle(0)
   , m_vsync(true)
-  , m_deInterlacing(false)
   , m_pageCrops(NULL)
   , m_g2dHandle(NULL)
   , m_bufferCapture(NULL)
-  , m_checkConfigRequired(true)
   , m_deviceName("/dev/fb1")
 {
   // Limit queue to 2
   m_input.resize(2);
   m_beginInput = m_endInput = m_bufferedInput = 0;
+  m_pageCrops = new CRectInt[m_fbPages];
+
+  SetBlitRects(CRectInt(), CRectInt());
+
+  // Start the ipu thread
+  Create();
 }
 
 CIMXContext::~CIMXContext()
 {
-  Close();
+  StopThread(false);
+  Dispose();
+  Blank();
+  CloseDevices();
 }
 
 bool CIMXContext::GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *fbVar)
 {
-  int fb = open(fbdev.c_str(), O_RDONLY | O_NONBLOCK, 0);
+  int fb = open(fbdev.c_str(), O_RDONLY, 0);
   if (fb < 0)
   {
     CLog::Log(LOGWARNING, "iMX : Failed to open /dev/fb0\n");
@@ -1341,29 +1349,55 @@ bool CIMXContext::GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *
   return err >= 0;
 }
 
+void CIMXContext::MemMap(struct fb_fix_screeninfo *fb_fix)
+{
+  if (m_fbVirtAddr && m_fbPhysSize)
+  {
+    munmap(m_fbVirtAddr, m_fbPhysSize);
+    m_fbVirtAddr = NULL;
+    m_fbPhysAddr = 0;
+  }
+  else if (fb_fix)
+  {
+    m_fbLineLength = fb_fix->line_length;
+    m_fbPhysSize = fb_fix->smem_len;
+    m_fbPageSize = m_fbLineLength * m_fbVar.yres_virtual / m_fbPages;
+    m_fbPhysAddr = fb_fix->smem_start;
+    m_fbVirtAddr = (uint8_t*)mmap(0, m_fbPhysSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_fbHandle, 0);
+    m_fbCurrentPage = 0;
+    Clear();
+  }
+}
+
 bool CIMXContext::AdaptScreen()
 {
-  if (m_fbHandle <= 0)
-    return false;
+  if(m_ipuHandle) {
+    close(m_ipuHandle);
+    m_ipuHandle = 0;
+  }
+
+  CSingleLock lk(m_pageSwapLock);
+
+  MemMap();
+
+  if(!m_fbHandle)
+    goto Err;
 
   struct fb_var_screeninfo fbVar;
   if (!GetFBInfo("/dev/fb0", &fbVar))
-    return false;
+    goto Err;
 
   CLog::Log(LOGNOTICE, "iMX : Initialize render buffers\n");
 
   m_fbWidth = fbVar.xres;
   m_fbHeight = fbVar.yres;
-  m_fbInterlaced = fbVar.vmode & FB_VMODE_INTERLACED;
 
   if (!GetFBInfo(m_deviceName, &m_fbVar))
-    return false;
-
-  m_pageCrops = new CRectInt[m_fbPages];
+    goto Err;
 
   m_fbVar.xoffset = 0;
   m_fbVar.yoffset = 0;
-  if (m_deInterlacing)
+  if (m_currentFieldFmt)
   {
     m_fbVar.nonstd = _4CC('U', 'Y', 'V', 'Y');
     m_fbVar.bits_per_pixel = 16;
@@ -1373,130 +1407,86 @@ bool CIMXContext::AdaptScreen()
     m_fbVar.nonstd = _4CC('R', 'G', 'B', '4');
     m_fbVar.bits_per_pixel = 32;
   }
-  m_fbVar.activate |= FB_ACTIVATE_FORCE;
+  m_fbVar.activate = FB_ACTIVATE_NOW;
   m_fbVar.xres = m_fbWidth;
   m_fbVar.yres = m_fbHeight;
 
-  if (m_fbInterlaced)
-    m_fbVar.vmode |= FB_VMODE_INTERLACED;
-  else
-    m_fbVar.vmode &= ~FB_VMODE_INTERLACED;
-
-  // One additional line that is required for deinterlacing
-  m_fbVar.yres_virtual = (m_fbVar.yres+1) * m_fbPages;
+  m_fbVar.yres_virtual = (m_fbVar.yres + 1) * m_fbPages;
   m_fbVar.xres_virtual = m_fbVar.xres;
-
-  CSingleLock lk(m_pageSwapLock);
 
   Blank();
 
-  int err;
   struct fb_fix_screeninfo fb_fix;
 
-  err = ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar);
-  if (err < 0)
+  if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) < 0)
   {
     CLog::Log(LOGWARNING, "iMX : Failed to setup %s\n", m_deviceName.c_str());
+    goto Err;
   }
-  else
+  else if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) < 0)
   {
-    err = ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix);
-    if (err < 0)
-      CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", m_deviceName.c_str());
+    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", m_deviceName.c_str());
+    goto Err;
   }
+
+  MemMap(&fb_fix);
+
+  if (m_currentFieldFmt)
+    m_ipuHandle = open("/dev/mxc_ipu", O_RDWR, 0);
 
   Unblank();
 
-  if (err < 0)
-  {
-    close(m_fbHandle);
-    m_fbHandle = 0;
-    return false;
-  }
-
-  // Final setup
-  m_fbLineLength = fb_fix.line_length;
-  m_fbPhysSize = fb_fix.smem_len;
-  m_fbPageSize = m_fbLineLength * m_fbVar.yres_virtual / m_fbPages;
-  m_fbPhysAddr = fb_fix.smem_start;
-  m_fbVirtAddr = (uint8_t*)mmap(0, m_fbPhysSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_fbHandle, 0);
-
   CLog::Log(LOGDEBUG, "iMX : Allocated %d render buffers\n", m_fbPages);
-
   return true;
+
+Err:
+  TaskRestart();
+  return false;
 }
 
 void CIMXContext::OnResetDevice()
 {
-  CLog::Log(LOGINFO, "iMX : Changing screen parameters\n");
+  CLog::Log(LOGDEBUG, "iMX : %s - will change screen parameters\n", __FUNCTION__);
   AdaptScreen();
 }
 
-bool CIMXContext::Configure()
+bool CIMXContext::TaskRestart()
 {
+  // Stop the ipu thread
+  CThread::StopThread(false);
+  CloseDevices();
+  StopThread();
 
-  if (!m_checkConfigRequired)
-    return false;
-
-  SetBlitRects(CRectInt(), CRectInt());
-  m_fbCurrentPage = 0;
-
-  if (m_fbHandle)
-    Close();
-
-  m_fbHandle = open(m_deviceName.c_str(), O_RDWR | O_NONBLOCK, 0);
-  if (m_fbHandle < 0)
-  {
-    CLog::Log(LOGWARNING, "iMX : Failed to open framebuffer: %s\n", m_deviceName.c_str());
-    return false;
-  }
-
-  if (!AdaptScreen())
-    return false;
-
-  m_ipuHandle = open("/dev/mxc_ipu", O_RDWR, 0);
-  if (m_ipuHandle < 0)
-  {
-    CLog::Log(LOGWARNING, "iMX : Failed to initialize IPU: %s\n", strerror(errno));
-    m_ipuHandle = 0;
-    Close();
-    return false;
-  }
-
-  Clear();
-
-  // Start the ipu thread
   Create();
-  m_checkConfigRequired = false;
   return true;
 }
 
-bool CIMXContext::Close()
+void CIMXContext::Dispose()
 {
-  CLog::Log(LOGINFO, "iMX : Closing context\n");
+  if (!m_pageCrops)
+    return;
 
-  // Stop the ipu thread
-  StopThread();
+  delete[] m_pageCrops;
+  m_pageCrops = NULL;
+}
 
-  if (m_pageCrops)
-  {
-    delete[] m_pageCrops;
-    m_pageCrops = NULL;
-  }
+bool CIMXContext::OpenDevices()
+{
+  m_fbHandle = open(m_deviceName.c_str(), O_RDWR, 0);
+  if (m_fbHandle < 0)
+    CLog::Log(LOGWARNING, "iMX : Failed to open framebuffer: %s\n", m_deviceName.c_str());
 
-  if (m_fbVirtAddr)
-  {
-    Clear();
-    munmap(m_fbVirtAddr, m_fbPhysSize);
-    m_fbVirtAddr = NULL;
-  }
+  return m_fbHandle > 0;
+}
+
+bool CIMXContext::CloseDevices()
+{
+  CLog::Log(LOGINFO, "iMX : Closing devices\n");
 
   if (m_fbHandle)
   {
-    Blank();
     close(m_fbHandle);
     m_fbHandle = 0;
-    m_fbPhysAddr = 0;
   }
 
   if (m_ipuHandle)
@@ -1507,9 +1497,6 @@ bool CIMXContext::Close()
 
     m_ipuHandle = 0;
   }
-
-  m_checkConfigRequired = true;
-  CLog::Log(LOGNOTICE, "iMX : Deinitialized render context\n");
 
   return true;
 }
@@ -1546,39 +1533,9 @@ bool CIMXContext::SetVSync(bool enable)
   return true;
 }
 
-void CIMXContext::SetDoubleRate(bool flag)
-{
-  if (flag)
-    m_currentFieldFmt |= IPU_DEINTERLACE_RATE_EN;
-  else
-    m_currentFieldFmt &= ~IPU_DEINTERLACE_RATE_EN;
-
-  m_currentFieldFmt &= ~IPU_DEINTERLACE_RATE_FRAME1;
-}
-
 bool CIMXContext::DoubleRate() const
 {
   return m_currentFieldFmt & IPU_DEINTERLACE_RATE_EN;
-}
-
-void CIMXContext::SetInterpolatedFrame(bool flag)
-{
-  if (flag)
-    m_currentFieldFmt &= ~IPU_DEINTERLACE_RATE_FRAME1;
-  else
-    m_currentFieldFmt |= IPU_DEINTERLACE_RATE_FRAME1;
-}
-
-void CIMXContext::SetDeInterlacing(bool flag)
-{
-  bool sav_deInt = m_deInterlacing;
-  m_deInterlacing = m_fbInterlaced ? false : flag;
-  // If deinterlacing configuration changes then fb has to be reconfigured
-  if (sav_deInt != m_deInterlacing)
-  {
-    m_checkConfigRequired = true;
-    Configure();
-  }
 }
 
 void CIMXContext::SetBlitRects(const CRect &srcRect, const CRect &dstRect)
@@ -1587,35 +1544,53 @@ void CIMXContext::SetBlitRects(const CRect &srcRect, const CRect &dstRect)
   m_dstRect = dstRect;
 }
 
-bool CIMXContext::Blit(int page, CIMXBuffer *source_p, CIMXBuffer *source, bool topBottomFields)
+void CIMXContext::SetFieldData(uint8_t fieldFmt)
+{
+  if (m_bStop || !IsRunning())
+    return;
+
+  // disable deinterlacing when not rendering fullscreen
+  if (!g_graphicsContext.IsFullScreenVideo())
+    fieldFmt = 0;
+
+  bool deint = !!m_currentFieldFmt;
+  m_currentFieldFmt = fieldFmt;
+  if (!!fieldFmt == deint)
+    return;
+
+  CLog::Log(LOGDEBUG, "iMX : Deinterlacing parameters changed\n");
+  AdaptScreen();
+}
+
+bool CIMXContext::Blit(int page, CIMXBuffer *source_p, CIMXBuffer *source)
 {
   if (page < 0 || page >= m_fbPages)
     return false;
 
   IPUTask ipu;
-  PrepareTask(ipu, source_p, source, topBottomFields);
+  PrepareTask(ipu, source_p, source);
   return DoTask(ipu, page);
 }
 
-bool CIMXContext::BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source, bool topBottomFields, CRect *dest)
+bool CIMXContext::BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source, CRect *dest)
 {
   IPUTask ipu;
-  PrepareTask(ipu, source_p, source, topBottomFields, dest);
+
+  PrepareTask(ipu, source_p, source, dest);
   return PushTask(ipu);
 }
 
 bool CIMXContext::PushCaptureTask(CIMXBuffer *source, CRect *dest)
 {
   IPUTask ipu;
+
   m_CaptureDone = false;
-  PrepareTask(ipu, NULL, source, false, dest);
+  PrepareTask(ipu, NULL, source, dest);
   return PushTask(ipu);
 }
 
 bool CIMXContext::ShowPage(int page)
 {
-  int ret;
-
   if (!m_fbHandle) return false;
   if (page < 0 || page >= m_fbPages) return false;
 
@@ -1624,19 +1599,25 @@ bool CIMXContext::ShowPage(int page)
   // does not hurt.
   CSingleLock lk(m_pageSwapLock);
 
-  m_fbCurrentPage = page;
   m_fbVar.activate = FB_ACTIVATE_VBL;
-  m_fbVar.yoffset = (m_fbVar.yres+1)*page;
-  if ((ret = ioctl(m_fbHandle, FBIOPAN_DISPLAY, &m_fbVar)) < 0)
-    CLog::Log(LOGWARNING, "Panning failed: %s\n", strerror(errno));
 
-  // Wait for sync
-  if (m_vsync)
+  m_fbVar.yoffset = (m_fbVar.yres + 1) * page;
+  if (ioctl(m_fbHandle, FBIOPAN_DISPLAY, &m_fbVar) < 0)
   {
-    if (ioctl(m_fbHandle, FBIO_WAITFORVSYNC, 0) < 0)
-      CLog::Log(LOGWARNING, "Vsync failed: %s\n", strerror(errno));
+    CLog::Log(LOGWARNING, "Panning failed: %s\n", strerror(errno));
+    return false;
   }
+  m_fbCurrentPage = page;
 
+  if (!m_vsync)
+    return true;
+
+  // Wait for flip
+  if (ioctl(m_fbHandle, FBIO_WAITFORVSYNC, 0) < 0)
+  {
+    CLog::Log(LOGWARNING, "Vsync failed: %s\n", strerror(errno));
+    return false;
+  }
   return true;
 }
 
@@ -1804,9 +1785,8 @@ void CIMXContext::WaitCapture()
 }
 
 void CIMXContext::PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *source,
-                              bool topBottomFields, CRect *dest)
+                              CRect *dest)
 {
-  Configure();
   // Fill with zeros
   ipu.Zero();
   ipu.previous = source_p;
@@ -1852,10 +1832,10 @@ void CIMXContext::PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *so
     dstRect.y2 = m_fbHeight;
   }
 
-  iSrcRect.x1 = (int)srcRect.x1;
-  iSrcRect.y1 = (int)srcRect.y1;
-  iSrcRect.x2 = (int)srcRect.x2;
-  iSrcRect.y2 = (int)srcRect.y2;
+  iSrcRect.x1 = Align((int)srcRect.x1,8);
+  iSrcRect.y1 = Align((int)srcRect.y1,8);
+  iSrcRect.x2 = Align2((int)srcRect.x2,8);
+  iSrcRect.y2 = Align2((int)srcRect.y2,8);
 
   iDstRect.x1 = Align((int)dstRect.x1,8);
   iDstRect.y1 = Align((int)dstRect.y1,8);
@@ -1887,7 +1867,7 @@ void CIMXContext::PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *so
   else
   {
   // Setup deinterlacing if enabled
-  if (m_deInterlacing)
+  if (m_currentFieldFmt)
   {
     ipu.task.input.deinterlace.enable = 1;
     /*
@@ -1901,11 +1881,6 @@ void CIMXContext::PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *so
     */
       ipu.task.input.deinterlace.motion = HIGH_MOTION;
     ipu.task.input.deinterlace.field_fmt = m_currentFieldFmt;
-
-    if (topBottomFields)
-      ipu.task.input.deinterlace.field_fmt |= IPU_DEINTERLACE_FIELD_TOP;
-    else
-      ipu.task.input.deinterlace.field_fmt |= IPU_DEINTERLACE_FIELD_BOTTOM;
   }
   }
 }
@@ -1993,6 +1968,9 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
         case IPU_CHECK_ERR_SPLIT_OUTPUTH_OVER:
             ipu.task.output.crop.h -= 8;
             break;
+        // deinterlacing setup changing, m_ipuHandle is closed
+        case -1:
+            return true;
         default:
             CLog::Log(LOGWARNING, "iMX : unhandled IPU check error: %d\n", ret);
             return false;
@@ -2019,7 +1997,7 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
     if (ipu.task.input.deinterlace.field_fmt & IPU_DEINTERLACE_RATE_EN)
     {
         uint8_t *pageAddr = m_fbVirtAddr + targetPage*m_fbPageSize;
-        memcpy(pageAddr, pageAddr+m_fbLineLength, m_fbLineLength);
+        memcpy(pageAddr+m_fbLineLength, pageAddr, m_fbLineLength);
     }
   }
   else
@@ -2093,6 +2071,9 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
 
 void CIMXContext::OnStartup()
 {
+  OpenDevices();
+
+  AdaptScreen();
   g_Windowing.Register(this);
   CLog::Log(LOGNOTICE, "iMX : IPU thread started");
 }
