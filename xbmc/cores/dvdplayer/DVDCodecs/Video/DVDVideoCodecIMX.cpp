@@ -569,6 +569,12 @@ bool CDVDVideoCodecIMX::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
     switch(m_hints.codec_tag)
     {
     case _4CC('D','I','V','X'):
+      // Test for VPU unsupported profiles to revert to sw decoding
+      if (m_hints.profile == -99 && m_hints.level == -99)
+      {
+        CLog::Log(LOGNOTICE, "i.MX6 iMX-divx4 profile %d level %d - sw decoding", m_hints.profile, m_hints.level);
+        return false;
+      }
       m_decOpenParam.CodecFormat = VPU_V_XVID; // VPU_V_DIVX4
       m_pFormatName = "iMX-divx4";
       break;
