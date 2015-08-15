@@ -418,7 +418,6 @@ private:
   std::atomic<unsigned char>   m_nrOut;
 };
 
-
 /*
  *
  *  CDVDVideoCodec only wraps IMXCodec class
