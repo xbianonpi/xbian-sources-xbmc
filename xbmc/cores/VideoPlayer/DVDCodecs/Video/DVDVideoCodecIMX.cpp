@@ -1269,6 +1269,7 @@ CIMXContext::~CIMXContext()
 {
   Stop(false);
   Dispose();
+  Blank();
   CloseDevices();
 }
 
@@ -1319,14 +1320,14 @@ bool CIMXContext::AdaptScreen(bool allocate)
 
   struct fb_fix_screeninfo fb_fix;
 
-  if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) == -1)
+  if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) < 0)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to setup %s (%s)\n", m_deviceName.c_str(), strerror(errno));
+    CLog::Log(LOGWARNING, "iMX : Failed to setup %s\n", m_deviceName.c_str());
     goto Err;
   }
-  else if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) == -1)
+  else if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) < 0)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s (%s)\n", m_deviceName.c_str(), strerror(errno));
+    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", m_deviceName.c_str());
     goto Err;
   }
 
@@ -1352,12 +1353,14 @@ bool CIMXContext::GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *
     return false;
   }
 
-  int err = ioctl(fb, FBIOGET_VSCREENINFO, fbVar);
-  if (err < 0)
-    CLog::Log(LOGWARNING, "iMX : Failed to query variable screen info at %s\n", fbdev.c_str());
+  Unblank();
 
-  close(fb);
-  return err >= 0;
+  m_bFbIsConfigured = true;
+  return true;
+
+Err:
+  TaskRestart();
+  return false;
 }
 
 void CIMXContext::MemMap(struct fb_fix_screeninfo *fb_fix)
@@ -1403,6 +1406,7 @@ bool CIMXContext::TaskRestart()
   Stop();
   MemMap();
   CloseDevices();
+  StopThread();
 
   Create();
   return true;
@@ -1461,7 +1465,7 @@ bool CIMXContext::Blank()
   if (!m_fbHandle) return false;
 
   m_bFbIsConfigured = false;
-  return ioctl(m_fbHandle, FBIOBLANK, 1) == 0;
+  return ioctl(m_fbHandle, FBIOBLANK, FB_BLANK_NORMAL) == 0;
 }
 
 bool CIMXContext::Unblank()
