@@ -413,6 +413,7 @@ CDVDVideoCodecIMX::CDVDVideoCodecIMX()
   m_currentBuffer = NULL;
   m_extraMem = NULL;
   m_vpuFrameBufferNum = 0;
+  m_dropRequest = false;
   m_dropState = false;
   m_convert_bitstream = false;
   m_frameCounter = 0;
@@ -683,6 +684,15 @@ void CDVDVideoCodecIMX::Dispose()
   return;
 }
 
+inline
+bool CDVDVideoCodecIMX::SetSkipMode()
+{
+  VpuDecSkipMode skip = m_dropRequest ? VPU_DEC_SKIPB : VPU_DEC_SKIPNONE;
+  if (VPU_DEC_RET_SUCCESS != VPU_DecConfig(m_vpuHandle, VPU_DEC_CONF_SKIPMODE, &skip))
+    CLog::Log(LOGERROR, "%s - iMX VPU set skip mode failed.\n", __FUNCTION__);
+  m_dropState = false;
+}
+
 int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
 {
   VpuDecFrameLengthInfo frameLengthInfo;
@@ -785,6 +795,8 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
 #endif
       if (m_frameReported)
         m_bytesToBeConsumed += inData.nSize;
+
+      SetSkipMode();
 
       ret = VPU_DecDecodeBuf(m_vpuHandle, &inData, &decRet);
 #ifdef IMX_PROFILE_BUFFERS
@@ -962,6 +974,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
       {
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame dropped.\n", __FUNCTION__);
+        m_dropState = true;
       }
       else if (decRet & VPU_DEC_NO_ENOUGH_BUF)
       {
@@ -1138,9 +1151,9 @@ void CDVDVideoCodecIMX::SetDropState(bool bDrop)
   // and avoid artefacts...
   // (Of course these frames won't be rendered but only decoded)
 
-  if (m_dropState != bDrop)
+  if (m_dropRequest != bDrop)
   {
-    m_dropState = bDrop;
+    m_dropRequest = bDrop;
 #ifdef TRACE_FRAMES
     CLog::Log(LOGDEBUG, "%s : %d\n", __FUNCTION__, bDrop);
 #endif
