@@ -39,6 +39,7 @@
 #include "Video/DVDVideoCodecLibMpeg2.h"
 #if defined(HAS_IMXVPU)
 #include "Video/DVDVideoCodecIMX.h"
+#include "Video/DVDVideoCodecIMXv14.h"
 #endif
 #include "Video/MMALCodec.h"
 #include "Video/DVDVideoCodecStageFright.h"
@@ -234,9 +235,13 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, const C
 #endif
 
 #if defined(HAS_IMXVPU)
-  if (!hint.software)
+  if (!hint.software && CSettings::Get().GetInt("videoplayer.rendermethod") != RENDER_METHOD_IMXv14)
   {
     if ( (pCodec = OpenCodec(new CDVDVideoCodecIMX(), hint, options)) ) return pCodec;
+  }
+  else if (!hint.software && CSettings::Get().GetInt("videoplayer.rendermethod") == RENDER_METHOD_IMXv14)
+  {
+    if ( (pCodec = OpenCodec(new CDVDVideoCodecIMXv14(), hint, options)) ) return pCodec;
   }
 #endif
 

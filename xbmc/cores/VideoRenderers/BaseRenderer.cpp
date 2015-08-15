@@ -811,6 +811,10 @@ void CBaseRenderer::MarkDirty()
 void CBaseRenderer::SettingOptionsRenderMethodsFiller(const CSetting *setting, std::vector< std::pair<std::string, int> > &list, int &current, void *data)
 {
   list.push_back(make_pair(g_localizeStrings.Get(13416), RENDER_METHOD_AUTO));
+#ifdef HAS_IMXVPU
+  list.push_back(make_pair(g_localizeStrings.Get(13424), RENDER_METHOD_IMXv14));
+  list.push_back(make_pair(g_localizeStrings.Get(13419), RENDER_METHOD_SOFTWARE));
+#endif
 
 #ifdef HAS_DX
   if (CSysInfo::IsWindowsVersionAtLeast(CSysInfo::WindowsVersionWin7))

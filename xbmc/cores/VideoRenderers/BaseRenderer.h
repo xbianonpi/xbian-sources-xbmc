@@ -64,6 +64,7 @@ enum RenderMethods
   RENDER_METHOD_D3D_PS,
   RENDER_METHOD_DXVA,
   RENDER_METHOD_DXVAHD,
+  RENDER_METHOD_IMXv14,
   RENDER_OVERLAYS        = 99   // to retain compatibility
 };
 

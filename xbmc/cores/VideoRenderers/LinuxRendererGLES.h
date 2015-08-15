@@ -44,6 +44,7 @@ class CDVDVideoCodecStageFright;
 class CDVDMediaCodecInfo;
 #ifdef HAS_IMXVPU
 class CDVDVideoCodecIMXBuffer;
+class CDVDVideoCodecIMXv14Buffer;
 #endif
 typedef std::vector<int>     Features;
 
@@ -93,7 +94,8 @@ enum RenderMethod
   RENDER_BYPASS = 0x100,
   RENDER_EGLIMG = 0x200,
   RENDER_MEDIACODEC = 0x400,
-  RENDER_IMXMAP = 0x800
+  RENDER_IMXMAP = 0x800,
+  RENDER_IMXv14 = 0x1000
 };
 
 enum RenderQuality

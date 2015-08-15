@@ -22,6 +22,7 @@ SRCS += DVDVideoCodecOpenMax.cpp
 endif
 ifeq (@USE_IMXVPU@,1)
 SRCS += DVDVideoCodecIMX.cpp
+SRCS += DVDVideoCodecIMXv14.cpp
 endif
 ifeq (@USE_LIBAMCODEC@,1)
 SRCS += AMLCodec.cpp

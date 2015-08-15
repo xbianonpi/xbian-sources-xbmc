@@ -87,6 +87,14 @@ static PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR;
 #ifdef HAS_IMXVPU
 #include "windowing/egl/EGLWrapper.h"
 #include "DVDCodecs/Video/DVDVideoCodecIMX.h"
+#include "DVDCodecs/Video/DVDVideoCodecIMXv14.h"
+
+#define GL_VIV_NV12 0x8FC1
+typedef void (GL_APIENTRYP PFNGLTEXDIRECTVIVMAPPROC) (GLenum Target, GLsizei Width, GLsizei Height, GLenum Format, GLvoid ** Logical, const GLuint * Physical);
+typedef void (GL_APIENTRYP PFNGLTEXDIRECTINVALIDATEVIVPROC) (GLenum Target);
+static PFNGLTEXDIRECTVIVMAPPROC glTexDirectVIVMap;
+static PFNGLTEXDIRECTINVALIDATEVIVPROC glTexDirectInvalidateVIV;
+
 #endif
 
 #if defined(TARGET_ANDROID)
@@ -178,6 +186,13 @@ CLinuxRendererGLES::CLinuxRendererGLES()
   if (!eglClientWaitSyncKHR) {
     eglClientWaitSyncKHR = (PFNEGLCLIENTWAITSYNCKHRPROC) eglGetProcAddress("eglClientWaitSyncKHR");
   }
+#endif
+
+#ifdef HAS_IMXVPU
+  if (!glTexDirectVIVMap)
+    glTexDirectVIVMap = (PFNGLTEXDIRECTVIVMAPPROC) CEGLWrapper::GetProcAddress("glTexDirectVIVMap");
+  if (!glTexDirectInvalidateVIV)
+    glTexDirectInvalidateVIV = (PFNGLTEXDIRECTINVALIDATEVIVPROC) CEGLWrapper::GetProcAddress("glTexDirectInvalidateVIV");
 #endif
 }
 
@@ -300,7 +315,7 @@ int CLinuxRendererGLES::GetImage(YV12Image *image, int source, bool readonly)
   {
     return source;
   }
-  if ( m_renderMethod & RENDER_IMXMAP )
+  if ( m_renderMethod & (RENDER_IMXMAP | RENDER_IMXv14) )
   {
     return source;
   }
@@ -876,6 +891,13 @@ void CLinuxRendererGLES::LoadShaders(int field)
           // drop through and try SW
         }
       }
+    case RENDER_METHOD_IMXv14:
+      if (m_format == RENDER_FMT_IMXMAP)
+      {
+        CLog::Log(LOGNOTICE, "GL: Using IMXv14 render method");
+        m_renderMethod = RENDER_IMXv14;
+        break;
+      }
     case RENDER_METHOD_SOFTWARE:
     default:
       {
@@ -1045,7 +1067,7 @@ void CLinuxRendererGLES::ReleaseBuffer(int idx)
   }
 #endif
 #ifdef HAS_IMXVPU
-  if (m_renderMethod & RENDER_IMXMAP)
+  if (m_renderMethod & (RENDER_IMXMAP | RENDER_IMXv14))
     SAFE_RELEASE(buf.IMXBuffer);
 #endif
 }
@@ -1109,7 +1131,7 @@ void CLinuxRendererGLES::Render(DWORD flags, int index)
   {
     RenderSurfaceTexture(index, m_currentField);
   }
-  else if (m_renderMethod & RENDER_IMXMAP)
+  else if (m_renderMethod & (RENDER_IMXv14 | RENDER_IMXMAP))
   {
     RenderIMXMAPTexture(index, m_currentField);
     VerifyGLState();
@@ -1828,6 +1850,112 @@ void CLinuxRendererGLES::RenderCoreVideoRef(int index, int field)
 
 void CLinuxRendererGLES::RenderIMXMAPTexture(int index, int field)
 {
+#ifdef HAS_IMXVPU
+  if (m_renderMethod != RENDER_IMXv14)
+    return;
+#ifdef DEBUG_VERBOSE
+  unsigned int time = XbmcThreads::SystemClockMillis();
+#endif
+
+  YUVPLANE &plane = m_buffers[index].fields[0][0];
+  YUVPLANE &planef = m_buffers[index].fields[field][0];
+  CDVDVideoCodecIMXBuffer *buffer = m_buffers[index].IMXBuffer;
+
+  if(buffer == NULL) return;
+
+  CDVDVideoCodecIMXv14::Enter();
+
+  if(!buffer->IsValid())
+  {
+    CDVDVideoCodecIMXv14::Leave();
+    return;
+  }
+
+  glDisable(GL_DEPTH_TEST);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(m_textureTarget, plane.id);
+
+  if (field != FIELD_FULL)
+  {
+    g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA_BOB);
+    GLint   fieldLoc = g_Windowing.GUIShaderGetField();
+    GLint   stepLoc = g_Windowing.GUIShaderGetStep();
+
+    if     (field == FIELD_TOP)
+      glUniform1i(fieldLoc, 1);
+    else if(field == FIELD_BOT)
+      glUniform1i(fieldLoc, 0);
+    glUniform1f(stepLoc, 1.0f / (float)plane.texheight);
+  }
+  else
+    g_Windowing.EnableGUIShader(SM_TEXTURE_RGBA);
+
+  GLint   contrastLoc = g_Windowing.GUIShaderGetContrast();
+  glUniform1f(contrastLoc, CMediaSettings::Get().GetCurrentVideoSettings().m_Contrast * 0.02f);
+  GLint   brightnessLoc = g_Windowing.GUIShaderGetBrightness();
+  glUniform1f(brightnessLoc, CMediaSettings::Get().GetCurrentVideoSettings().m_Brightness * 0.01f - 0.5f);
+
+  GLubyte idx[4] = {0, 1, 3, 2};        //determines order of triangle strip
+  GLfloat ver[4][4];
+  GLfloat tex[4][2];
+  GLfloat col[3] = {1.0f, 1.0f, 1.0f};
+
+  GLint   posLoc = g_Windowing.GUIShaderGetPos();
+  GLint   texLoc = g_Windowing.GUIShaderGetCoord0();
+  GLint   colLoc = g_Windowing.GUIShaderGetCol();
+
+  glVertexAttribPointer(posLoc, 4, GL_FLOAT, 0, 0, ver);
+  glVertexAttribPointer(texLoc, 2, GL_FLOAT, 0, 0, tex);
+  glVertexAttribPointer(colLoc, 3, GL_FLOAT, 0, 0, col);
+
+  glEnableVertexAttribArray(posLoc);
+  glEnableVertexAttribArray(texLoc);
+  glEnableVertexAttribArray(colLoc);
+
+  // Set vertex coordinates
+  for(int i = 0; i < 4; i++)
+  {
+    ver[i][0] = m_rotatedDestCoords[i].x;
+    ver[i][1] = m_rotatedDestCoords[i].y;
+    ver[i][2] = 0.0f;// set z to 0
+    ver[i][3] = 1.0f;
+  }
+
+  if (field == FIELD_FULL)
+  {
+    tex[0][0] = tex[3][0] = plane.rect.x1;
+    tex[0][1] = tex[1][1] = plane.rect.y1;
+    tex[1][0] = tex[2][0] = plane.rect.x2;
+    tex[2][1] = tex[3][1] = plane.rect.y2;
+  }
+  else
+  {
+    tex[0][0] = tex[3][0] = planef.rect.x1;
+    tex[0][1] = tex[1][1] = planef.rect.y1 * 2.0f;
+    tex[1][0] = tex[2][0] = planef.rect.x2;
+    tex[2][1] = tex[3][1] = planef.rect.y2 * 2.0f;
+  }
+
+  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, idx);
+
+  glDisableVertexAttribArray(posLoc);
+  glDisableVertexAttribArray(texLoc);
+  glDisableVertexAttribArray(colLoc);
+
+  g_Windowing.DisableGUIShader();
+  VerifyGLState();
+
+  glBindTexture(m_textureTarget, 0);
+  VerifyGLState();
+
+  CDVDVideoCodecIMXv14::Leave();
+
+#ifdef DEBUG_VERBOSE
+  CLog::Log(LOGDEBUG, "RenderIMXMAPTexture %d: tm:%d\n", index, XbmcThreads::Sys
+#endif
+
+#endif
 }
 
 bool CLinuxRendererGLES::RenderCapture(CRenderCapture* capture)
@@ -2780,6 +2908,44 @@ void CLinuxRendererGLES::SetTextureFilter(GLenum method)
 //********************************************************************************************************
 void CLinuxRendererGLES::UploadIMXMAPTexture(int index)
 {
+#ifdef HAS_IMXVPU
+  if (m_renderMethod != RENDER_IMXv14)
+    return;
+
+  YUVBUFFER& buf =  m_buffers[index];
+  CDVDVideoCodecIMXv14Buffer* IMXBuffer = (CDVDVideoCodecIMXv14Buffer*)buf.IMXBuffer;
+
+  if(IMXBuffer)
+  {
+    CDVDVideoCodecIMXv14::Enter();
+    if(!IMXBuffer->IsValid())
+    {
+      CDVDVideoCodecIMXv14::Leave();
+      return;
+    }
+
+    YUVPLANE &plane = m_buffers[index].fields[0][0];
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(m_textureTarget, plane.id);
+
+    GLuint physical = ~0U;
+    GLvoid *virt = (GLvoid*)IMXBuffer->m_VirtAddr;
+    glTexDirectVIVMap(m_textureTarget, IMXBuffer->m_iWidth, IMXBuffer->m_iHeight, GL_VIV_NV12,
+                      (GLvoid **)&virt, &physical);
+    glTexDirectInvalidateVIV(m_textureTarget);
+
+    glBindTexture(m_textureTarget, 0);
+
+    plane.flipindex = m_buffers[index].flipindex;
+    plane.texwidth  = IMXBuffer->m_iWidth;
+    plane.texheight = IMXBuffer->m_iHeight;
+
+    CalculateTextureSourceRects(index, 1);
+
+    CDVDVideoCodecIMXv14::Leave();
+  }
+#endif
 }
 
 void CLinuxRendererGLES::DeleteIMXMAPTexture(int index)
@@ -2815,6 +2981,17 @@ bool CLinuxRendererGLES::CreateIMXMAPTexture(int index)
   plane.pixpertex_x = 1;
   plane.pixpertex_y = 1;
 
+  if (m_renderMethod & RENDER_IMXv14)
+    for (int f=0; f<3; ++f)
+    {
+      YUVPLANE  &plane  = fields[f][0];
+
+      plane.texwidth  = im.width; // Must be actual frame width for pseudo-cropping
+      plane.texheight = im.height; // Must be actual frame height for pseudo-cropping
+      plane.pixpertex_x = 1;
+      plane.pixpertex_y = 1;
+    }
+
   glEnable(m_textureTarget);
   glGenTextures(1, &plane.id);
   VerifyGLState();
@@ -2823,6 +3000,14 @@ bool CLinuxRendererGLES::CreateIMXMAPTexture(int index)
 
   glTexParameteri(m_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(m_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  if (m_renderMethod & RENDER_IMXv14)
+  {
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(m_textureTarget, 0, GL_RGBA, plane.texwidth, plane.texheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  }
 
   glDisable(m_textureTarget);
   return true;
@@ -3114,7 +3299,7 @@ void CLinuxRendererGLES::AddProcessor(CDVDVideoCodecIMXBuffer *buffer, int index
 
 bool CLinuxRendererGLES::IsGuiLayer()
 {
-  if (m_format == RENDER_FMT_BYPASS || m_format == RENDER_FMT_IMXMAP)
+  if (m_format == RENDER_FMT_BYPASS || (m_format == RENDER_FMT_IMXMAP && !(m_renderMethod & RENDER_IMXv14)))
     return false;
   else
     return true;
