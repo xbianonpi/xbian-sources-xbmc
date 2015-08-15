@@ -56,6 +56,7 @@ struct OpenMaxVideoBufferHolder;
 class CDVDVideoCodecStageFright;
 class CDVDMediaCodecInfo;
 class CDVDVideoCodecIMXBuffer;
+class CDVDVideoCodecIMXv14Buffer;
 class CMMALVideoBuffer;
 typedef void* EGLImageKHR;
 
