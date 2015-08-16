@@ -247,7 +247,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
         ||    info.iScreenHeight != m_sourceHeight
-        ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.01)
+        ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
 
         current = (RESOLUTION)i;
@@ -260,7 +260,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
-        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.01
+        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
         || ((info.dwFlags & D3DPRESENTFLAG_INTERLACED) && !(m_iFlags & CONF_FLAGS_INTERLACED)))
           continue;
 
@@ -281,7 +281,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
           pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2)
       ||  info.iScreen != curr.iScreen
       ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
-      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.01))
+      ||  (!bRelaxPixelRatio && fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
                info.iScreenWidth, info.iScreenHeight, info.dwFlags & D3DPRESENTFLAG_MODEMASK,
