@@ -28,10 +28,12 @@
 #include "peripherals/Peripherals.h"
 #include "threads/Thread.h"
 
+#include "EGLEdid.h"
+
 using namespace PERIPHERALS;
 
 class DllBcmHost;
-class CEGLNativeTypeRaspberryPI : public CEGLNativeType
+class CEGLNativeTypeRaspberryPI : public CEGLNativeType, private CEGLEdid
 {
 public:
   CEGLNativeTypeRaspberryPI();
@@ -56,6 +58,8 @@ public:
   virtual bool  GetPreferredResolution(RESOLUTION_INFO *res) const;
 
   virtual bool  ShowWindow(bool show);
+  virtual void  ReadEdidData();
+
 #if defined(TARGET_RASPBERRY_PI)
 private:
   DllBcmHost                    *m_DllBcmHost;

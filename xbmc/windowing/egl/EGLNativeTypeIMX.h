@@ -24,18 +24,10 @@
 #include <EGL/egl.h>
 #include "EGLNativeType.h"
 
-#define EDID_STRUCT_DISPLAY             0x14
-#define EDID_DTM_START                  0x36
-#define EDID_DTM_OFFSET_DIMENSION       0x0c
+#include "EGLEdid.h"
 
-class CEGLNativeTypeIMX : public CEGLNativeType
+class CEGLNativeTypeIMX : public CEGLNativeType, private CEGLEdid
 {
-  struct dt_dim {
-    uint8_t Width;
-    uint8_t Height;
-    uint8_t msbits;
-  };
-
 public:
   CEGLNativeTypeIMX();
   virtual ~CEGLNativeTypeIMX();
@@ -59,20 +51,17 @@ public:
   virtual bool  GetPreferredResolution(RESOLUTION_INFO *res) const;
 
   virtual bool  ShowWindow(bool show = true);
+  virtual void  ReadEdidData();
 
 #ifdef HAS_IMXVPU
 protected:
   bool m_readonly;
   bool m_show;
-  float m_sar;
   RESOLUTION_INFO m_init;
   bool ModeToResolution(std::string mode, RESOLUTION_INFO *res) const;
   bool FindMatchingResolution(const RESOLUTION_INFO &res, const std::vector<RESOLUTION_INFO> &resolutions);
-  void GetMonitorSAR();
-  float ValidateSAR(struct dt_dim *dtm, bool mb = false);
 
   EGLNativeDisplayType m_display;
   EGLNativeWindowType  m_window;
-  uint8_t              m_edid[512];
 #endif
 };

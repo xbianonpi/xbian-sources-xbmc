@@ -220,7 +220,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenWidth = tv_state.display.hdmi.width;
       res->iScreenHeight= tv_state.display.hdmi.height;
       res->dwFlags      = MAKEFLAGS(tv_state.display.hdmi.group, tv_state.display.hdmi.mode, tv_state.display.hdmi.scan_mode);
-      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((HDMI_ASPECT_T)tv_state.display.hdmi.display_options.aspect) / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+      res->fPixelRatio  = (float)GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
       // Also add 3D flags
       if (tv_state.display.hdmi.format_3d == HDMI_3D_FORMAT_SBS_HALF)
       {
@@ -247,7 +247,19 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenHeight= tv_state.display.sdtv.height;
       res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, tv_state.display.sdtv.mode, 1);
       res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
-      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+      res->fPixelRatio  = (float)GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+    }
+    else if ((tv_state.state & VC_LCD_ATTACHED_DEFAULT) != 0) // lcd
+    {
+      res->iScreen      = 0;
+      res->bFullScreen  = true;
+      res->iWidth       = tv_state.display.sdtv.width;
+      res->iHeight      = tv_state.display.sdtv.height;
+      res->iScreenWidth = tv_state.display.sdtv.width;
+      res->iScreenHeight= tv_state.display.sdtv.height;
+      res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, 0, 0);
+      res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
+      res->fPixelRatio  = (float)GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
     }
 
   DLOG("CEGLNativeTypeRaspberryPI::GetNativeResolution %s\n", res->strMode.c_str());
@@ -533,6 +545,8 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
   if(!m_DllBcmHost)
     return false;
 
+  CalcSAR();
+
   /* read initial desktop resolution before probe resolutions.
    * probing will replace the desktop resolution when it finds the same one.
    * we raplace it because probing will generate more detailed 
@@ -637,7 +651,7 @@ void CEGLNativeTypeRaspberryPI::GetSupportedModes(HDMI_RES_GROUP_T group, std::v
       res.iHeight       = tv->height;
       res.iScreenWidth  = tv->width;
       res.iScreenHeight = tv->height;
-      res.fPixelRatio   = get_display_aspect_ratio((HDMI_ASPECT_T)tv->aspect_ratio) / ((float)res.iScreenWidth / (float)res.iScreenHeight);
+      res.fPixelRatio   = (float)GetSAR() / ((float)res.iScreenWidth / (float)res.iScreenHeight);
       res.iSubtitles    = (int)(0.965 * res.iHeight);
 
       if (!m_desktopRes.dwFlags && prefer_group == group && prefer_mode == tv->code)
@@ -728,5 +742,31 @@ void CEGLNativeTypeRaspberryPI::CallbackTvServiceCallback(void *userdata, uint32
    callback->TvServiceCallback(reason, param1, param2);
 }
 
-#endif
+void CEGLNativeTypeRaspberryPI::ReadEdidData()
+{
+  uint8_t buffer[128];
+  size_t offset = 0;
+  int i, extensions = 0;
 
+  int siz = vc_tv_hdmi_ddc_read(offset, sizeof(buffer), buffer);
+  offset += sizeof(buffer);
+
+  /* First block always exist */
+  if (siz == sizeof(buffer))
+  {
+    memcpy(&m_edid, &buffer, sizeof(buffer));
+    extensions = buffer[0x7e]; /* This tells you how many more blocks to read */
+
+    for (i = 0; i < extensions && i < EDID_MAXSIZE - sizeof(buffer); i++, offset += sizeof(buffer))
+    {
+      siz = vc_tv_hdmi_ddc_read(offset, sizeof(buffer), buffer);
+
+      if (siz != sizeof(buffer))
+        break;
+
+      memcpy((uint8_t *)(&m_edid + offset), &buffer, sizeof(buffer));
+    }
+  }
+}
+
+#endif
