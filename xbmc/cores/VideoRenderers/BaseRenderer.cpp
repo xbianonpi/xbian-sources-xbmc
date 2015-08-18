@@ -264,6 +264,11 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         || ((info.dwFlags & D3DPRESENTFLAG_INTERLACED) && !(m_iFlags & CONF_FLAGS_INTERLACED)))
           continue;
 
+        if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
+        ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) >
+            pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2))
+          continue;
+
         current = (RESOLUTION)i;
         curr    = info;
         i_found = true;
