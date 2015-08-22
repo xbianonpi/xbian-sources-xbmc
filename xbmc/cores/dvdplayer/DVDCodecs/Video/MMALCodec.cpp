@@ -253,12 +253,20 @@ void CMMALVideo::dec_output_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buf
   {
     if (buffer->length > 0)
     {
+      if (buffer->pts != MMAL_TIME_UNKNOWN)
+        m_decoderPts = buffer->pts;
+      else if (buffer->dts != MMAL_TIME_UNKNOWN)
+        m_decoderPts = buffer->dts;
+
       assert(!(buffer->flags & MMAL_BUFFER_HEADER_FLAG_DECODEONLY));
+      CMMALVideoBuffer *omvb = NULL;
+      if (!(buffer->flags & MMAL_BUFFER_HEADER_FLAG_CORRUPTED));
+        omvb = new CMMALVideoBuffer(this);
+      if (g_advancedSettings.CanLogComponent(LOGVIDEO))
+        CLog::Log(LOGDEBUG, "%s::%s - %p (%p) buffer_size(%u) dts:%.3f pts:%.3f flags:%x:%x",
+          CLASSNAME, __func__, buffer, omvb, buffer->length, buffer->dts*1e-6, buffer->pts*1e-6, buffer->flags, buffer->type->video.flags);
+      if (omvb)
       {
-        CMMALVideoBuffer *omvb = new CMMALVideoBuffer(this);
-        if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-          CLog::Log(LOGDEBUG, "%s::%s - %p (%p) buffer_size(%u) dts:%.3f pts:%.3f flags:%x:%x",
-            CLASSNAME, __func__, buffer, omvb, buffer->length, buffer->dts*1e-6, buffer->pts*1e-6, buffer->flags, buffer->type->video.flags);
         omvb->mmal_buffer = buffer;
         buffer->user_data = (void *)omvb;
         omvb->width = m_decoded_width;
@@ -861,33 +869,39 @@ int CMMALVideo::Decode(uint8_t* pData, int iSize, double dts, double pts)
     if (!demuxer_bytes)
       break;
   }
-  int ret = 0;
   if (pts != DVD_NOPTS_VALUE)
     m_demuxerPts = pts;
   else if (dts != DVD_NOPTS_VALUE)
     m_demuxerPts = dts;
-  double queued = m_decoderPts != DVD_NOPTS_VALUE && m_demuxerPts != DVD_NOPTS_VALUE ? m_demuxerPts - m_decoderPts : 0.0;
-  if (mmal_queue_length(m_dec_input_pool->queue) > 0 && !m_demux_queue_length && queued <= DVD_MSEC_TO_TIME(1000))
-    ret |= VC_BUFFER;
-  else
-    m_preroll = false;
 
-  if (m_preroll && m_output_ready.size() >= GetAllowedReferences())
+  if (m_demuxerPts != DVD_NOPTS_VALUE && m_decoderPts == DVD_NOPTS_VALUE)
+    m_decoderPts = m_demuxerPts;
+
+  // we've built up quite a lot of data in decoder - try to throttle it
+  double queued = m_decoderPts != DVD_NOPTS_VALUE && m_demuxerPts != DVD_NOPTS_VALUE ? m_demuxerPts - m_decoderPts : 0.0;
+  bool full = queued > DVD_MSEC_TO_TIME(1000);
+  bool want_buffer = mmal_queue_length(m_dec_input_pool->queue) > 0 && !m_demux_queue_length && !full;
+  int ret = VC_BUFFER;
+
+  if (m_preroll && (!want_buffer || m_output_ready.size() >= GetAllowedReferences()))
     m_preroll = false;
 
   if (!m_output_ready.empty() && !m_preroll)
   {
     ret |= VC_PICTURE;
     // renderer is low - give priority to returning pictures
-    if (0 && m_codecControlFlags & DVD_CODEC_CTRL_DRAIN)
+    if (m_codecControlFlags & DVD_CODEC_CTRL_DRAIN || !want_buffer || full)
       ret &= ~VC_BUFFER;
   }
-  if (!ret)
-    Sleep(10); // otherwise we busy spin
 
   if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-    CLog::Log(LOGDEBUG, "%s::%s - ret(%x) pics(%d) demux_queue(%d) space(%d) queued(%.2f) preroll(%d) flags(%x)", CLASSNAME, __func__, ret, m_output_ready.size(), m_demux_queue_length, mmal_queue_length(m_dec_input_pool->queue) * m_dec_input->buffer_size, queued*1e-6, m_preroll, m_codecControlFlags);
+    CLog::Log(LOGDEBUG, "%s::%s - ret(%x) pics(%d) demux_queue(%d) space(%d) queued(%.2f) (%.2f:%.2f) preroll(%d) flags(%x) full(%d)", CLASSNAME, __func__, ret, m_output_ready.size(), m_demux_queue_length, mmal_queue_length(m_dec_input_pool->queue) * m_dec_input->buffer_size, queued*1e-6, m_demuxerPts*1e-6, m_decoderPts*1e-6, m_preroll, m_codecControlFlags, full);
 
+  if (full)
+  {
+    lock.Leave();
+    Sleep(queued * 1e-6 * 10.0);
+  }
   return ret;
 }
 
@@ -1045,11 +1059,6 @@ bool CMMALVideo::GetPicture(DVDVideoPicture* pDvdVideoPicture)
     CLog::Log(LOGERROR, "%s::%s - called but m_output_ready is empty", CLASSNAME, __func__);
     return false;
   }
-
-  if (pDvdVideoPicture->pts != DVD_NOPTS_VALUE)
-    m_decoderPts = pDvdVideoPicture->pts;
-  else
-    m_decoderPts = pDvdVideoPicture->dts;
 
   return true;
 }
