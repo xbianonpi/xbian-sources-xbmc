@@ -109,6 +109,9 @@
 #ifdef HAS_FILESYSTEM_NFS
 #include "filesystem/NFSFile.h"
 #endif
+#ifdef HAS_FILESYSTEM_AFP
+#include "filesystem/AFPFile.h"
+#endif
 #ifdef HAS_FILESYSTEM_SFTP
 #include "filesystem/SFTPFile.h"
 #endif
@@ -4411,6 +4414,10 @@ void CApplication::ProcessSlow()
   gNfsConnection.CheckIfIdle();
 #endif
 
+#ifdef HAS_FILESYSTEM_AFP
+  gAfpConnection.CheckIfIdle();
+#endif
+
 #ifdef HAS_FILESYSTEM_SFTP
   CSFTPSessionManager::ClearOutIdleSessions();
 #endif
@@ -5046,7 +5053,11 @@ void CApplication::CloseNetworkShares()
 #ifdef HAS_FILESYSTEM_NFS
   gNfsConnection.Deinit();
 #endif
-
+  
+#ifdef HAS_FILESYSTEM_AFP
+  gAfpConnection.Deinit();
+#endif
+  
 #ifdef HAS_FILESYSTEM_SFTP
   CSFTPSessionManager::DisconnectAllSessions();
 #endif

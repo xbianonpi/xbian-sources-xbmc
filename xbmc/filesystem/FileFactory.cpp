@@ -66,6 +66,9 @@
 #ifdef HAS_FILESYSTEM_NFS
 #include "NFSFile.h"
 #endif
+#ifdef HAS_FILESYSTEM_AFP
+#include "AFPFile.h"
+#endif
 #if defined(TARGET_ANDROID)
 #include "AndroidAppFile.h"
 #endif
@@ -178,6 +181,9 @@ IFile* CFileFactory::CreateLoader(const CURL& url)
 #endif
 #ifdef HAS_FILESYSTEM_NFS
     else if (url.IsProtocol("nfs")) return new CNFSFile();
+#endif
+#ifdef HAS_FILESYSTEM_AFP
+    else if (url.IsProtocol("afp")) return new CAFPFile();
 #endif
 #ifdef HAS_UPNP
     else if (url.IsProtocol("upnp")) return new CUPnPFile();
