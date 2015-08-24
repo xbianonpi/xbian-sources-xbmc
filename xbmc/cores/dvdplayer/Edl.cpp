@@ -103,7 +103,8 @@ bool CEdl::ReadEditDecisionLists(const std::string& strMovie, const float fFrame
    */
   if ((URIUtils::IsHD(strMovie)  || 
        URIUtils::IsSmb(strMovie) || 
-       URIUtils::IsNfs(strMovie))         &&
+       URIUtils::IsNfs(strMovie) || 
+       URIUtils::IsAfp(strMovie))         &&
       !URIUtils::IsPVRRecording(strMovie) &&
       !URIUtils::IsInternetStream(strMovie))
   {

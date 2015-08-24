@@ -12,7 +12,7 @@ DEPENDS = \
 	libogg libvorbis libflac fribidi libmpeg2 \
 	libass libsquish \
 	libmodplug librtmp libxml2 yajl libmicrohttpd mysql libffi \
-	python26 libshairplay \
+	python26 afpfs-ng libshairplay \
 	libplist libcec libbluray boost tinyxml dummy-libxbmc \
 	libamplayer libssh taglib libusb libnfs \
 	pythonmodule-pil libxslt ffmpeg platform crossguid libdcadec giflib
@@ -85,6 +85,7 @@ librtmp: openssl
 libmicrohttpd: gnutls libgcrypt libgpg-error
 python26: expat gettext libxml2 sqlite3 openssl libffi
 libcdio: $(ICONV)
+afpfs-ng: libgcrypt $(ICONV)
 libplist: libxml2 $(ZLIB)
 libbluray: $(ICONV) libxml2
 libssh: openssl $(ZLIB)

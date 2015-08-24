@@ -800,8 +800,8 @@ bool CUtil::CreateDirectoryEx(const std::string& strPath)
   // return true if directory already exist
   if (CDirectory::Exists(strPath)) return true;
 
-  // we currently only allow HD and smb and nfs paths
-  if (!URIUtils::IsHD(strPath) && !URIUtils::IsSmb(strPath) && !URIUtils::IsNfs(strPath))
+  // we currently only allow HD and smb, nfs and afp paths
+  if (!URIUtils::IsHD(strPath) && !URIUtils::IsSmb(strPath) && !URIUtils::IsNfs(strPath) && !URIUtils::IsAfp(strPath))
   {
     CLog::Log(LOGERROR,"%s called with an unsupported path: %s", __FUNCTION__, strPath.c_str());
     return false;
@@ -853,8 +853,8 @@ std::string CUtil::MakeLegalPath(const std::string &strPathAndFile, int LegalTyp
     return MakeLegalPath(CStackDirectory::GetFirstStackedFile(strPathAndFile));
   if (URIUtils::IsMultiPath(strPathAndFile))
     return MakeLegalPath(CMultiPathDirectory::GetFirstPath(strPathAndFile));
-  if (!URIUtils::IsHD(strPathAndFile) && !URIUtils::IsSmb(strPathAndFile) && !URIUtils::IsNfs(strPathAndFile))
-    return strPathAndFile; // we don't support writing anywhere except HD, SMB and NFS - no need to legalize path
+  if (!URIUtils::IsHD(strPathAndFile) && !URIUtils::IsSmb(strPathAndFile) && !URIUtils::IsNfs(strPathAndFile) && !URIUtils::IsAfp(strPathAndFile))
+    return strPathAndFile; // we don't support writing anywhere except HD, SMB, NFS and AFP - no need to legalize path
 
   bool trailingSlash = URIUtils::HasSlashAtEnd(strPathAndFile);
   std::vector<std::string> dirs = URIUtils::SplitPath(strPathAndFile);
@@ -1385,7 +1385,7 @@ bool CUtil::MakeShortenPath(std::string StrInput, std::string& StrOutput, size_t
 
 bool CUtil::SupportsWriteFileOperations(const std::string& strPath)
 {
-  // currently only hd, smb, nfs and dav support delete and rename
+  // currently only hd, smb, nfs, afp and dav support delete and rename
   if (URIUtils::IsHD(strPath))
     return true;
   if (URIUtils::IsSmb(strPath))
@@ -1393,6 +1393,8 @@ bool CUtil::SupportsWriteFileOperations(const std::string& strPath)
   if (CUtil::IsTVRecording(strPath))
     return CPVRDirectory::SupportsWriteFileOperations(strPath);
   if (URIUtils::IsNfs(strPath))
+    return true;
+  if (URIUtils::IsAfp(strPath))
     return true;
   if (URIUtils::IsDAV(strPath))
     return true;

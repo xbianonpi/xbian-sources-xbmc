@@ -202,6 +202,8 @@ libnfs_not_found="== Could not find libnfs. NFS client support disabled. =="
 libnfs_disabled="== NFS support disabled. =="
 libgif_not_found="== Could not find libgif. libgif support disabled. =="
 libgif_disabled="== libgif support disabled. =="
+libafpclient_not_found="== Could not find libafpclient. AFP client support disabled. =="
+libafpclient_disabled="== AFP support disabled. =="
 libshairplay_not_found="== Could not find libshairplay. =="
 samba_disabled="== SAMBA support disabled. =="
 libplist_not_found="== Could not find libplist. AirPlay support disabled. =="
@@ -379,6 +381,12 @@ AC_ARG_ENABLE([gif],
   [enable gif support via libgif (default is auto)])],
   [use_libgif=$enableval],
   [use_libgif=auto])
+
+AC_ARG_ENABLE([afpclient],
+  [AS_HELP_STRING([--enable-afpclient],
+  [enable AFP support via libafpclient (default is auto)])],
+  [use_libafpclient=$enableval],
+  [use_libafpclient=auto])
 
 AC_ARG_ENABLE([airplay],
   [AS_HELP_STRING([--enable-airplay],
@@ -1552,6 +1560,26 @@ else
   AC_MSG_NOTICE($libgif_disabled)
 fi
 
+# libafpclient
+USE_LIBAFPCLIENT=0
+if test "x$use_libafpclient" != "xno"; then
+  AC_CHECK_HEADERS([afpfs-ng/libafpclient.h],,
+   [if test "x$use_libafpclient" = "xyes"; then
+      AC_MSG_ERROR($libafpclient_not_found)
+    elif test "x$use_libafpclient" != "xno"; then
+      AC_MSG_NOTICE($libafpclient_not_found)
+      use_libafpclient="no"
+    fi
+   ])
+  if test "x$use_libafpclient" != "xno"; then
+    XB_FIND_SONAME([AFPCLIENT], [afpclient], [use_libafpclient])
+    AC_DEFINE([HAVE_LIBAFPCLIENT], [1], [Whether to use libafpclient library.])
+    USE_LIBAFPCLIENT=1
+  fi
+else
+  AC_MSG_NOTICE($libafpclient_disabled)
+fi
+
 # libplist for airplay feature
 USE_AIRPLAY=0
 if test "$use_airplay" != "no"; then
@@ -2333,6 +2361,12 @@ else
   final_message="$final_message\n  libgif support:\tNo"
 fi
 
+if test "x$use_libafpclient" != "xno"; then
+  final_message="$final_message\n  libafpclient support:\tYes"
+else  
+  final_message="$final_message\n  libafpclient support:\tNo"
+fi
+
 if test "$use_airplay" != "no"; then
   final_message="$final_message\n  AirPlay support:\tYes"
 else
@@ -2586,6 +2620,7 @@ AC_SUBST(USE_VAAPI)
 AC_SUBST(USE_LIBSMBCLIENT)
 AC_SUBST(USE_LIBNFS)
 AC_SUBST(USE_LIBGIF)
+AC_SUBST(USE_LIBAFPCLIENT)
 AC_SUBST(USE_AIRPLAY)
 AC_SUBST(USE_OPENMAX)
 AC_SUBST(USE_PULSE)

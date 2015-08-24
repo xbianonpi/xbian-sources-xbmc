@@ -480,6 +480,9 @@
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxFFmpeg.cpp">
       <Filter>cores\dvdplayer\DVDDemuxers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxHTSP.cpp">
+      <Filter>cores\dvdplayer\DVDDemuxers</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxShoutcast.cpp">
       <Filter>cores\dvdplayer\DVDDemuxers</Filter>
     </ClCompile>
@@ -499,6 +502,9 @@
       <Filter>cores\dvdplayer\DVDInputStreams</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamFile.cpp">
+      <Filter>cores\dvdplayer\DVDInputStreams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamHTSP.cpp">
       <Filter>cores\dvdplayer\DVDInputStreams</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamHttp.cpp">
@@ -546,6 +552,9 @@
     <ClCompile Include="..\..\xbmc\cores\dvdplayer\DVDSubtitles\DVDSubtitleStream.cpp">
       <Filter>cores\dvdplayer\DVDSubtitles</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\ASAPCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\paplayer\AudioDecoder.cpp">
       <Filter>cores\paplayer</Filter>
     </ClCompile>
@@ -555,7 +564,34 @@
     <ClCompile Include="..\..\xbmc\cores\paplayer\DVDPlayerCodec.cpp">
       <Filter>cores\paplayer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\ModplugCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\NSFCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\OggCallback.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\OGGcodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\paplayer\PAPlayer.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\SIDCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\SPCCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\TimidityCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\VGMCodec.cpp">
+      <Filter>cores\paplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\cores\paplayer\YMCodec.cpp">
       <Filter>cores\paplayer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\cores\DllLoader\coff.cpp">
@@ -1111,6 +1147,9 @@
     <ClCompile Include="..\..\xbmc\input\KeyboardLayout.cpp">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\input\KeyboardLayoutConfiguration.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\input\KeyboardStat.cpp">
       <Filter>input</Filter>
     </ClCompile>
@@ -1195,6 +1234,9 @@
     <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTag.cpp">
       <Filter>music\tags</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderASAP.cpp">
+      <Filter>music\tags</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderCDDA.cpp">
       <Filter>music\tags</Filter>
     </ClCompile>
@@ -1204,7 +1246,19 @@
     <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderFactory.cpp">
       <Filter>music\tags</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderMidi.cpp">
+      <Filter>music\tags</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderNSF.cpp">
+      <Filter>music\tags</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderShn.cpp">
+      <Filter>music\tags</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderSPC.cpp">
+      <Filter>music\tags</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\music\tags\MusicInfoTagLoaderYM.cpp">
       <Filter>music\tags</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\network\cddb.cpp">
@@ -1375,6 +1429,9 @@
     <ClCompile Include="..\..\xbmc\utils\Fanart.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\fft.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\FileOperationJob.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -1382,6 +1439,9 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\fstrcmp.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\HTMLTable.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\HTMLUtil.cpp">
@@ -1846,6 +1906,9 @@
     <ClCompile Include="..\..\xbmc\filesystem\AddonsDirectory.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\AFPDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPVfsHandler.cpp">
       <Filter>network\httprequesthandler</Filter>
     </ClCompile>
@@ -1888,6 +1951,12 @@
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.cpp">
       <Filter>network\httprequesthandler</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\AFPFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\ASAPFileDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\BlurayDirectory.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
@@ -1901,6 +1970,12 @@
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\CurlFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\DAAPDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\DAAPFile.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\DAVDirectory.cpp">
@@ -1975,10 +2050,28 @@
     <ClCompile Include="..\..\xbmc\filesystem\MusicSearchDirectory.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\MythDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\MythFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\MythSession.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\NFSDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\NFSFile.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\NptXbmcFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\NSFFileDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\OGGFileDirectory.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\PipeFile.cpp">
@@ -2006,6 +2099,12 @@
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\RSSDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\RTVDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\RTVFile.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\SAPDirectory.cpp">
@@ -2060,6 +2159,15 @@
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\VirtualDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\VTPDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\VTPFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\VTPSession.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\ZeroconfDirectory.cpp">
@@ -2201,6 +2309,7 @@
     <ClCompile Include="..\..\xbmc\PartyModeManager.cpp" />
     <ClCompile Include="..\..\xbmc\PasswordManager.cpp" />
     <ClCompile Include="..\..\xbmc\SectionLoader.cpp" />
+    <ClCompile Include="..\..\xbmc\Temperature.cpp" />
     <ClCompile Include="..\..\xbmc\TextureCache.cpp" />
     <ClCompile Include="..\..\xbmc\TextureCacheJob.cpp" />
     <ClCompile Include="..\..\xbmc\TextureDatabase.cpp" />
@@ -2329,6 +2438,12 @@
     <ClCompile Include="..\..\xbmc\utils\test\TestEndianSwap.cpp">
       <Filter>utils\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\test\Testfastmemcpy.cpp">
+      <Filter>utils\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\test\Testfft.cpp">
+      <Filter>utils\test</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\test\TestFileOperationJob.cpp">
       <Filter>utils\test</Filter>
     </ClCompile>
@@ -2339,6 +2454,9 @@
       <Filter>utils\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\test\TestGlobalsHandling.cpp">
+      <Filter>utils\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\test\TestHTMLTable.cpp">
       <Filter>utils\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\utils\test\TestHTMLUtil.cpp">
@@ -2996,9 +3114,6 @@
     <ClCompile Include="..\..\xbmc\input\Key.cpp">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\music\tags\ReplayGain.cpp">
-      <Filter>music\tags</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInvoker.cpp">
       <Filter>network\httprequesthandler\python</Filter>
     </ClCompile>
@@ -3033,9 +3148,6 @@
       <Filter>addons</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\addons\LanguageResource.cpp">
-      <Filter>addons</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\xbmc\addons\UISoundsResource.cpp">
       <Filter>addons</Filter>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\ResourceFile.cpp">
@@ -3374,6 +3486,9 @@
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxFFmpeg.h">
       <Filter>cores\dvdplayer\DVDDemuxers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxHTSP.h">
+      <Filter>cores\dvdplayer\DVDDemuxers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDDemuxers\DVDDemuxShoutcast.h">
       <Filter>cores\dvdplayer\DVDDemuxers</Filter>
     </ClInclude>
@@ -3396,6 +3511,9 @@
       <Filter>cores\dvdplayer\DVDInputStreams</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamFile.h">
+      <Filter>cores\dvdplayer\DVDInputStreams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamHTSP.h">
       <Filter>cores\dvdplayer\DVDInputStreams</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDInputStreams\DVDInputStreamHttp.h">
@@ -3476,10 +3594,31 @@
     <ClInclude Include="..\..\xbmc\cores\dvdplayer\DVDSubtitles\DVDSubtitleStream.h">
       <Filter>cores\dvdplayer\DVDSubtitles</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\ASAPCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\paplayer\AudioDecoder.h">
       <Filter>cores\paplayer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\paplayer\CodecFactory.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllASAP.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllNosefart.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllSidplay2.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllStSound.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllTimidity.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\DllVorbisfile.h">
       <Filter>cores\paplayer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\paplayer\DVDPlayerCodec.h">
@@ -3488,7 +3627,34 @@
     <ClInclude Include="..\..\xbmc\cores\paplayer\ICodec.h">
       <Filter>cores\paplayer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\ModplugCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\NSFCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\OggCallback.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\OGGcodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\paplayer\PAPlayer.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\SIDCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\SPCCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\TimidityCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\VGMCodec.h">
+      <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\cores\paplayer\YMCodec.h">
       <Filter>cores\paplayer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\DllLoader\coff.h">
@@ -4087,6 +4253,9 @@
     <ClInclude Include="..\..\xbmc\input\KeyboardLayout.h">
       <Filter>input</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\input\KeyboardLayoutConfiguration.h">
+      <Filter>input</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\input\KeyboardStat.h">
       <Filter>input</Filter>
     </ClInclude>
@@ -4198,6 +4367,9 @@
     <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTag.h">
       <Filter>music\tags</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderASAP.h">
+      <Filter>music\tags</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderCDDA.h">
       <Filter>music\tags</Filter>
     </ClInclude>
@@ -4207,7 +4379,19 @@
     <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderFactory.h">
       <Filter>music\tags</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderMidi.h">
+      <Filter>music\tags</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderNSF.h">
+      <Filter>music\tags</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderShn.h">
+      <Filter>music\tags</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderSPC.h">
+      <Filter>music\tags</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\music\tags\MusicInfoTagLoaderYM.h">
       <Filter>music\tags</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\network\cddb.h">
@@ -4387,10 +4571,16 @@
     <ClInclude Include="..\..\xbmc\utils\Crc32.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\utils\EdenVideoArtUpdater.h">
+      <Filter>utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\EndianSwap.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\Fanart.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\utils\fft.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\FileOperationJob.h">
@@ -4400,6 +4590,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\fstrcmp.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\utils\HTMLTable.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\HTMLUtil.h">
@@ -4909,6 +5102,15 @@
     <ClInclude Include="..\..\xbmc\filesystem\AddonsDirectory.h">
       <Filter>filesystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\AFPDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\AFPFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\ASAPFileDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\CacheStrategy.h">
       <Filter>filesystem</Filter>
     </ClInclude>
@@ -4921,6 +5123,12 @@
     <ClInclude Include="..\..\xbmc\filesystem\CurlFile.h">
       <Filter>filesystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\DAAPDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\DAAPFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\DAVDirectory.h">
       <Filter>filesystem</Filter>
     </ClInclude>
@@ -4931,6 +5139,12 @@
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\DirectoryHistory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\DllLibAfp.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\DllLibCMyth.h">
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\DllLibCurl.h">
@@ -5002,7 +5216,25 @@
     <ClInclude Include="..\..\xbmc\filesystem\MusicSearchDirectory.h">
       <Filter>filesystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\MythDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\MythFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\MythSession.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\NFSDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\NFSFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\NSFFileDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\OGGFileDirectory.h">
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\PipeFile.h">
@@ -5030,6 +5262,12 @@
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\RSSDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\RTVDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\RTVFile.h">
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\SAPDirectory.h">
@@ -5084,6 +5322,15 @@
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\VirtualDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\VTPDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\VTPFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\VTPSession.h">
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\ZeroconfDirectory.h">
@@ -5291,6 +5538,7 @@
     <ClInclude Include="..\..\xbmc\PasswordManager.h" />
     <ClInclude Include="..\..\xbmc\SortFileItem.h" />
     <ClInclude Include="..\..\xbmc\SectionLoader.h" />
+    <ClInclude Include="..\..\xbmc\Temperature.h" />
     <ClInclude Include="..\..\xbmc\TextureCache.h" />
     <ClInclude Include="..\..\xbmc\TextureCacheJob.h" />
     <ClInclude Include="..\..\xbmc\TextureDatabase.h" />
@@ -5992,14 +6240,8 @@
     <ClInclude Include="..\..\xbmc\video\jobs\VideoLibraryMarkWatchedJob.h">
       <Filter>video\jobs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\music\tags\ReplayGain.h">
-      <Filter>music\tags</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\video\jobs\VideoLibraryCleaningJob.h">
       <Filter>video\jobs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xbmc\music\CueInfoLoader.h">
-      <Filter>music</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\utils\ProgressJob.h">
       <Filter>utils</Filter>
