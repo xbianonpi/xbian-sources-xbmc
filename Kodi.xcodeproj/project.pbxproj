@@ -858,6 +858,7 @@
 		DF2345E415FA639500A934F6 /* UPnPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF2345DF15FA639500A934F6 /* UPnPServer.cpp */; settings = {COMPILER_FLAGS = "-I$SRCROOT/lib/libUPnP -I$SRCROOT/lib/libUPnP/Neptune/Source/Core -I$SRCROOT/lib/libUPnP/Platinum/Source/Core -I$SRCROOT/lib/libUPnP/Platinum/Source/Platinum  -I$SRCROOT/lib/libUPnP/Platinum/Source/Extras -I$SRCROOT/lib/libUPnP/Platinum/Source/Devices/MediaServer -I$SRCROOT/lib/libUPnP/Platinum/Source/Devices/MediaConnect -I$SRCROOT/lib/libUPnP/Platinum/Source/Devices/MediaRenderer"; }; };
 		DF2401261B41A26F001E02DA /* ImageResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF2401241B41A26E001E02DA /* ImageResource.cpp */; };
 		DF2401271B41A26F001E02DA /* ImageResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF2401241B41A26E001E02DA /* ImageResource.cpp */; };
+		DF24A6B41406C7C500C7721E /* AFPDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF24A6B01406C7C500C7721E /* AFPDirectory.cpp */; };
 		DF28DF4D17B8379E0077F41A /* ProfilesOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF28DF4B17B8379E0077F41A /* ProfilesOperations.cpp */; };
 		DF28DF4E17B8379E0077F41A /* ProfilesOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF28DF4B17B8379E0077F41A /* ProfilesOperations.cpp */; };
 		DF28EDA2170E1A11005FA9D2 /* GUIDialogLockSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF28ED94170E1A11005FA9D2 /* GUIDialogLockSettings.cpp */; };
@@ -965,6 +966,7 @@
 		DF91E9401C0A29530011084D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF91E93F1C0A29530011084D /* main.cpp */; };
 		DF923E5D1A11536A008CDB0C /* DataCacheCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF923E5B1A11536A008CDB0C /* DataCacheCore.cpp */; };
 		DF923E5E1A11536A008CDB0C /* DataCacheCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF923E5B1A11536A008CDB0C /* DataCacheCore.cpp */; };
+		DF93D6991444A8B1007C6459 /* AFPFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6631444A8B0007C6459 /* AFPFile.cpp */; };
 		DF93D69A1444A8B1007C6459 /* DirectoryCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6651444A8B0007C6459 /* DirectoryCache.cpp */; };
 		DF93D69B1444A8B1007C6459 /* FileCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6671444A8B0007C6459 /* FileCache.cpp */; };
 		DF93D69C1444A8B1007C6459 /* CDDAFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6691444A8B0007C6459 /* CDDAFile.cpp */; };
@@ -1097,6 +1099,8 @@
 		DFEF0BC1180ADEDA00AEAED1 /* SmartPlaylistFileItemListModifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFEF0BBF180ADEDA00AEAED1 /* SmartPlaylistFileItemListModifier.cpp */; };
 		DFEF0BC2180ADEDA00AEAED1 /* SmartPlaylistFileItemListModifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFEF0BBF180ADEDA00AEAED1 /* SmartPlaylistFileItemListModifier.cpp */; };
 		DFF0EBB7175281E1002DA3A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E49910EA174E54C900741B6D /* CoreAudio.framework */; };
+		DFF0F1E717528350002DA3A4 /* AFPDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF24A6B01406C7C500C7721E /* AFPDirectory.cpp */; };
+		DFF0F1E817528350002DA3A4 /* AFPFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6631444A8B0007C6459 /* AFPFile.cpp */; };
 		DFFA440119104C1300C3923B /* AppIcon29x29.png in Resources */ = {isa = PBXBuildFile; fileRef = DFFA43D619104BFA00C3923B /* AppIcon29x29.png */; };
 		DFFA440219104C1300C3923B /* AppIcon29x29@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DFFA43D719104BFA00C3923B /* AppIcon29x29@2x.png */; };
 		DFFA440319104C1300C3923B /* AppIcon40x40.png in Resources */ = {isa = PBXBuildFile; fileRef = DFFA43D819104BFA00C3923B /* AppIcon40x40.png */; };
@@ -1629,6 +1633,9 @@
 		E499124D174E5D7E00741B6D /* GUIDialogVolumeBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E38E17EA0D25F9FA00618676 /* GUIDialogVolumeBar.cpp */; };
 		E499124E174E5D7E00741B6D /* GUIDialogYesNo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E38E17EC0D25F9FA00618676 /* GUIDialogYesNo.cpp */; };
 		E499124F174E5D8F00741B6D /* AddonsDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7B42B113CBB950059D6AA /* AddonsDirectory.cpp */; };
+		E4991250174E5D8F00741B6D /* AFPDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF24A6B01406C7C500C7721E /* AFPDirectory.cpp */; };
+		E4991251174E5D8F00741B6D /* AFPFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF93D6631444A8B0007C6459 /* AFPFile.cpp */; };
+		E4991252174E5D8F00741B6D /* ASAPFileDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88ACB0190DCF40800083CFDF /* ASAPFileDirectory.cpp */; };
 		E4991253174E5D8F00741B6D /* BlurayDirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5ED8D6A1551F91400842059 /* BlurayDirectory.cpp */; };
 		E4991254174E5D8F00741B6D /* CacheStrategy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E38E16990D25F9FA00618676 /* CacheStrategy.cpp */; };
 		E4991255174E5D8F00741B6D /* CDDADirectory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E38E169B0D25F9FA00618676 /* CDDADirectory.cpp */; };
@@ -3758,6 +3765,8 @@
 		DF2345E015FA639500A934F6 /* UPnPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UPnPServer.h; sourceTree = "<group>"; };
 		DF2401241B41A26E001E02DA /* ImageResource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageResource.cpp; sourceTree = "<group>"; };
 		DF2401251B41A26E001E02DA /* ImageResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageResource.h; sourceTree = "<group>"; };
+		DF24A6B01406C7C500C7721E /* AFPDirectory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AFPDirectory.cpp; sourceTree = "<group>"; };
+		DF24A6B11406C7C500C7721E /* AFPDirectory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFPDirectory.h; sourceTree = "<group>"; };
 		DF28DF4B17B8379E0077F41A /* ProfilesOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfilesOperations.cpp; sourceTree = "<group>"; };
 		DF28DF4C17B8379E0077F41A /* ProfilesOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilesOperations.h; sourceTree = "<group>"; };
 		DF28ED94170E1A11005FA9D2 /* GUIDialogLockSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GUIDialogLockSettings.cpp; sourceTree = "<group>"; };
@@ -3908,6 +3917,8 @@
 		DF91E93F1C0A29530011084D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DF923E5B1A11536A008CDB0C /* DataCacheCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataCacheCore.cpp; sourceTree = "<group>"; };
 		DF923E5C1A11536A008CDB0C /* DataCacheCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataCacheCore.h; sourceTree = "<group>"; };
+		DF93D6631444A8B0007C6459 /* AFPFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AFPFile.cpp; sourceTree = "<group>"; };
+		DF93D6641444A8B0007C6459 /* AFPFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFPFile.h; sourceTree = "<group>"; };
 		DF93D6651444A8B0007C6459 /* DirectoryCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DirectoryCache.cpp; sourceTree = "<group>"; };
 		DF93D6661444A8B0007C6459 /* DirectoryCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryCache.h; sourceTree = "<group>"; };
 		DF93D6671444A8B0007C6459 /* FileCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileCache.cpp; sourceTree = "<group>"; };
@@ -8369,6 +8380,12 @@
 				E38E175F0D25F9FA00618676 /* VideoDatabaseDirectory */,
 				F5A7B42B113CBB950059D6AA /* AddonsDirectory.cpp */,
 				F5A7B42A113CBB950059D6AA /* AddonsDirectory.h */,
+				DF24A6B01406C7C500C7721E /* AFPDirectory.cpp */,
+				DF24A6B11406C7C500C7721E /* AFPDirectory.h */,
+				DF93D6631444A8B0007C6459 /* AFPFile.cpp */,
+				DF93D6641444A8B0007C6459 /* AFPFile.h */,
+				88ACB0190DCF40800083CFDF /* ASAPFileDirectory.cpp */,
+				88ACB01A0DCF40800083CFDF /* ASAPFileDirectory.h */,
 				F5ED8D6A1551F91400842059 /* BlurayDirectory.cpp */,
 				F5ED8D6B1551F91400842059 /* BlurayDirectory.h */,
 				B5101B5719DFF8DD00294D1E /* BlurayFile.cpp */,
@@ -10468,6 +10485,7 @@
 				DF34898213FDAAF60026A711 /* HttpParser.cpp in Sources */,
 				18968DC814155D7C005BA742 /* ApplicationOperations.cpp in Sources */,
 				DF0E4AD41AD5986F00A75430 /* GUIDialogPVRRadioRDSInfo.cpp in Sources */,
+				DF24A6B41406C7C500C7721E /* AFPDirectory.cpp in Sources */,
 				DF448457140048A60069344B /* AirTunesServer.cpp in Sources */,
 				DF44845E140048C80069344B /* PipesManager.cpp in Sources */,
 				DF98D98C1434F47D00A6EBE1 /* SkinVariable.cpp in Sources */,
@@ -10504,6 +10522,7 @@
 				DFCA6ACA152245CD000BFAAE /* HTTPWebinterfaceHandler.cpp in Sources */,
 				42E2E1C91B53F74D005C7E4E /* VideoLibraryRefreshingJob.cpp in Sources */,
 				DFCA6ACB152245CD000BFAAE /* IHTTPRequestHandler.cpp in Sources */,
+				DF93D6991444A8B1007C6459 /* AFPFile.cpp in Sources */,
 				DF93D69A1444A8B1007C6459 /* DirectoryCache.cpp in Sources */,
 				DF93D69B1444A8B1007C6459 /* FileCache.cpp in Sources */,
 				68AE5BE31C92421800C4D527 /* AddonInputHandling.cpp in Sources */,
@@ -10933,6 +10952,8 @@
 				DFD7173B1C09FEC60025D964 /* OSXGNUReplacements.c in Sources */,
 				B179BD6E1AD8EA7B00EA8D49 /* InputCodingTableBasePY.cpp in Sources */,
 				B179BD711AD8EA7B00EA8D49 /* InputCodingTableFactory.cpp in Sources */,
+				DFF0F1E717528350002DA3A4 /* AFPDirectory.cpp in Sources */,
+				DFF0F1E817528350002DA3A4 /* AFPFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -11180,6 +11201,9 @@
 				E499124F174E5D8F00741B6D /* AddonsDirectory.cpp in Sources */,
 				7CE3FB911C9D40EA00366A4C /* ServiceBroker.cpp in Sources */,
 				68AE5C2E1C9243A000C4D527 /* Controller.cpp in Sources */,
+				E4991250174E5D8F00741B6D /* AFPDirectory.cpp in Sources */,
+				E4991251174E5D8F00741B6D /* AFPFile.cpp in Sources */,
+				E4991252174E5D8F00741B6D /* ASAPFileDirectory.cpp in Sources */,
 				E4991253174E5D8F00741B6D /* BlurayDirectory.cpp in Sources */,
 				E4991254174E5D8F00741B6D /* CacheStrategy.cpp in Sources */,
 				E4991255174E5D8F00741B6D /* CDDADirectory.cpp in Sources */,

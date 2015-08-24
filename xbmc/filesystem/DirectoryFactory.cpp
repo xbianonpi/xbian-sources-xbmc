@@ -91,6 +91,9 @@
 #ifdef HAS_FILESYSTEM_NFS
 #include "NFSDirectory.h"
 #endif
+#ifdef HAS_FILESYSTEM_AFP
+#include "AFPDirectory.h"
+#endif
 #ifdef HAVE_LIBBLURAY
 #include "BlurayDirectory.h"
 #endif
@@ -196,6 +199,9 @@ IDirectory* CDirectoryFactory::Create(const CURL& url)
 #endif
 #ifdef HAS_FILESYSTEM_NFS
     if (url.IsProtocol("nfs")) return new CNFSDirectory();
+#endif
+#ifdef HAS_FILESYSTEM_AFP
+      if (url.IsProtocol("afp")) return new CAFPDirectory();
 #endif
   }
 
