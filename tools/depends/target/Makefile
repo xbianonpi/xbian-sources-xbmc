@@ -10,7 +10,7 @@ DEPENDS = \
 	openssl gmp nettle gnutls curl \
 	libjpeg-turbo libpng fribidi libass \
 	libxml2 yajl libmicrohttpd mysql libffi \
-	python27 libshairplay \
+	python27 afpfs-ng libshairplay \
 	libplist libcec libbluray tinyxml dummy-libxbmc \
 	libamplayer libssh taglib libusb libnfs \
 	pythonmodule-pil pythonmodule-setuptools \
@@ -86,6 +86,7 @@ libass: fontconfig libpng freetype2 expat $(ICONV)
 libmicrohttpd: gnutls libgcrypt libgpg-error
 python27: expat gettext libxml2 sqlite3 openssl libffi
 libcdio: $(ICONV)
+afpfs-ng: libgcrypt $(ICONV)
 libplist: libxml2 $(ZLIB)
 libbluray: $(ICONV) libxml2
 libssh: libgcrypt openssl $(ZLIB)
