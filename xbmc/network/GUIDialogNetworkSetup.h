@@ -36,7 +36,8 @@ public:
                       NET_PROTOCOL_UPNP,
                       NET_PROTOCOL_RSS,
                       NET_PROTOCOL_SFTP,
-                      NET_PROTOCOL_NFS};
+                      NET_PROTOCOL_NFS, 
+                      NET_PROTOCOL_AFP};
   CGUIDialogNetworkSetup(void);
   virtual ~CGUIDialogNetworkSetup(void);
   virtual bool OnMessage(CGUIMessage& message);
