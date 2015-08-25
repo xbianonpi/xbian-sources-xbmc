@@ -3501,7 +3501,9 @@ bool CDVDPlayer::OpenVideoStream(CDVDStreamInfo& hint, bool reset)
       hint.aspect = aspect;
       hint.forced_aspect = true;
     }
+#if !defined(TARGET_RASPBERRY_PI) && !defined(HAS_IMXVPU)
     hint.software = true;
+#endif
   }
   else if (m_pInputStream && m_pInputStream->IsStreamType(DVDSTREAM_TYPE_PVRMANAGER))
   {
