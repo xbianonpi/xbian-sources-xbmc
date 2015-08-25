@@ -1906,14 +1906,6 @@ void CApplication::SetCecStandby(bool status)
     return;
 
   SetRenderGUI(!status);
-  if (!status)
-  {
-    if (IsInScreenSaver())
-      WakeUpScreenSaverAndDPMS();
-  }
-  else
-    if (!IsInScreenSaver())
-      ActivateScreenSaver();
 }
 
 void CApplication::Render()
