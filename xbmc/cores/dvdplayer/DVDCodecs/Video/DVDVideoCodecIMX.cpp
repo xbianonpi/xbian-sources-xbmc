@@ -1405,6 +1405,7 @@ bool CIMXContext::AdaptScreen()
 
   m_fbWidth = fbVar.xres;
   m_fbHeight = fbVar.yres;
+  m_fbInterlaced = fbVar.vmode & FB_VMODE_INTERLACED;
 
   if (!GetFBInfo(m_deviceName, &m_fbVar))
     goto Err;
@@ -1424,6 +1425,11 @@ bool CIMXContext::AdaptScreen()
   m_fbVar.activate = FB_ACTIVATE_NOW;
   m_fbVar.xres = m_fbWidth;
   m_fbVar.yres = m_fbHeight;
+
+  if (m_fbInterlaced)
+    m_fbVar.vmode |= FB_VMODE_INTERLACED;
+  else
+    m_fbVar.vmode &= ~FB_VMODE_INTERLACED;
 
   m_fbVar.yres_virtual = (m_fbVar.yres + 1) * m_fbPages;
   m_fbVar.xres_virtual = m_fbVar.xres;
@@ -1564,7 +1570,7 @@ void CIMXContext::SetFieldData(uint8_t fieldFmt)
     return;
 
   // disable deinterlacing when not rendering fullscreen
-  if (!g_graphicsContext.IsFullScreenVideo())
+  if (m_fbInterlaced | !g_graphicsContext.IsFullScreenVideo())
     fieldFmt = 0;
 
   bool deint = !!m_currentFieldFmt;
