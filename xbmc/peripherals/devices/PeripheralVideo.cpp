@@ -25,6 +25,7 @@
 #include "dialogs/GUIDialogKaiToast.h"
 #include "guilib/LocalizeStrings.h"
 #include "ApplicationMessenger.h"
+#include "Application.h"
 
 using namespace PERIPHERALS;
 
@@ -45,12 +46,14 @@ void CPeripheralVideo::OnDeviceChanged(int state)
 
   switch (m_cableState) {
     case CABLE_CONNECTED:
+      g_application.SetCecStandby(false);
       if (m_timer.IsRunning())
         m_timer.Restart();
       else
         m_timer.Start(5000);
       break;
     case CABLE_DISCONNECTED:
+      g_application.SetCecStandby(true);
       m_timer.Stop();
     default:
       ;
