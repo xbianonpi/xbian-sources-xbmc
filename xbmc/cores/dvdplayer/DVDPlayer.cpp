@@ -3420,7 +3420,7 @@ bool CDVDPlayer::OpenVideoStream(CDVDStreamInfo& hint, bool reset)
       hint.aspect = aspect;
       hint.forced_aspect = true;
     }
-#ifndef TARGET_RASPBERRY_PI
+#if !defined(TARGET_RASPBERRY_PI) && !defined(HAS_IMXVPU)
     hint.software = true;
 #endif
   }
