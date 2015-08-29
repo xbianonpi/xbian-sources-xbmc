@@ -188,7 +188,11 @@ void CDVDPlayerAudio::OpenStream( CDVDStreamInfo &hints, CDVDAudioCodec* codec )
   m_synctype = SYNC_DISCON;
   m_setsynctype = SYNC_DISCON;
   if (CSettings::Get().GetBool("videoplayer.usedisplayasclock"))
+#if defined(TARGET_RASPBERRY_PI)
     m_setsynctype = CSettings::Get().GetInt("videoplayer.synctype");
+#else
+    m_setsynctype = SYNC_RESAMPLE;
+#endif
   m_prevsynctype = -1;
 
   m_error = 0;
@@ -489,11 +493,15 @@ void CDVDPlayerAudio::UpdatePlayerInfo()
   //print the inverse of the resample ratio, since that makes more sense
   //if the resample ratio is 0.5, then we're playing twice as fast
   if (m_synctype == SYNC_RESAMPLE)
+#if !defined(TARGET_RASPBERRY_PI)
+    s << ", rr:" << fixed << setprecision(5) << 1.0 / m_resampleratio;
+#else
     s << ", rr:" << fixed << setprecision(5) << 1.0 / m_resampleratio << ", err:" << fixed << setprecision(1) << m_last_error * 1e-3 << "ms";
   if (m_synctype == SYNC_SKIPDUP)
     s << ", err:" << fixed << setprecision(1) << m_last_error * 1e-3 << "ms";
   if (m_synctype == SYNC_PLLADJUST)
     s << ", pll:" << fixed << setprecision(5) << m_last_plladjust << ", err:" << fixed << setprecision(1) << m_last_error * 1e-3 << "ms";
+#endif
 
   s << ", att:" << fixed << setprecision(1) << log(GetCurrentAttenuation()) * 20.0f << " dB";
 
@@ -759,19 +767,21 @@ void CDVDPlayerAudio::HandleSyncError(double duration)
       proportional = m_error / DVD_TIME_BASE / proportionaldiv;
     }
     m_resampleratio = 1.0 / m_pClock->GetClockSpeed() + proportional + m_integral;
+#if !defined(TARGET_RASPBERRY_PI)
+  }
+#else
     CLog::Log(LOGDEBUG, "CDVDPlayerAudio::%s rr:%.5f error:%.3fms", __FUNCTION__, m_resampleratio, m_error * 1e-3);
   }
   else if (m_synctype == SYNC_PLLADJUST)
   {
-#if defined(TARGET_RASPBERRY_PI)
     double e = std::max(std::min(m_error / DVD_MSEC_TO_TIME(50), 1.0), -1.0);
     double adjust = g_advancedSettings.m_maxPllAdjust * 1e-6;
     m_plladjust = 1.0 + e * adjust;
     m_last_plladjust = g_RBP.AdjustHDMIClock(m_plladjust);
     CLog::Log(LOGDEBUG, "CDVDPlayerAudio::%s pll:%.5f (%.5f) error:%.6f e:%.6f a:%f", __FUNCTION__, m_plladjust, m_last_plladjust, m_error, e * adjust, adjust );
-#endif
   }
   m_last_error = m_error;
+#endif
 }
 
 bool CDVDPlayerAudio::OutputPacket(DVDAudioFrame &audioframe)

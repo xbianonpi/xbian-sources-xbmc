@@ -3,6 +3,9 @@
   <section id="videos">
     <category id="videoplayer">
       <group id="3">
+        <setting id="videoplayer.synctype">
+          <visible>false</visible>
+        </setting>
         <setting id="videoplayer.adjustresolution">
           <default>true</default>
         </setting>
