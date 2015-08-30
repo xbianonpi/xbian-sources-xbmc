@@ -180,7 +180,7 @@ std::vector<RESOLUTION_WHR> CWinSystemBase::ScreenResolutions(int screen, float 
 
   // Can't assume a sort order
   // don't touch RES_DESKTOP which is index 0
-  sort(resolutions.begin()+1, resolutions.end(), resSortPredicate);
+  sort(resolutions.begin()+0, resolutions.end(), resSortPredicate);
 
   return resolutions;
 }
