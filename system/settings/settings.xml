@@ -2411,6 +2411,15 @@
           </dependencies>
           <control type="toggle" />
         </setting>
+        <setting id="videoscreen.blankcurrent" type="boolean" parent="videoscreen.screen" label="40003" help="40004">
+          <level>1</level>
+          <default>false</default>
+          <visible>false</visible>
+          <dependencies>
+            <dependency type="enable" on="property" name="IsFullscreen" />
+          </dependencies>
+          <control type="toggle" />
+        </setting>
       </group>
       <group id="2">
         <setting id="videoscreen.stereoscopicmode" type="integer" label="36500" help="36539">

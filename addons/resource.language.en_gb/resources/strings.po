@@ -18159,3 +18159,16 @@ msgstr ""
 msgctxt "#40002"
 msgid "Detect hotplug events"
 msgstr ""
+
+#. Label of setting "System -> Video output -> Blank framebuffer"
+#: system/settings/settings.xml
+msgctxt "#40003"
+msgid "Intelligently power off/on GPU to save power"
+msgstr ""
+
+#. Description of setting "System -> Video output -> Blank framebuffer"
+#: system/settings/settings.xml
+msgctxt "#40004"
+msgid "Kodi will powerdown the GPU (when not in use), thus provide significant powersavings. TV being powered OFF, Kodi no longer active source (CEC) or start of BlackScreensaver will trigger this action (HDMI Audio will be powered down too)"
+msgstr ""
+

@@ -295,6 +295,7 @@ CApplication::CApplication(void)
   m_skinReverting = false;
   m_cecStandby = false;
   m_ourVT = -1;
+  m_selfBlanked = false;
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -769,7 +770,7 @@ bool CApplication::CreateGUI(bool showXBMCSplash)
   // Initialize core peripheral port support. Note: If these parameters
   // are 0 and NULL, respectively, then the default number and types of
   // controllers will be initialized.
-  CDisplaySettings::Get().SetCurrentResolution((RESOLUTION)CSettings::Get().GetInt("videoscreen.resolution"));
+  CDisplaySettings::GetInstance().SetCurrentResolution((RESOLUTION)CSettings::GetInstance().GetInt("videoscreen.resolution"));
   if (!g_Windowing.InitWindowSystem())
   {
     CLog::Log(LOGFATAL, "CApplication::Create: Unable to init windowing system");
@@ -1915,10 +1916,22 @@ void CApplication::SetCecStandby(bool status)
   CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
 
   m_cecStandby = status;
-  if (g_application.m_bStop)
+  if (g_application.m_bStop || !g_windowManager.Initialized())
     return;
 
   SetRenderGUI(!status);
+#ifdef HAS_IMXVPU
+  if (status && CSettings::GetInstance().GetBool("videoscreen.blankcurrent"))
+  {
+    m_selfBlanked = true;
+    g_Windowing.Hide();
+  }
+  else if (!status && m_selfBlanked)
+  {
+    m_selfBlanked = false;
+    g_Windowing.Show();
+  }
+#endif
 }
 
 void CApplication::Render()
@@ -4038,6 +4051,9 @@ bool CApplication::WakeUpScreenSaverAndDPMS(bool bPowerOffKeyPressed /* = false 
     CVariant data(CVariant::VariantTypeObject);
     data["shuttingdown"] = bPowerOffKeyPressed;
     CAnnouncementManager::GetInstance().Announce(GUI, "xbmc", "OnScreensaverDeactivated", data);
+
+    if (m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
+      SetCecStandby(false);
 #ifdef TARGET_ANDROID
     // Screensaver deactivated -> acquire wake lock
     CXBMCApp::EnableWakeLock(true);
@@ -4184,6 +4200,8 @@ void CApplication::ActivateScreenSaver(bool forceType /*= false */)
         m_screenSaver.reset(new CScreenSaver(""));
     }
   }
+  if (m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
+    SetCecStandby(true);
   if (m_screenSaver->ID() == "screensaver.xbmc.builtin.dim"
       || m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
   {
