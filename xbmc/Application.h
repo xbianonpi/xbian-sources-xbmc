@@ -415,6 +415,7 @@ protected:
 
   bool m_loggingIn;
   bool m_cecStandby;
+  bool m_selfBlanked;
 
   int m_ourVT;
   void checkVTchange();
