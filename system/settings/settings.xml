@@ -2096,6 +2096,15 @@
           </constraints>
           <control type="spinner" format="string" />
         </setting>
+        <setting id="videoscreen.blankcurrent" type="boolean" parent="videoscreen.screen" label="40003" help="40004">
+          <level>1</level>
+          <default>false</default>
+          <visible>false</visible>
+          <dependencies>
+            <dependency type="enable" on="property" name="IsFullscreen" />
+          </dependencies>
+          <control type="toggle" />
+        </setting>
         <setting id="videoscreen.limitedrange" type="boolean" label="36042" help="36359">
           <requirement>
             <or>
