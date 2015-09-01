@@ -7,6 +7,12 @@
 <!--    3/4/5/6: extra                                                                        -->
 
 <keymap>
+  <Home>
+    <mouse>
+      <wheeldown>wheeldown</wheeldown>
+      <wheelup>wheelup</wheelup>
+    </mouse>
+  </Home>
   <global>
     <mouse>
       <leftclick>leftclick</leftclick>
@@ -15,8 +21,8 @@
       <doubleclick id="0">doubleclick</doubleclick>
       <longclick id="0">contextmenu</longclick>
 
-      <wheeldown>wheeldown</wheeldown>
-      <wheelup>wheelup</wheelup>
+      <wheeldown>down</wheeldown>
+      <wheelup>up</wheelup>
       <mousedrag>mousedrag</mousedrag>
       <mousemove>mousemove</mousemove>
     </mouse>
