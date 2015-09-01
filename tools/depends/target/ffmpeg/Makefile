@@ -1,6 +1,12 @@
 include FFMPEG-VERSION
+
+PLATFORM = ffmpeg-$(VERSION)
+RETRIEVE_TOOL = curl
+TARBALLS_LOCATION = $(shell pwd)
+ARCHIVE_TOOL = tar
+ARCHIVE_TOOL_FLAGS = --strip-components=1 -xf
+
 DEPS= ../../Makefile.include FFMPEG-VERSION Makefile ffmpeg_Speed_up_wtv_index_creation.patch \
-  0001-avcodec-add-libdcadec-decoder.patch  0002-avcodec-Fix-libdcadec-include-dir.patch 0003-avcodec-add-profile-define-for-DTS-Express.patch \
   0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 
 # set to "yes" to enable patching
@@ -19,8 +25,8 @@ ffmpg_config += --enable-muxer=spdif --enable-muxer=adts
 ffmpg_config += --enable-muxer=asf --enable-muxer=ipod
 ffmpg_config += --enable-encoder=ac3 --enable-encoder=aac
 ffmpg_config += --enable-encoder=wmav2 --enable-protocol=http
+ffmpg_config += --pkg-config=/usr/bin/pkg-config
 ffmpg_config += --enable-gnutls
-ffmpg_config += --enable-libdcadec
 
 ifeq ($(CROSS_COMPILING), yes)
   ffmpg_config += --arch=$(CPU) --enable-cross-compile
@@ -45,9 +51,8 @@ ifeq ($(OS), ios)
 endif
 ifeq ($(OS), osx)
   ffmpg_config += --disable-outdev=sdl
-  ffmpg_config += --disable-decoder=mpeg_xvmc --enable-vda --disable-crystalhd --disable-videotoolbox
+  ffmpg_config += --disable-decoder=mpeg_xvmc --enable-vda --disable-crystalhd
   ffmpg_config += --target-os=darwin
-  ffmpg_config += --disable-securetransport
 endif
 ifeq ($(findstring arm, $(CPU)), arm)
   ffmpg_config += --enable-pic --disable-armv5te --disable-armv6t2
@@ -58,7 +63,7 @@ endif
 ifeq ($(Configuration), Release)
   ffmpg_config += --disable-debug
 endif
-
+ffmpg_config += --enable-libdcadec
 
 ffmpg_config += $(CONFFLAGS)
 
@@ -73,6 +78,10 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
+	cd $(PLATFORM); patch -p1 < ../ffmpeg_Speed_up_wtv_index_creation.patch
+	cd $(PLATFORM); patch -p1 < ../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
+	##cd $(PLATFORM); patch -p1 < ../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
+	##cd $(PLATFORM); patch -p1 < ../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
 	cd $(PLATFORM);\
 	CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	./configure $(ffmpg_config)

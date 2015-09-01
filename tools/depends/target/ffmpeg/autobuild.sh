@@ -72,6 +72,7 @@ do
       ;;
     --arch=*)
       FLAGS="$FLAGS --arch=${1#*=}"
+      ARCH=${1#*=}
       shift
       ;;
     --extra-cflags=*)
@@ -100,7 +101,8 @@ do
   esac
 done
 
-FLAGS="$FLAGS --target-os=linux"
+[ -n ${ARCH} ] || ARCH=$(dpkg-architecture -qDEB_BUILD_GNU_CPU)
+[ ${ARCH} = $(dpkg-architecture -qDEB_BUILD_GNU_CPU) ] || FLAGS="$FLAGS --enable-cross-compile"
 
 BUILDTHREADS=${BUILDTHREADS:-$(grep -c "^processor" /proc/cpuinfo)}
 [ ${BUILDTHREADS} -eq 0 ] && BUILDTHREADS=1
@@ -112,7 +114,7 @@ then
   [ "$VERSION" == "$CURVER" ] && exit 0
 fi
 
-CFLAG="$CFLAGS" CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" PLATFORM=ffmpeg-${VERSION} CONFFLAGS=${FLAGS} PREFIX=${FFMPEG_PREFIX} make -j ${BUILDTHREADS}
+CFLAG="$CFLAGS" CPPFLAGS="$CFLAGS" ARCH=$ARCH CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" PLATFORM=ffmpeg-${VERSION} CONFFLAGS=${FLAGS} PREFIX=${FFMPEG_PREFIX} make -j ${BUILDTHREADS}
 exit $?
 
 [ -f ${ARCHIVE} ] || curl -Ls --create-dirs -f -o ${ARCHIVE} ${BASE_URL}/${VERSION}.tar.gz
