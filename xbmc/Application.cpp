@@ -1913,6 +1913,8 @@ void CApplication::SetCecStandby(bool status)
   if (status == m_cecStandby)
     return;
 
+  static bool m_restartClock;
+
   CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
 
   m_cecStandby = status;
@@ -1924,12 +1926,22 @@ void CApplication::SetCecStandby(bool status)
   if (status && CSettings::GetInstance().GetBool("videoscreen.blankcurrent"))
   {
     m_selfBlanked = true;
+    if (g_VideoReferenceClock.IsRunning())
+    {
+      m_restartClock = true;
+      g_VideoReferenceClock.Stop();
+    }
     g_Windowing.Hide();
   }
   else if (!status && m_selfBlanked)
   {
     m_selfBlanked = false;
     g_Windowing.Show();
+    if (m_restartClock)
+    {
+      m_restartClock = false;
+      g_VideoReferenceClock.Start();
+    }
   }
 #endif
 }
