@@ -784,10 +784,7 @@ void CPeripheralCecAdapter::PushCecKeypress(const CecButtonPress &key)
   CLog::Log(LOGDEBUG, "%s - received key %2x duration %d", __FUNCTION__, key.iButton, key.iDuration);
 
   CSingleLock lock(m_critSection);
-  // avoid the queue getting too long
-  if (m_configuration.iButtonRepeatRateMs && m_buttonQueue.size() > 5)
-    return;
-  if (m_configuration.iButtonRepeatRateMs == 0 && key.iDuration > 0)
+  if (key.iDuration > 0)
   {
     if (m_currentButton.iButton == key.iButton && m_currentButton.iDuration == 0)
     {
