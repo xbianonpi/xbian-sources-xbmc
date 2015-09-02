@@ -1449,7 +1449,6 @@ bool CIMXContext::AdaptScreen()
 
   Unblank();
 
-  m_bFbIsConfigured = true;
   return true;
 
 Err:
