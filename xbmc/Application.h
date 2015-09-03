@@ -387,8 +387,6 @@ public:
   void UnregisterActionListener(IActionListener *listener);
 
   bool ScreenSaverDisablesAutoScrolling();
-  void SetCecStandby(bool status);
-  bool GetCecStandby() { return m_cecStandby; }
   void ChangeVT(int newVT);
 
 protected:
@@ -414,8 +412,6 @@ protected:
   bool m_skinReverting;
 
   bool m_loggingIn;
-  bool m_cecStandby;
-  bool m_selfBlanked;
 
   int m_ourVT;
   void checkVTchange();
