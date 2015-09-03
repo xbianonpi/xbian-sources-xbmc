@@ -232,6 +232,7 @@
 #include "utils/CharsetConverter.h"
 #include "pictures/GUIWindowSlideShow.h"
 #include "windows/GUIWindowLoginScreen.h"
+#include "utils/Screen.h"
 
 using namespace ADDON;
 using namespace XFILE;
@@ -301,9 +302,7 @@ CApplication::CApplication(void)
   , m_ProcessedExternalCalls(0)
 {
   TiXmlBase::SetCondenseWhiteSpace(false);
-  m_cecStandby = false;
   m_ourVT = -1;
-  m_selfBlanked = false;
 
 #ifdef HAS_GLX
   XInitThreads();
@@ -341,7 +340,7 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
       if (!g_application.m_bStop)
       {
         CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
-        g_application.SetCecStandby(false);
+        g_screen.SetOn();
       }
       break;
     case XBMC_VIDEORESIZE:
@@ -1912,44 +1911,6 @@ float CApplication::GetDimScreenSaverLevel() const
   return 100.0f;
 }
 
-void CApplication::SetCecStandby(bool status)
-{
-  if (status == m_cecStandby)
-    return;
-
-  static bool m_restartClock;
-
-  CLog::Log(LOGDEBUG, "%s is %x, se %d, sa %d", __FUNCTION__, (int)status, m_screenSaver ? 1:0, m_bScreenSave);
-
-  m_cecStandby = status;
-  if (g_application.m_bStop || !g_windowManager.Initialized())
-    return;
-
-  SetRenderGUI(!status);
-#ifdef HAS_IMXVPU
-  if (status && CSettings::GetInstance().GetBool("videoscreen.blankcurrent"))
-  {
-    m_selfBlanked = true;
-    if (g_VideoReferenceClock.IsRunning())
-    {
-      m_restartClock = true;
-      g_VideoReferenceClock.Stop();
-    }
-    g_Windowing.Hide();
-  }
-  else if (!status && m_selfBlanked)
-  {
-    m_selfBlanked = false;
-    g_Windowing.Show();
-    if (m_restartClock)
-    {
-      m_restartClock = false;
-      g_VideoReferenceClock.Start();
-    }
-  }
-#endif
-}
-
 void CApplication::Render()
 {
   // do not render if we are stopped or in background
@@ -2012,7 +1973,7 @@ void CApplication::Render()
     g_infoManager.UpdateFPS();
   }
 
-  hasRendered &= !m_cecStandby;
+  hasRendered &= !g_screen.GetScreenState();
   g_graphicsContext.Flip(hasRendered, m_pPlayer->IsRenderingVideoLayer());
 
   CTimeUtils::UpdateFrameTime(hasRendered);
@@ -2539,6 +2500,11 @@ void CApplication::OnApplicationMessage(ThreadMessage* pMsg)
     SetRenderGUI(false);
     break;
 #endif
+
+  case TMSG_DISPLAY_RECONFIGURE:
+    g_Windowing.UpdateResolutions();
+    g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
+    break;
 
   case TMSG_SETAUDIODSPSTATE:
     if(pMsg->param1 == ACTIVE_AE_DSP_STATE_ON)
@@ -4007,7 +3973,7 @@ bool CApplication::WakeUpScreenSaverAndDPMS(bool bPowerOffKeyPressed /* = false 
     CAnnouncementManager::GetInstance().Announce(GUI, "xbmc", "OnScreensaverDeactivated", data);
 
     if (m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
-      SetCecStandby(false);
+      g_screen.SetOn();
 #ifdef TARGET_ANDROID
     // Screensaver deactivated -> acquire wake lock
     CXBMCApp::EnableWakeLock(true);
@@ -4154,8 +4120,6 @@ void CApplication::ActivateScreenSaver(bool forceType /*= false */)
         m_screenSaver.reset(new CScreenSaver(""));
     }
   }
-  if (m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
-    SetCecStandby(true);
   if (m_screenSaver->ID() == "screensaver.xbmc.builtin.dim"
       || m_screenSaver->ID() == "screensaver.xbmc.builtin.black")
   {
