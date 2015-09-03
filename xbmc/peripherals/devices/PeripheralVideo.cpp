@@ -58,6 +58,26 @@ void CPeripheralVideo::OnDeviceChanged(int state)
     m_timer.Start(5000);
 }
 
+bool CPeripheralVideo::IsQuantRangeLimited()
+{
+#ifdef HAS_IMXVPU
+  std::string value;
+  std::string from = "/sys/devices/soc0/soc/20e0000.hdmi_video/rgb_quant_range";
+
+  std::ifstream file(from);
+  if (!file.is_open())
+  {
+    from = "/sys/devices/soc0/soc.1/20e0000.hdmi_video/rgb_quant_range";
+  }
+  file.close();
+
+  SysfsUtils::GetString(from, value);
+  if (value.find("limited") != std::string::npos)
+    return true;
+#endif
+  return false;
+}
+
 void CPeripheralVideo::OnSettingChanged(const std::string &strChangedSetting)
 {
   bool configSet = false;
@@ -77,6 +97,7 @@ void CPeripheralVideo::OnTimeout()
     case CABLE_CONNECTED:
       g_screen.SetOn();
 
+      CSettings::Get().SetBool("videoscreen.limitedrange", IsQuantRangeLimited());
       if (CSettings::Get().GetBool("videoscreen.updateresolutions"))
       {
         CApplicationMessenger::Get().SetupDisplayReconfigure();
