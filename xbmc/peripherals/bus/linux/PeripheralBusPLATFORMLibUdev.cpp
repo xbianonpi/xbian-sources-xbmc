@@ -110,9 +110,9 @@ int CPeripheralBusPLATFORM::GetCableState(const std::string &strLocation)
     if (udev_device_get_sysattr_value(dev, f->c_str()))
       t = udev_device_get_sysattr_value(dev, f->c_str());
 
-    if (!t.empty() && (t.find("connected") != std::string::npos || t.find("plugout") != std::string::npos))
+    if (!t.empty() && (t.find("disconnected") != std::string::npos || t.find("plugout") != std::string::npos))
       state = CABLE_DISCONNECTED;
-    if (!t.empty() && (t.find("disconnected") != std::string::npos || t.find("plugin") != std::string::npos))
+    if (!t.empty() && (t.find("connected") != std::string::npos || t.find("plugin") != std::string::npos))
       state = CABLE_CONNECTED;
 
     if (state)
