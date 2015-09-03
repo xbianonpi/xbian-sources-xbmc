@@ -32,6 +32,7 @@
 #include "devices/PeripheralNIC.h"
 #include "devices/PeripheralNyxboard.h"
 #include "devices/PeripheralTuner.h"
+#include "devices/PeripheralVideo.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "dialogs/GUIDialogPeripheralSettings.h"
 #include "dialogs/GUIDialogSelect.h"

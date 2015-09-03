@@ -20,14 +20,18 @@
 
 #include "PeripheralVideo.h"
 #include "utils/log.h"
+#include "utils/Screen.h"
 #include "guilib/GraphicContext.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "guilib/LocalizeStrings.h"
-#include "ApplicationMessenger.h"
-#include "Application.h"
 #include "settings/Settings.h"
+#include "xbmc/utils/SysfsUtils.h"
+#include "messaging/ApplicationMessenger.h"
+#include "Application.h"
+#include <fstream>
 
 using namespace PERIPHERALS;
+using namespace KODI::MESSAGING;
 
 CPeripheralVideo::CPeripheralVideo(const PeripheralScanResult& scanResult)
   : CPeripheral(scanResult)
@@ -68,9 +72,10 @@ bool CPeripheralVideo::InitialiseFeature(const PeripheralFeature feature)
 
 void CPeripheralVideo::OnTimeout()
 {
-  switch (m_cableState) {
+  switch (m_cableState)
+  {
     case CABLE_CONNECTED:
-      g_application.SetCecStandby(false);
+      g_screen.SetOn();
 
       if (CSettings::Get().GetBool("videoscreen.updateresolutions"))
       {
@@ -80,7 +85,7 @@ void CPeripheralVideo::OnTimeout()
 
       break;
     case CABLE_DISCONNECTED:
-      g_application.SetCecStandby(true);
+      g_screen.SetOff();
 
     default:
       ;

@@ -52,6 +52,7 @@ SRCS += RssReader.cpp
 SRCS += SaveFileStateJob.cpp
 SRCS += ScraperParser.cpp
 SRCS += ScraperUrl.cpp
+SRCS += Screen.cpp
 SRCS += Screenshot.cpp
 SRCS += SeekHandler.cpp
 SRCS += SortUtils.cpp
