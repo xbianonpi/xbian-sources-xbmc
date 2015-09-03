@@ -37,6 +37,8 @@ namespace PERIPHERALS
     void OnSettingChanged(const std::string &strChangedSetting);
     bool InitialiseFeature(const PeripheralFeature feature);
 
+    bool IsQuantRangeLimited();
+
   protected:
     int                           m_cableState;
     CTimer                        m_timer;
