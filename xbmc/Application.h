@@ -408,8 +408,6 @@ public:
   void UnlockFrameMoveGuard();
 
   bool ScreenSaverDisablesAutoScrolling();
-  void SetCecStandby(bool status);
-  bool GetCecStandby() { return m_cecStandby; }
   void ChangeVT(int newVT);
 
 protected:
@@ -436,9 +434,6 @@ protected:
 
   bool m_saveSkinOnUnloading;
   bool m_autoExecScriptExecuted;
-
-  bool m_cecStandby;
-  bool m_selfBlanked;
 
   int m_ourVT;
   void checkVTchange();
