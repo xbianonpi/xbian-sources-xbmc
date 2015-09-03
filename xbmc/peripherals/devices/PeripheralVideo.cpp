@@ -50,6 +50,8 @@ void CPeripheralVideo::OnDeviceChanged(int state)
   if (!GetSettingBool("pass_events"))
     return;
 
+  CLog::Log(LOGDEBUG, "%s - state %s over %s, timer %s", __FUNCTION__, stateToStr(state), stateToStr(m_cableState), !m_timer.IsRunning() ? "will be started" : "is already running");
+
   m_cableState = state;
 
   if (m_timer.IsRunning())
