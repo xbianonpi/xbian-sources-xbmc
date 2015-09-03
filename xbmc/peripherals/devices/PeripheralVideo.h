@@ -39,6 +39,19 @@ namespace PERIPHERALS
 
     bool IsQuantRangeLimited();
 
+    static const char *stateToStr(const int state)
+    {
+      switch (state)
+      {
+      case CABLE_CONNECTED:
+        return "connected";
+      case CABLE_DISCONNECTED:
+        return "disconnected";
+      default:
+        return "unknown";
+      }
+    }
+
   protected:
     int                           m_cableState;
     CTimer                        m_timer;
