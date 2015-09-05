@@ -287,7 +287,9 @@ bool CWinSystemEGL::CreateNewWindow(const std::string& name, bool fullScreen, RE
     m_stereo_mode == stereo_mode)
   {
     CLog::Log(LOGDEBUG, "CWinSystemEGL::CreateNewWindow: No need to create a new window");
+#if !defined(TARGET_RASPBERRY_PI)
     return true;
+#endif
   }
 
   int delay = CSettings::GetInstance().GetInt("videoscreen.delayrefreshchange");
