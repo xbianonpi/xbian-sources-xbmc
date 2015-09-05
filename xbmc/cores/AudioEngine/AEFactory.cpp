@@ -77,6 +77,18 @@ bool CAEFactory::StartEngine()
   return false;
 }
 
+void CAEFactory::Enter()
+{
+  if(AE)
+    AE->Enter();
+}
+
+void CAEFactory::Leave()
+{
+  if(AE)
+    AE->Leave();
+}
+
 bool CAEFactory::Suspend()
 {
   if(AE)

@@ -210,6 +210,9 @@ public:
   virtual bool   IsSuspended();
   virtual void   OnSettingsChange(const std::string& setting);
 
+  virtual void   Enter() { m_lock.lock(); };
+  virtual void   Leave() { m_lock.unlock(); };
+
   virtual float GetVolume();
   virtual void  SetVolume(const float volume);
   virtual void  SetMute(const bool enabled);
@@ -295,6 +298,7 @@ protected:
 
   bool CompareFormat(AEAudioFormat &lhs, AEAudioFormat &rhs);
 
+  CCriticalSection m_lock;
   CEvent m_inMsgEvent;
   CEvent m_outMsgEvent;
   CActiveAEControlProtocol m_controlPort;

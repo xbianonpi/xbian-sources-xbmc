@@ -19,6 +19,7 @@
  *
  */
 
+#include "threads/CriticalSection.h"
 #include <vector>
 
 #include "Interfaces/AE.h"
@@ -73,6 +74,9 @@ public:
 
   static void RegisterAudioCallback(IAudioCallback* pCallback);
   static void UnregisterAudioCallback();
+
+  static void Enter();
+  static void Leave();
 
 private:
   static IAE *AE;

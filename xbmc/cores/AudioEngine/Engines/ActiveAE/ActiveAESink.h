@@ -26,6 +26,7 @@
 #include "cores/AudioEngine/Interfaces/AESink.h"
 #include "cores/AudioEngine/AESinkFactory.h"
 #include "cores/AudioEngine/Engines/ActiveAE/ActiveAEBuffer.h"
+#include "threads/SingleLock.h"
 
 namespace ActiveAE
 {
@@ -143,6 +144,8 @@ protected:
   CEngineStats *m_stats;
   float m_volume;
   int m_sinkLatency;
+
+  CCriticalSection m_lock;
 };
 
 }

@@ -250,5 +250,8 @@ public:
    * Instruct AE to re-initialize, e.g. after ELD change event
    */
   virtual void DeviceChange() {return; }
+
+  virtual void Enter() {}
+  virtual void Leave() {}
 };
 

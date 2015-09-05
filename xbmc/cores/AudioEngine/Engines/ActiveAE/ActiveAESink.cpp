@@ -25,6 +25,7 @@
 #include "utils/EndianSwap.h"
 #include "ActiveAE.h"
 #include "cores/AudioEngine/AEResampleFactory.h"
+#include "cores/AudioEngine/AEFactory.h"
 
 #include "settings/Settings.h"
 #include "utils/log.h"
@@ -698,6 +699,8 @@ void CActiveAESink::OpenSink()
   if (!driver.empty())
     device = driver + ":" + device;
 
+  CAEFactory::Enter();
+
   // WARNING: this changes format and does not use passthrough
   m_sinkFormat = m_requestedFormat;
   CLog::Log(LOGDEBUG, "CActiveAESink::OpenSink - trying to open device %s", device.c_str());
@@ -725,6 +728,8 @@ void CActiveAESink::OpenSink()
     CLog::Log(LOGDEBUG, "CActiveAESink::OpenSink - open NULL sink");
     m_sink = CAESinkFactory::Create(device, m_sinkFormat, passthrough);
   }
+
+  CAEFactory::Leave();
 
   if (!m_sink)
   {
