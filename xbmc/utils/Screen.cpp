@@ -26,6 +26,9 @@
 #include "utils/Screen.h"
 #include "windowing/WindowingFactory.h"
 #include "threads/SingleLock.h"
+#ifdef HAS_IMXVPU
+#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
 
 using namespace ANNOUNCEMENT;
 
@@ -67,6 +70,9 @@ void CScreen::ScreenPowerOff(bool doBlank)
 
 #ifdef HAS_IMXVPU
   m_changedBlank = true;
+  // calling CIMXContext::Blank() tells CodecIMX
+  // fb1 is not ready
+  g_IMXContext.Blank();
   g_Windowing.Hide();
 #endif
 }
@@ -79,6 +85,7 @@ void CScreen::ScreenPowerOn(bool doBlank)
 #ifdef HAS_IMXVPU
   m_changedBlank = false;
   g_Windowing.Show();
+  g_IMXContext.Unblank();
 #endif
 }
 
