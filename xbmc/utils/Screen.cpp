@@ -29,6 +29,7 @@
 #ifdef HAS_IMXVPU
 #include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
 #endif
+#include "cores/AudioEngine/AEFactory.h"
 
 using namespace ANNOUNCEMENT;
 
@@ -70,6 +71,7 @@ void CScreen::ScreenPowerOff(bool doBlank)
 
 #ifdef HAS_IMXVPU
   m_changedBlank = true;
+  CAEFactory::Suspend();
   // calling CIMXContext::Blank() tells CodecIMX
   // fb1 is not ready
   g_IMXContext.Blank();
@@ -86,6 +88,7 @@ void CScreen::ScreenPowerOn(bool doBlank)
   m_changedBlank = false;
   g_Windowing.Show();
   g_IMXContext.Unblank();
+  CAEFactory::Resume();
 #endif
 }
 
