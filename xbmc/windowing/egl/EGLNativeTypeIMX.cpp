@@ -179,6 +179,7 @@ void CEGLNativeTypeIMX::Destroy()
   close(fd);
 
   SetNativeResolution(m_init);
+  ShowWindow(true);
 
   system("/usr/bin/splash --force -i -m 'stopping kodi...'");
 #endif
