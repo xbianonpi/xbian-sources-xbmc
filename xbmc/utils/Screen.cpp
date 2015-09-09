@@ -84,13 +84,14 @@ void CScreen::ScreenPowerOn(bool doBlank)
 
 void CScreen::SetState(bool state, bool doBlank)
 {
-  CSingleLock lock(m_critSection);
   if (g_application.m_bStop)
   {
     g_application.SetRenderGUI(true);
     return;
   }
-  else if (state == m_state)
+
+  CSingleLock lock(m_critSection);
+  if (state == m_state)
     return;
 
   CLog::Log(LOGDEBUG, "%s - set standby %d, screensaver is %s", __FUNCTION__, (int)state, g_application.IsInScreenSaver() ? "active" : "inactive");
