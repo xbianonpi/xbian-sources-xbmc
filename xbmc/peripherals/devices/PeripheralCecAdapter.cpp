@@ -1634,10 +1634,10 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
 
   // request the OSD name of the TV
   cec_osd_name tvName = m_adapter->m_cecAdapter->GetDeviceOSDName(CECDEVICE_TV);
-  strNotification = StringUtils::Format("%s: %s", g_localizeStrings.Get(36016).c_str(), tvName.name);
+  strNotification = StringUtils::Format("%s: %s", /*g_localizeStrings.Get(36016).c_str()*/"Connected", tvName.name);
 
   // and let the gui know that we're done
-  CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000), strNotification);
+  CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, /*g_localizeStrings.Get(36000)*/"Pulse-Eight CEC adapter", strNotification);
 
   CSingleLock lock(m_critSection);
   m_adapter->m_bIsReady = true;
