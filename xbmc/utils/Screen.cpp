@@ -28,6 +28,8 @@
 #include "threads/SingleLock.h"
 #ifdef HAS_IMXVPU
 #include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#elif defined(TARGET_RASPBERRY_PI)
+#include "linux/RBP.h"
 #endif
 #include "cores/AudioEngine/AEFactory.h"
 
@@ -56,12 +58,10 @@ void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *me
     g_screen.SetOn();
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && CSettings::Get().GetString("screensaver.mode") == "screensaver.xbmc.builtin.black")
     g_screen.SetOff();
-#ifdef HAS_IMXVPU
   else if (flag == Player && !strcmp(sender, "xbmc") && !strcmp(message, "OnPlay"))
     g_VideoReferenceClock.Start();
   else if (flag == Player && !strcmp(sender, "xbmc") && !strcmp(message, "OnPause"))
     g_VideoReferenceClock.Stop();
-#endif
 }
 
 void CScreen::ScreenPowerOff(bool doBlank)
@@ -69,8 +69,10 @@ void CScreen::ScreenPowerOff(bool doBlank)
   if (!doBlank || !CSettings::Get().GetBool("videoscreen.blankcurrent"))
     return;
 
-#ifdef HAS_IMXVPU
   m_changedBlank = true;
+#if defined(TARGET_RASPBERRY_PI)
+  g_RBP.SuspendVideoOutput();
+#elif HAS_IMXVPU
   CAEFactory::Suspend();
   // calling CIMXContext::Blank() tells CodecIMX
   // fb1 is not ready
@@ -84,8 +86,10 @@ void CScreen::ScreenPowerOn(bool doBlank)
   if (!doBlank || !m_changedBlank)
     return;
 
-#ifdef HAS_IMXVPU
   m_changedBlank = false;
+#if defined(TARGET_RASPBERRY_PI)
+  g_RBP.ResumeVideoOutput();
+#elif HAS_IMXVPU
   g_Windowing.Show();
   g_IMXContext.Unblank();
   CAEFactory::Resume();
@@ -128,6 +132,10 @@ void CScreen::SetState(bool state, bool doBlank)
     ;
   }
 
+  // SetRenderGui(false) doesn't need to be timed (delayed)
+  // It was just try to let ScreenSaver kick in (rewrite screen - black for instance)
+  // before we stop render. But somehow has not the expected effect (perhaps the actual
+  // delay between event <> saver launch is longer.
   if (!state)
     OnTimeout();
   else if (m_timer.IsRunning())
