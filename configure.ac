@@ -701,12 +701,10 @@ case $use_platform in
      use_hardcoded_tables="yes"
      CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      use_cpu=cortex-a9
      use_x11=no
      use_neon=yes
      ARCH=arm
-     use_arch="arm"
      ;;
   raspberry-pi2)
      target_platform=target_raspberry_pi
@@ -727,6 +725,7 @@ if test "$target_platform" = "target_raspberry_pi" ; then
      USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
+     ARCH=arm
 fi
 
 if test "$host_vendor" = "apple"; then
@@ -1644,7 +1643,7 @@ if test "${USE_STATIC_FFMPEG}" = "1"; then
       FFMPEG_OPTS="${FFMPEG_OPTS} --disable-optimizations"
     fi
 
-    FFMPEG_OPTS="${FFMPEG_OPTS} --disable-libxcb --cpu=${use_cpu} --arch=${use_arch}"
+    FFMPEG_OPTS="${FFMPEG_OPTS} --cpu=${use_cpu} --arch=${use_arch}"
 
     if test "$with_ffmpeg" = "auto" || test "$with_ffmpeg" = "yes"; then
       SAVE_INCLUDES="$INCLUDES"
