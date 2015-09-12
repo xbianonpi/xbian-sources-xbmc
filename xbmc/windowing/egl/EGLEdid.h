@@ -20,11 +20,14 @@
  *
  */
 
+#include "threads/CriticalSection.h"
+#include "threads/SingleLock.h"
 #include <string>
 
 #define EDID_STRUCT_DISPLAY             0x14
 #define EDID_DTM_START                  0x36
 #define EDID_DTM_OFFSET_DIMENSION       0x0c
+#define EDID_EXTENSION_BLOCK_START      0x7e
 #define EDID_MAXSIZE                    512
 
 class CEGLEdid
@@ -39,14 +42,24 @@ public:
   CEGLEdid();
   virtual ~CEGLEdid();
 
-  virtual void ReadEdidData() = 0;
+  bool    ReadEdidData();
+  const uint8_t *GetRawEdid() { Lock(); if (m_edidEmpty) CalcSAR(); return m_edidEmpty ? NULL : &m_edid[0]; }
 
-  float   GetSAR() const { return m_fSar; }
+  float   GetSAR() const { CSingleLock lk(m_lock); return m_fSar; }
   void    CalcSAR();
+
+  void Lock() { m_lock.lock(); }
+  void Unlock() { m_lock.unlock(); }
+
+  uint8_t      m_edid[EDID_MAXSIZE];
 
 protected:
   float   ValidateSAR(struct dt_dim *dtm, bool mb = false);
 
   float        m_fSar;
-  uint8_t      m_edid[EDID_MAXSIZE];
+  bool         m_edidEmpty;
+
+  CCriticalSection m_lock;
 };
+
+extern CEGLEdid g_EGLEdid;
