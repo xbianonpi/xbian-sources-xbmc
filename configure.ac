@@ -771,7 +771,6 @@ case $use_platform in
      use_hardcoded_tables="yes"
      CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      use_cpu=cortex-a9
      use_x11=no
      use_neon=yes
@@ -892,13 +891,11 @@ elif test "$target_platform" = "target_raspberry_pi" && test "$extrarpiflags" = 
   use_arch="arm"
   CFLAGS="$CFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
   CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
 elif test "$target_platform" = "target_raspberry_pi" && test "$extrarpiflags" = "rpi2"; then
   ARCH="arm"
   use_arch="arm"
-  CFLAGS="$CFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
-  CXXFLAGS="$CXXFLAGS -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
-  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O4 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+  CFLAGS="$CFLAGS -pipe -O3 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
+  CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=cortex-a7 -mtune=cortex-a7 -mfloat-abi=hard -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations -mfpu=neon -mvectorize-with-neon-quad -mthumb-interwork "
 elif test "$use_arch" = "arm"; then
   CFLAGS="$CFLAGS -mno-apcs-stack-check"
   CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
