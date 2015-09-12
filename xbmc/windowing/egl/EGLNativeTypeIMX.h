@@ -27,9 +27,8 @@
 
 #include <EGL/egl.h>
 #include "EGLNativeType.h"
-#include "EGLEdid.h"
 
-class CEGLNativeTypeIMX : public CEGLNativeType, private CEGLEdid
+class CEGLNativeTypeIMX : public CEGLNativeType
 {
 public:
   CEGLNativeTypeIMX();
@@ -54,7 +53,6 @@ public:
   virtual bool  GetPreferredResolution(RESOLUTION_INFO *res) const;
 
   virtual bool  ShowWindow(bool show = true);
-  virtual void  ReadEdidData();
 
 #ifdef HAS_IMXVPU
 protected:
