@@ -725,7 +725,6 @@ case $use_platform in
      use_hardcoded_tables="yes"
      CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -march=armv7-a -mtune=cortex-a9 -mcpu=cortex-a9 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      use_cpu=cortex-a9
      use_x11=no
      use_neon=yes
