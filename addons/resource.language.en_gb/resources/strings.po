@@ -18172,3 +18172,15 @@ msgctxt "#40004"
 msgid "Kodi will powerdown the GPU (when not in use), thus provide significant powersavings. TV being powered OFF, Kodi no longer active source (CEC) or start of BlackScreensaver will trigger this action (HDMI Audio will be powered down too)"
 msgstr ""
 
+#. Label of setting "System -> Network -> Restart services"
+#: system/settings/settings.xml
+msgctxt "#40005"
+msgid "Restart services on network change"
+msgstr ""
+
+#. Description of setting "System -> Network -> Restart services"
+#: system/settings/settings.xml
+msgctxt "#40006"
+msgid "If physical network parameters change (add/remove of network card or interface), automatically restart all Kodi services (sevices will re-read network settings and use new network parameters)"
+msgstr ""
+

@@ -2881,6 +2881,13 @@
           </control>
         </setting>
       </group>
+      <group id="3">
+        <setting id="network.restartservices" type="boolean" label="40005" help="40006">
+          <level>3</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
     <category id="powermanagement" label="14095" help="36387">
       <group id="1">
