@@ -22,6 +22,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#include "settings/Settings.h"
 #include "Network.h"
 #include "ApplicationMessenger.h"
 #include "network/NetworkServices.h"
@@ -422,8 +423,11 @@ void CNetwork::NetworkMessage(EMESSAGE message, int param)
       m_signalNetworkChange.Set();
       CLog::Log(LOGDEBUG, "%s - Network setup changed. Will restart network services",__FUNCTION__);
       ANNOUNCEMENT::CAnnouncementManager::Get().Announce(ANNOUNCEMENT::Network, "network", "OnInterfacesChange");
-      NetworkMessage(SERVICES_DOWN, 0);
-      NetworkMessage(SERVICES_UP, 0);
+      if (CSettings::Get().GetBool("network.restartservices"))
+      {
+        NetworkMessage(SERVICES_DOWN, 0);
+        NetworkMessage(SERVICES_UP, 0);
+      }
       break;
   }
 }
