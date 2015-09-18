@@ -17,6 +17,7 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
+#undef _DEBUG
 
 #include "log.h"
 #include "system.h"
