@@ -1099,11 +1099,6 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   pDvdVideoPicture->iFlags = 0;
 
   pDvdVideoPicture->iFlags = DVP_FLAG_ALLOCATED;
-  if (m_dropState)
-  {
-    pDvdVideoPicture->iFlags |= DVP_FLAG_DROPPED;
-    m_dropState = false;
-  }
 
   if (m_initInfo.nInterlace)
   {
@@ -1128,6 +1123,14 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   // Current buffer is locked already -> hot potato
   pDvdVideoPicture->pts = m_currentBuffer->GetPts();
   pDvdVideoPicture->dts = m_currentBuffer->GetDts();
+
+  if (m_dropState)
+  {
+    pDvdVideoPicture->iFlags |= DVP_FLAG_DROPPED;
+    SAFE_RELEASE(m_currentBuffer);
+    m_dropState = false;
+    return true;
+  }
 
   pDvdVideoPicture->IMXBuffer = m_currentBuffer;
   m_currentBuffer = NULL;
