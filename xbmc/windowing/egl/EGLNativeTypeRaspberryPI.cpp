@@ -207,6 +207,10 @@ bool CEGLNativeTypeRaspberryPI::DestroyNativeWindow()
 #endif  
 }
 
+#if defined(TARGET_RASPBERRY_PI)
+static float get_display_aspect_ratio(SDTV_ASPECT_T aspect);
+#endif
+
 bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
 {
 #if defined(TARGET_RASPBERRY_PI)
@@ -294,16 +298,10 @@ int CEGLNativeTypeRaspberryPI::FindMatchingResolution(const RESOLUTION_INFO &res
 int CEGLNativeTypeRaspberryPI::AddUniqueResolution(RESOLUTION_INFO &res, std::vector<RESOLUTION_INFO> &resolutions, bool desktop /* = false */)
 {
   SetResolutionString(res);
-  int i = FindMatchingResolution(res, resolutions, desktop);
-  if (i>=0)
-  {  // don't replace a progressive resolution with an interlaced one of same resolution
-    if (!(res.dwFlags & D3DPRESENTFLAG_INTERLACED))
-      resolutions[i] = res;
-  }
-  else
-  {
-     resolutions.push_back(res);
-  }
+  int i = FindMatchingResolution(res, resolutions);
+  if (i == -1)
+    resolutions.push_back(res);
+
   return i;
 }
 #endif
@@ -565,27 +563,10 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
 
   g_EGLEdid.CalcSAR();
 
-  /* read initial desktop resolution before probe resolutions.
-   * probing will replace the desktop resolution when it finds the same one.
-   * we raplace it because probing will generate more detailed 
-   * resolution flags we don't get with vc_tv_get_state.
-   */
-
-  if(m_initDesktopRes)
-  {
-    m_initDesktopRes = !GetNativeResolution(&m_desktopRes);
-    SetResolutionString(m_desktopRes);
-    CLog::Log(LOGDEBUG, "EGL initial desktop resolution %s (%.2f)\n", m_desktopRes.strMode.c_str(), m_desktopRes.fPixelRatio);
-  }
-
   if(GETFLAGS_GROUP(m_desktopRes.dwFlags) && GETFLAGS_MODE(m_desktopRes.dwFlags))
   {
-    GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
     GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
-  }
-  {
-    AddUniqueResolution(m_desktopRes, resolutions, true);
-    CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
+    GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
   }
 
   DLOG("CEGLNativeTypeRaspberryPI::ProbeResolutions\n");
