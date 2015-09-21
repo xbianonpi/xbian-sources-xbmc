@@ -18184,6 +18184,32 @@ msgctxt "#40006"
 msgid "If physical network parameters change (add/remove of network card or interface), automatically restart all Kodi services (sevices will re-read network settings and use new network parameters)"
 msgstr ""
 
+msgctxt "#40007"
+msgid "480p"
+msgstr ""
+
+msgctxt "#40008"
+msgid "576p"
+msgstr ""
+
+msgctxt "#40009"
+msgid "720p"
+msgstr ""
+
+msgctxt "#40010"
+msgid "900"
+msgstr ""
+
+msgctxt "#40011"
+msgid "1080p"
+msgstr ""
+
+#. Label of setting "Settings -> Videos -> Minimum horizontal resolution"
+#: system/settings/settings.xml
+msgctxt "#40012"
+msgid "Only modes having higher horizontal resolution"
+msgstr ""
+
 #. Label of setting "Settings -> Videos -> Allow non-CEA"
 #: system/settings/settings.xml
 msgctxt "#40013"

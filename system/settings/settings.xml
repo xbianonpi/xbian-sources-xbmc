@@ -612,6 +612,24 @@
           </dependencies>
           <control type="toggle" />
         </setting>
+        <setting id="videoplayer.minimumhorizontal" type="integer" parent="videoplayer.adjustresolution" label="40012">
+          <level>2</level>
+          <default>720</default>
+          <visible>true</visible>
+          <dependencies>
+            <dependency type="enable" setting="videoplayer.adjustresolution" operator="is">true</dependency>
+          </dependencies>
+          <constraints>
+            <options>
+              <option label="40007">480</option>
+              <option label="40008">576</option>
+              <option label="40009">720</option>
+              <option label="40010">896</option>
+              <option label="40011">1080</option>
+            </options>
+          </constraints>
+          <control type="list" format="string" />
+        </setting>
         <setting id="videoplayer.usedisplayasclock" type="boolean" label="13510" help="36166">
           <level>2</level>
           <default>false</default>
