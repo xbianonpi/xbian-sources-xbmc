@@ -28,6 +28,8 @@
 
 #include "Application.h"
 
+#include "windowing/egl/vc_hdmi.h"
+
 RESOLUTION_INFO::RESOLUTION_INFO(int width, int height, float aspect, const std::string &mode) :
   strMode(mode)
 {
@@ -221,6 +223,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||    info.iScreenHeight != height
         ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
@@ -238,6 +241,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
         ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
         ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
         || (!CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced") && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
+        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||   width > info.iScreenWidth || height > info.iScreenHeight
         ||   pow(info.iScreenWidth*info.iScreenHeight - width*height, 2) > last_diff)
           continue;
@@ -259,6 +263,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
       if (width > info.iScreenWidth || height > info.iScreenHeight
       ||  pow(info.iScreenWidth*info.iScreenHeight - width*height, 2) > last_diff
       ||  info.iScreen != curr.iScreen
+      || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
       ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
