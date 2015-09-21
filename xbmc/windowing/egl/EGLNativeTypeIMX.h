@@ -23,6 +23,7 @@
 
 #include <EGL/egl.h>
 #include "EGLNativeType.h"
+#include "windowing/egl/vc_hdmi.h"
 
 class CEGLNativeTypeIMX : public CEGLNativeType
 {
