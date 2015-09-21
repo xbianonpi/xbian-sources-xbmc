@@ -594,6 +594,15 @@
           </dependencies>
           <control type="toggle" />
         </setting>
+        <setting id="videoplayer.adjustallownoncea" type="boolean" parent="videoplayer.adjustresolution" label="40013">
+          <level>2</level>
+          <default>false</default>
+          <visible>true</visible>
+          <dependencies>
+            <dependency type="enable" setting="videoplayer.adjustresolution" operator="is">true</dependency>
+          </dependencies>
+          <control type="toggle" />
+        </setting>
         <setting id="videoplayer.adjustresolutioninterlaced" type="boolean" parent="videoplayer.adjustresolution" label="13559" help="36219">
           <level>2</level>
           <default>false</default>

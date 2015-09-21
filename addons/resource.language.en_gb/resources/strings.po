@@ -18184,3 +18184,8 @@ msgctxt "#40006"
 msgid "If physical network parameters change (add/remove of network card or interface), automatically restart all Kodi services (sevices will re-read network settings and use new network parameters)"
 msgstr ""
 
+#. Label of setting "Settings -> Videos -> Allow non-CEA"
+#: system/settings/settings.xml
+msgctxt "#40013"
+msgid "Allow changing to non-CEA modes"
+msgstr ""

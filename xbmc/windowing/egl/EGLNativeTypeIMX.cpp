@@ -466,7 +466,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   std::string fromMode = StringUtils::Mid(mode, 2);
   StringUtils::Trim(fromMode);
 
-  res->dwFlags = 0;
+  res->dwFlags = MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0);
   res->fPixelRatio = 1.0f;
 
   if (StringUtils::StartsWith(mode, "H:")) {
@@ -475,6 +475,8 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   } else if (StringUtils::StartsWith(mode, "T:")) {
     res->dwFlags |= D3DPRESENTFLAG_MODE3DTB;
     res->fPixelRatio = 0.5f;
+  } else if (StringUtils::StartsWith(mode, "U:") || StringUtils::StartsWith(mode, "V:")) {
+    res->dwFlags &= ~(MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0));
   } else if (StringUtils::StartsWith(mode, "F:")) {
     return false;
   }

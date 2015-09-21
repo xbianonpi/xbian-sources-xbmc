@@ -41,6 +41,8 @@
 #endif
 #include "Application.h"
 
+#include "windowing/egl/vc_hdmi.h"
+
 CBaseRenderer::CBaseRenderer()
 {
   m_sourceFrameRatio = 1.0f;
@@ -253,6 +255,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||    info.iScreenHeight != m_sourceHeight
         ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
@@ -270,6 +273,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
         ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
         || (!CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced") && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
+        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||   m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
         ||   pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff)
           continue;
@@ -291,6 +295,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
       ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff
       ||  info.iScreen != curr.iScreen
+      || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
       ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
@@ -304,7 +309,6 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       last_diff = pow(curr.iScreenWidth*curr.iScreenHeight - m_sourceWidth*m_sourceHeight, 2);
     }
   }
->>>>>>> adjust resolution on play.
 
   last_diff = fRefreshRate;
 
