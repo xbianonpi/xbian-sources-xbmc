@@ -110,8 +110,7 @@ public:
   bool GetPageInfo(CIMXBuffer *info, int page);
 
   // Blitter configuration
-  void SetFieldData(uint8_t fieldFmt);
-  bool DoubleRate() const;
+  bool IsDoubleRate() const { return m_currentFieldFmt & IPU_DEINTERLACE_RATE_EN; }
 
   void SetBlitRects(const CRect &srcRect, const CRect &dstRect);
 
@@ -119,13 +118,13 @@ public:
   // source_p (previous buffer) is required for de-interlacing
   // modes LOW_MOTION and MED_MOTION.
   bool Blit(int targetPage, CIMXBuffer *source_p,
-            CIMXBuffer *source);
+            CIMXBuffer *source, uint8_t fieldFmt = 0);
 
   // Same as blit but runs in another thread and returns after the task has
   // been queued. BlitAsync renders always to the current backbuffer and
   // swaps the pages.
   bool BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source,
-                 CRect *dest = NULL);
+                 uint8_t fieldFmt = 0, CRect *dest = NULL);
 
   // Shows a page vsynced
   bool ShowPage(int page);
@@ -174,6 +173,8 @@ private:
   void PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *source,
                    CRect *dest = NULL);
   bool DoTask(IPUTask &ipu, int targetPage);
+
+  void SetFieldData(uint8_t fieldFmt);
 
   void Dispose();
   void MemMap(struct fb_fix_screeninfo *fb_fix = NULL);

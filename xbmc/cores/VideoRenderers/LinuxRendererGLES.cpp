@@ -667,8 +667,7 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
           fieldFmt |= IPU_DEINTERLACE_RATE_FRAME1;
       }
 
-      g_IMXContext.SetFieldData(fieldFmt);
-      g_IMXContext.BlitAsync(NULL, buffer);
+      g_IMXContext.BlitAsync(NULL, buffer, fieldFmt);
     }
 
 #if 0

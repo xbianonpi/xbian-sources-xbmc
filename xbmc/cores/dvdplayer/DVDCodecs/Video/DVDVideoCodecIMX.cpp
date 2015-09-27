@@ -1096,8 +1096,6 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
 #endif
 
   m_frameCounter++;
-  pDvdVideoPicture->iFlags = 0;
-
   pDvdVideoPicture->iFlags = DVP_FLAG_ALLOCATED;
 
   if (m_initInfo.nInterlace)
@@ -1554,17 +1552,13 @@ bool CIMXContext::SetVSync(bool enable)
   return true;
 }
 
-bool CIMXContext::DoubleRate() const
-{
-  return m_currentFieldFmt & IPU_DEINTERLACE_RATE_EN;
-}
-
 void CIMXContext::SetBlitRects(const CRect &srcRect, const CRect &dstRect)
 {
   m_srcRect = srcRect;
   m_dstRect = dstRect;
 }
 
+inline
 void CIMXContext::SetFieldData(uint8_t fieldFmt)
 {
   if (m_bStop || !IsRunning())
@@ -1588,20 +1582,23 @@ void CIMXContext::SetFieldData(uint8_t fieldFmt)
   AdaptScreen();
 }
 
-bool CIMXContext::Blit(int page, CIMXBuffer *source_p, CIMXBuffer *source)
+bool CIMXContext::Blit(int page, CIMXBuffer *source_p, CIMXBuffer *source, uint8_t fieldFmt)
 {
   if (page < 0 || page >= m_fbPages)
     return false;
 
   IPUTask ipu;
+
+  SetFieldData(fieldFmt);
   PrepareTask(ipu, source_p, source);
   return DoTask(ipu, page);
 }
 
-bool CIMXContext::BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source, CRect *dest)
+bool CIMXContext::BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source, uint8_t fieldFmt, CRect *dest)
 {
   IPUTask ipu;
 
+  SetFieldData(fieldFmt);
   PrepareTask(ipu, source_p, source, dest);
   return PushTask(ipu);
 }
@@ -1980,7 +1977,7 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
   {
     //We really use IPU only if we have to deinterlace (using VDIC)
     int ret = IPU_CHECK_ERR_INPUT_CROP;
-    while (ret != IPU_CHECK_OK && ret > IPU_CHECK_ERR_MIN)
+    while (ret > IPU_CHECK_ERR_MIN)
     {
         ret = ioctl(m_ipuHandle, IPU_CHECK_TASK, &ipu.task);
         switch (ret)
