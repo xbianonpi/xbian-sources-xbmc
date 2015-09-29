@@ -548,6 +548,7 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
 
   g_EGLEdid.CalcSAR();
 
+  GetNativeResolution(&m_desktopRes);
   if(GETFLAGS_GROUP(m_desktopRes.dwFlags) && GETFLAGS_MODE(m_desktopRes.dwFlags))
   {
     GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
