@@ -469,15 +469,15 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->dwFlags = MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0);
   res->fPixelRatio = 1.0f;
 
-  if (StringUtils::StartsWith(mode, "H:")) {
+  if (StringUtils::StartsWithNoCase(mode, "H:")) {
     res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
     res->fPixelRatio = 2.0f;
-  } else if (StringUtils::StartsWith(mode, "T:")) {
+  } else if (StringUtils::StartsWithNoCase(mode, "T:")) {
     res->dwFlags |= D3DPRESENTFLAG_MODE3DTB;
     res->fPixelRatio = 0.5f;
-  } else if (StringUtils::StartsWith(mode, "U:") || StringUtils::StartsWith(mode, "V:")) {
+  } else if (StringUtils::StartsWithNoCase(mode, "U:") || StringUtils::StartsWithNoCase(mode, "V:")) {
     res->dwFlags &= ~(MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0));
-  } else if (StringUtils::StartsWith(mode, "F:")) {
+  } else if (StringUtils::StartsWithNoCase(mode, "F:")) {
     return false;
   }
 
