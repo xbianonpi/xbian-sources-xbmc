@@ -22,6 +22,7 @@
 #include "EGLEdid.h"
 #include "utils/log.h"
 #include "threads/SingleLock.h"
+#include "settings/DisplaySettings.h"
 
 CEGLEdid g_EGLEdid;
 
@@ -76,8 +77,14 @@ void CEGLEdid::CalcSAR()
   // SAR value wasn't sane
   if (m_fSar == 0)
   {
+    RESOLUTION_INFO res = CDisplaySettings::Get().GetCurrentResolutionInfo();
+
     CLog::Log(LOGWARNING, "%s: Screen SAR - not usable info",__FUNCTION__);
-    m_fSar = 1.0f;
+
+    if (res.iScreenWidth != 0)
+      m_fSar = res.iScreenHeight / res.iScreenWidth;
+    else
+      m_fSar = .0f;
   }
 
   m_edidEmpty = false;

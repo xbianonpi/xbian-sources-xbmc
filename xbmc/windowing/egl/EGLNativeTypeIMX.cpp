@@ -505,7 +505,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->bFullScreen   = true;
   res->iSubtitles    = (int)(0.965 * res->iHeight);
 
-  res->fPixelRatio  *= (float)g_EGLEdid.GetSAR() / res->iScreenWidth * res->iScreenHeight;
+  res->fPixelRatio  *= (g_EGLEdid.GetSAR() ? (float)g_EGLEdid.GetSAR() / res->iScreenWidth * res->iScreenHeight : (float)1.0f);
   res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
                                            StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
                                            res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
