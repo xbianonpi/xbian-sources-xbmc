@@ -23,6 +23,7 @@
 #include "threads/CriticalSection.h"
 #include "threads/SingleLock.h"
 #include <string>
+#include "guilib/GraphicContext.h"
 
 #define EDID_STRUCT_DISPLAY             0x14
 #define EDID_DTM_START                  0x36
