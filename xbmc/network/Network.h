@@ -158,7 +158,7 @@ public:
              - AF_INET - host is configured with IPv4 stack. IPv6 availability unknown, we would need
                to loop over the list.
     */
-   virtual int GetFirstConnectedFamily() { return (GetFirstConnectedInterface()->isIPv4() ? AF_INET : AF_INET6); }
+   virtual int GetFirstConnectedFamily() { return (GetFirstConnectedInterface() && GetFirstConnectedInterface()->isIPv6() ? AF_INET6 : AF_INET); }
 
     /*!
      \brief Return true if there is a interface for the same network as address
