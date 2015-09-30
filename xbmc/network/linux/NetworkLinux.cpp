@@ -135,8 +135,7 @@ bool CNetworkInterfaceLinux::IsConnected()
    if (IsRemoved() || m_interfaceFlags & IFF_LOOPBACK)
      return false;
 
-   int iRunning = ((m_interfaceFlags & IFF_RUNNING ||
-                    m_interfaceFlags & (IFF_UP | IFF_LOWER_UP)));
+   int iRunning = (m_interfaceFlags & (IFF_RUNNING | IFF_LOWER_UP));
 
    // return only interfaces which has ip address
    return iRunning && !m_interfaceAddr.empty();
