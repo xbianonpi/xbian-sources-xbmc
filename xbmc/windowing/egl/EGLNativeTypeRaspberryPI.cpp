@@ -229,7 +229,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenWidth = tv_state.display.hdmi.width;
       res->iScreenHeight= tv_state.display.hdmi.height;
       res->dwFlags      = MAKEFLAGS(tv_state.display.hdmi.group, tv_state.display.hdmi.mode, tv_state.display.hdmi.scan_mode);
-      res->fPixelRatio  = (float)g_EGLEdid.GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+      res->fPixelRatio  = g_EGLEdid.GetSAR() ? (float)g_EGLEdid.GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight) : 1.0f;
       HDMI_PROPERTY_PARAM_T property;
       property.property = HDMI_PROPERTY_PIXEL_CLOCK_TYPE;
       vc_tv_hdmi_get_property(&property);
@@ -686,7 +686,7 @@ void CEGLNativeTypeRaspberryPI::GetSupportedModes(HDMI_RES_GROUP_T group, std::v
       res.iHeight       = tv->height;
       res.iScreenWidth  = tv->width;
       res.iScreenHeight = tv->height;
-      res.fPixelRatio   = (float)g_EGLEdid.GetSAR() / ((float)res.iScreenWidth / (float)res.iScreenHeight);
+      res.fPixelRatio   = g_EGLEdid.GetSAR() ? (float)g_EGLEdid.GetSAR() / ((float)res.iScreenWidth / (float)res.iScreenHeight) : 1.0f;
       res.iSubtitles    = (int)(0.965 * res.iHeight);
 
       if (!m_desktopRes.dwFlags && prefer_group == group && prefer_mode == tv->code)
