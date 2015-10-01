@@ -440,6 +440,7 @@ void CNetworkLinux::queryInterfaceList()
      if (iface)
      {
        iface->SetRemoved(false);
+       iface->m_interfaceFlags = cur->ifa_flags;
        continue;
      }
 
