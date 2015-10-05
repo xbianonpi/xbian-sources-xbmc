@@ -257,7 +257,7 @@ CPoint CGraphicContext::StereoCorrection(const CPoint &point) const
   {
     const RESOLUTION_INFO info = GetResInfo();
 
-    if (m_stereoView == RenderStereoView::RIGHT)
+    if (m_stereoView == RenderStereoView::LEFT)
       res.y += info.iHeight + info.iBlanking;
   }
   if (m_stereoMode == RenderStereoMode::SPLIT_VERTICAL)
