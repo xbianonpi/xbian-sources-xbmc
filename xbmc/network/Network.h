@@ -21,9 +21,11 @@
 
 #include <string>
 #include <vector>
+#include <forward_list>
 
 #include "system.h"
 #include "threads/Event.h"
+#include "threads/CriticalSection.h"
 
 #include "settings/lib/ISettingCallback.h"
 #include <sys/socket.h>
@@ -124,7 +126,7 @@ public:
    /*!
     \brief  Return the list of interfaces
     */
-   virtual std::vector<CNetworkInterface*>& GetInterfaceList(void) = 0;
+   virtual std::forward_list<CNetworkInterface*>& GetInterfaceList(void) = 0;
 
    /*!
     \brief  Returns interface with specific name
@@ -158,7 +160,7 @@ public:
              - AF_INET - host is configured with IPv4 stack. IPv6 availability unknown, we would need
                to loop over the list.
     */
-   virtual int GetFirstConnectedFamily() { return (GetFirstConnectedInterface() && GetFirstConnectedInterface()->isIPv6() ? AF_INET6 : AF_INET); }
+   int GetFirstConnectedFamily() { return (GetFirstConnectedInterface() && GetFirstConnectedInterface()->isIPv6() ? AF_INET6 : AF_INET); }
 
     /*!
      \brief Return true if there is a interface for the same network as address
@@ -352,6 +354,9 @@ public:
     \brief Return true if given name or ip address corresponds to localhost
     */
    bool IsLocalHost(const std::string& hostname);
+
+protected:
+   CCriticalSection m_lock;
 
 private:
    CEvent  m_signalNetworkChange;

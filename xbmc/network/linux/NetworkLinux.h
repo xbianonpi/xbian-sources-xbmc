@@ -23,9 +23,9 @@
 
 #include <string>
 #include <vector>
+#include <forward_list>
 #include <cstdio>
 #include "network/Network.h"
-#include "threads/CriticalSection.h"
 #include "threads/Thread.h"
 
 class CNetworkLinux;
@@ -97,7 +97,7 @@ public:
    CNetworkLinux(void);
    virtual ~CNetworkLinux(void);
 
-   virtual std::vector<CNetworkInterface*>& GetInterfaceList(void);
+   virtual std::forward_list<CNetworkInterface*>& GetInterfaceList(void);
    virtual CNetworkInterface* GetFirstConnectedInterface(void);        
 
    static bool SupportsIPv6() { return true; }
@@ -120,11 +120,12 @@ private:
    int GetSocket() { return m_sock; }
    void GetMacAddress(struct ifaddrs *tif, char *mac);
    void queryInterfaceList();
-   std::vector<CNetworkInterface*> m_interfaces;
+   std::forward_list<CNetworkInterface*> m_interfaces;
    int m_sock;
 
    CNetworkLinuxUpdateThread      *m_updThread;
-   CCriticalSection                m_lock;
+
+   static bool IsRemoved(CNetworkInterface *i) { if (((CNetworkInterfaceLinux*)i)->IsRemoved()) { delete i; return true; } return false; }
 };
 
 class CNetworkLinuxUpdateThread : public CThread

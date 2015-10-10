@@ -377,16 +377,16 @@ bool CNetwork::HasInterfaceForIP(unsigned long address)
 
 bool CNetwork::IsAvailable(bool wait /*= false*/)
 {
-  std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();
+  std::forward_list<CNetworkInterface*>& ifaces = GetInterfaceList();
 
-  while (!m_bStop && wait && !ifaces.size())
+  while (!m_bStop && wait && ifaces.empty())
   {
     m_signalNetworkChange.WaitMSec(5000);
     ifaces = GetInterfaceList();
     m_signalNetworkChange.Reset();
   }
 
-  return (ifaces.size() != 0);
+  return (!ifaces.empty());
 }
 
 bool CNetwork::IsConnected()

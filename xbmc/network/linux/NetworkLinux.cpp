@@ -338,19 +338,7 @@ CNetworkLinux::~CNetworkLinux(void)
 
 void CNetworkLinux::DeleteRemoved(void)
 {
-  std::vector<CNetworkInterface*>::iterator it = m_interfaces.begin();
-  while(it != m_interfaces.end())
-  {
-    if (!((CNetworkInterfaceLinux*)*it)->IsRemoved())
-    {
-      ++it;
-      continue;
-    }
-
-    CNetworkInterface* nInt = *it;
-    delete nInt;
-    it = m_interfaces.erase(it);
-  }
+  m_interfaces.remove_if(IsRemoved);
 }
 
 void CNetworkLinux::InterfacesClear(void)
@@ -359,7 +347,7 @@ void CNetworkLinux::InterfacesClear(void)
     ((CNetworkInterfaceLinux*)iface)->SetRemoved();
 }
 
-std::vector<CNetworkInterface*>& CNetworkLinux::GetInterfaceList(void)
+std::forward_list<CNetworkInterface*>& CNetworkLinux::GetInterfaceList(void)
 {
    return m_interfaces;
 }
@@ -425,6 +413,16 @@ void CNetworkLinux::queryInterfaceList()
   CSingleLock lock(m_lock);
   InterfacesClear();
 
+  // find last IPv4 record, we will add new interfaces
+  // right after this one (to keep IPv4 in front).
+  auto pos = m_interfaces.before_begin();
+  for (auto &&iface : m_interfaces)
+  {
+    if (iface && iface->isIPv6())
+      break;
+    ++pos;
+  }
+
    struct ifaddrs *cur;
    for(cur = list; cur != NULL; cur = cur->ifa_next)
    {
@@ -447,11 +445,15 @@ void CNetworkLinux::queryInterfaceList()
 
      char macAddrRaw[6] = {0};
      GetMacAddress(cur, macAddrRaw);
-     m_interfaces.push_back(new CNetworkInterfaceLinux(this, (cur->ifa_addr->sa_family == AF_INET6),
-                            cur->ifa_flags, addr, mask, name, macAddrRaw));
+
+     CNetworkInterfaceLinux *i = new CNetworkInterfaceLinux(this, cur->ifa_addr->sa_family == AF_INET6,
+                                                            cur->ifa_flags, addr, mask, name, macAddrRaw);
+
+     m_interfaces.insert_after(pos, i);
+     if (i->isIPv4())
+       pos++;
    }
 
-   DeleteRemoved();
    freeifaddrs(list);
 }
 
@@ -557,6 +559,9 @@ bool CNetworkLinux::PingHostImpl(const std::string &target, unsigned int timeout
 #if defined(TARGET_DARWIN) || defined(TARGET_FREEBSD)
 bool CNetworkInterfaceLinux::GetHostMacAddress(unsigned long host_ip, std::string& mac)
 {
+  if (m_network->GetFirstConnectedFamily() == AF_INET6 || isIPv6())
+    return false;
+
   bool ret = false;
   size_t needed;
   char *buf, *next;
@@ -607,6 +612,9 @@ bool CNetworkInterfaceLinux::GetHostMacAddress(unsigned long host_ip, std::strin
 #else
 bool CNetworkInterfaceLinux::GetHostMacAddress(unsigned long host_ip, std::string& mac)
 {
+  if (m_network->GetFirstConnectedFamily() == AF_INET6 || isIPv6())
+    return false;
+
   struct arpreq areq;
   struct sockaddr_in* sin;
 
@@ -1122,11 +1130,12 @@ void CNetworkLinuxUpdateThread::Process(void)
   addr.nl_family = AF_NETLINK;
   addr.nl_pid = getpid ();
 #if defined(TARGET_LINUX)
-  addr.nl_groups = RTMGRP_LINK; /* | RTMGRP_IPV4_IFADDR | RTMGRP_TC | RTMGRP_IPV4_MROUTE |
+  addr.nl_groups = RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR;
+                /* RTMGRP_IPV4_IFADDR | RTMGRP_TC | RTMGRP_IPV4_MROUTE |
                    RTMGRP_IPV4_ROUTE | RTMGRP_IPV4_RULE |
                    RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_MROUTE |
                    RTMGRP_IPV6_ROUTE | RTMGRP_IPV6_IFINFO |
-                   RTMGRP_IPV6_PREFIX*/
+                   RTMGRP_IPV6_PREFIX */
 #else
   addr.nl_groups = RTMGRP_LINK;
 #endif
