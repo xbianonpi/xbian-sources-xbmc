@@ -315,8 +315,7 @@ void CDVDPlayerVideo::Process()
 
   while (!m_bStop)
   {
-    bool bPictureWaiting = m_hints.stills && (m_pVideoCodec->Decode(NULL, 0, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE) & VC_PICTURE);
-    int iQueueTimeOut = (int)(bPictureWaiting ? 0 : (m_hints.stills || m_stalled) ? frametime / 4 : frametime * 10) / 1000;
+    int iQueueTimeOut = (int)(m_stalled ? frametime / 4 : frametime * 10) / 1000;
     int iPriority = (m_speed == DVD_PLAYSPEED_PAUSE && m_started) ? 1 : 0;
 
     CDVDMsg* pMsg;
@@ -333,36 +332,27 @@ void CDVDPlayerVideo::Process()
       if( iPriority )
         continue;
 
-      // check for picture waiting
-      if (bPictureWaiting)
+      //Okey, start rendering at stream fps now instead, we are likely in a stillframe
+      if( !m_stalled )
       {
-        // create a dummy demuxer packet to prod the decode logic
-        pMsg = new CDVDMsgDemuxerPacket(CDVDDemuxUtils::AllocateDemuxPacket(0), false);
+        if(m_started)
+          CLog::Log(LOGINFO, "CDVDPlayerVideo - Stillframe detected, switching to forced %f fps", m_fFrameRate);
+        m_stalled = true;
+        pts+= frametime*4;
       }
-      else
+
+      //Waiting timed out, output last picture
+      if( picture.iFlags & DVP_FLAG_ALLOCATED )
       {
-        //Okey, start rendering at stream fps now instead, we are likely in a stillframe
-        if( !m_stalled )
-        {
-          if(m_started)
-            CLog::Log(LOGINFO, "CDVDPlayerVideo - Stillframe detected, switching to forced %f fps", m_fFrameRate);
-          m_stalled = true;
-          pts+= frametime*4;
-        }
-
-        //Waiting timed out, output last picture
-        if( picture.iFlags & DVP_FLAG_ALLOCATED )
-        {
-          //Remove interlaced flag before outputting
-          //no need to output this as if it was interlaced
-          picture.iFlags &= ~DVP_FLAG_INTERLACED;
-          picture.iFlags |= DVP_FLAG_NOSKIP;
-          OutputPicture(&picture, pts);
-          pts+= frametime;
-        }
-
-        continue;
+        //Remove interlaced flag before outputting
+        //no need to output this as if it was interlaced
+        picture.iFlags &= ~DVP_FLAG_INTERLACED;
+        picture.iFlags |= DVP_FLAG_NOSKIP;
+        OutputPicture(&picture, pts);
+        pts+= frametime;
       }
+
+      continue;
     }
 
     if (pMsg->IsType(CDVDMsg::GENERAL_SYNCHRONIZE))
