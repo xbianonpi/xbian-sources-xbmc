@@ -119,7 +119,7 @@ private:
 
    int GetSocket() { return m_sock; }
    void GetMacAddress(struct ifaddrs *tif, char *mac);
-   void queryInterfaceList();
+   bool queryInterfaceList();
    std::forward_list<CNetworkInterface*> m_interfaces;
    int m_sock;
 

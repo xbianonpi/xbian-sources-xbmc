@@ -403,15 +403,16 @@ CNetworkInterfaceLinux *CNetworkLinux::Exists(const std::string &addr, const std
   return NULL;
 }
 
-void CNetworkLinux::queryInterfaceList()
+bool CNetworkLinux::queryInterfaceList()
 {
   // Query the list of interfaces.
   struct ifaddrs *list;
   if (getifaddrs(&list) < 0)
-    return;
+    return false;
 
   CSingleLock lock(m_lock);
   InterfacesClear();
+  bool change = false;
 
   // find last IPv4 record, we will add new interfaces
   // right after this one (to keep IPv4 in front).
@@ -452,9 +453,11 @@ void CNetworkLinux::queryInterfaceList()
      m_interfaces.insert_after(pos, i);
      if (i->isIPv4())
        pos++;
+     change = true;
    }
 
    freeifaddrs(list);
+   return change;
 }
 
 std::vector<std::string> CNetworkLinux::GetNameServers(void)
@@ -1151,8 +1154,11 @@ void CNetworkLinuxUpdateThread::Process(void)
       while (!m_bStop && recv(fds, &msg, sizeof(msg), 0) > 0);
       if (m_bStop)
         continue;
+
+      if (!m_owner->queryInterfaceList())
+        continue;
+
       CLog::Log(LOGINFO, "Interfaces change %s", __FUNCTION__);
-      m_owner->queryInterfaceList();
       CApplicationMessenger::Get().NetworkMessage(m_owner->NETWORK_CHANGED, 0);
     }
 }
