@@ -4242,25 +4242,16 @@ void CApplication::checkVTchange()
 #endif
       SetRenderGUI(true);
       g_graphicsContext.SetFullScreenVideo(g_graphicsContext.IsFullScreenVideo());
-      if (bRestartClock)
-      {
-        bRestartClock = false;
-        g_VideoReferenceClock.Start();
-      }
+      g_VideoReferenceClock.Start();
     }
     else
     {
       CLog::Log(LOGDEBUG,"%s : out VT being deactivated", __func__);
       SetRenderGUI(false);
+      g_VideoReferenceClock.Stop();
 #ifdef HAS_IMXVPU
       g_IMXContext.Blank();
 #endif
-      if (g_VideoReferenceClock.IsRunning())
-      {
-        bRestartClock = true;
-        g_VideoReferenceClock.Stop();
-      }
-
       {
         CSingleLock lock(g_graphicsContext);
         g_graphicsContext.Clear(0);
