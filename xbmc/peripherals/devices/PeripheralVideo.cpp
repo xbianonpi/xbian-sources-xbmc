@@ -31,9 +31,10 @@
 
 using namespace PERIPHERALS;
 
+int CPeripheralVideo::m_cableState = 0;
+
 CPeripheralVideo::CPeripheralVideo(const PeripheralScanResult& scanResult)
   : CPeripheral(scanResult)
-  , m_cableState(0)
   , m_timer(this)
 {
   m_features.push_back(FEATURE_CABLESTATE);
