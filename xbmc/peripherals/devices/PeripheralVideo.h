@@ -37,7 +37,7 @@ namespace PERIPHERALS
     void OnSettingChanged(const std::string &strChangedSetting);
     bool InitialiseFeature(const PeripheralFeature feature);
 
-    bool IsQuantRangeLimited();
+    static bool IsQuantRangeLimited();
 
     static const char *stateToStr(const int state)
     {
@@ -52,8 +52,9 @@ namespace PERIPHERALS
       }
     }
 
+  public:
+    static int                    m_cableState;
   protected:
-    int                           m_cableState;
     CTimer                        m_timer;
 
   };
