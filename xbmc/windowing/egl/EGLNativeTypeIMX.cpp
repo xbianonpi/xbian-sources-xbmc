@@ -306,10 +306,11 @@ bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
     return true;
   }
 
+  ShowWindow(false);
+
   DestroyNativeWindow();
   DestroyNativeDisplay();
 
-  ShowWindow(false);
   CLog::Log(LOGDEBUG,": %s - changing resolution to %s", __FUNCTION__, res.strId.c_str());
   SysfsUtils::SetString("/sys/class/graphics/fb0/mode", res.strId + "\n");
 
