@@ -180,8 +180,7 @@ void CEGLNativeTypeIMX::Destroy()
   }
   close(fd);
 
-  SetNativeResolution(m_init);
-  ShowWindow(true);
+  SysfsUtils::SetInt("/sys/class/graphics/fb1/blank", 1);
 
   system("/usr/bin/splash --force -i -m 'stopping kodi...'");
 #endif
