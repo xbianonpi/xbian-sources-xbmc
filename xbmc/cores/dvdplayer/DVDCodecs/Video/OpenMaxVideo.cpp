@@ -90,6 +90,8 @@ do \
   (a).nVersion.s.nRevision = OMX_VERSION_REVISION; \
   (a).nVersion.s.nStep = OMX_VERSION_STEP
 
+#undef OMX_DEBUG_VERBOSE
+
 pthread_mutex_t   m_omx_queue_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 COpenMaxVideo::COpenMaxVideo()
