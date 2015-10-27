@@ -40,6 +40,7 @@
 #define MMAL_DEBUG_VERBOSE
 #endif
 
+#undef MMAL_DEBUG_VERBOSE
 
 CYUVVideoBuffer::CYUVVideoBuffer()
 {
