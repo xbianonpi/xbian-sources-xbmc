@@ -91,7 +91,6 @@ public:
     disabled = false;
     changes = 0;
     flags = FLAG_NONE;
-    orig_type = 0;
   }
 
   virtual ~CDemuxStream()
@@ -127,8 +126,6 @@ public:
   bool disabled; // set when stream is disabled. (when no decoder exists)
 
   int  changes; // increment on change which player may need to know about
-
-  int orig_type; // type of original source
 
   enum EFlags
   { FLAG_NONE             = 0x0000 
