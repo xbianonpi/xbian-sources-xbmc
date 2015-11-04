@@ -64,7 +64,9 @@ void CEGLEdid::CalcSAR()
   // enumerate through (max four) detailed timing info blocks
   // specs and lookup WxH [mm / in]. W and H are in 3 bytes,
   // where 1st = W, 2nd = H, 3rd byte is 4bit/4bit.
-  for (int i = EDID_DTM_START; i < 126 && m_fSar == 0; i += 18)
+  //
+  // if DTM block starts with 0 - it is not DTM, skip
+  for (int i = EDID_DTM_START; i < 126 && m_fSar == 0 && *(m_edid +i); i += 18)
     m_fSar = ValidateSAR((struct dt_dim *)(m_edid +i +EDID_DTM_OFFSET_DIMENSION), true);
 
   // fallback - info related to 'Basic display parameters.' is at offset 0x14-0x18.
