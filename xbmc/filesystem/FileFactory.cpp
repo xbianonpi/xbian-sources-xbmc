@@ -149,7 +149,7 @@ IFile* CFileFactory::CreateLoader(const CURL& url)
 #endif
   else if (url.IsProtocol("resource")) return new CResourceFile();
 
-  bool networkAvailable = g_application.getNetwork().IsAvailable();
+  bool networkAvailable = g_application.getNetwork().IsConnected();
   if (networkAvailable)
   {
     if (url.IsProtocol("ftp")

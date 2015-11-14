@@ -143,7 +143,7 @@ void CRssReader::Process()
 
     // we wait for the network to come up
     if ((url.IsProtocol("http") || url.IsProtocol("https")) &&
-        !g_application.getNetwork().IsAvailable())
+        !g_application.getNetwork().IsConnected())
     {
       CLog::Log(LOGWARNING, "RSS: No network connection");
       strXML = "<rss><item><title>"+g_localizeStrings.Get(15301)+"</title></item></rss>";
