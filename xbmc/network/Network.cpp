@@ -138,7 +138,6 @@ int NetworkAccessPoint::FreqToChannel(float frequency)
 CNetwork::CNetwork() :
   m_bStop(false)
 {
-  CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, SERVICES_UP, 0);
   m_signalNetworkChange.Reset();
 }
 
@@ -378,20 +377,6 @@ bool CNetwork::HasInterfaceForIP(unsigned long address)
   return HasInterfaceForIP(addr);
 }
 
-bool CNetwork::IsAvailable(void)
-{
-  std::forward_list<CNetworkInterface*>& ifaces = GetInterfaceList();
-
-  while (!m_bStop && wait && ifaces.empty())
-  {
-    m_signalNetworkChange.WaitMSec(5000);
-    ifaces = GetInterfaceList();
-    m_signalNetworkChange.Reset();
-  }
-
-  return (!ifaces.empty());
-}
-
 bool CNetwork::IsConnected()
 {
    return GetFirstConnectedInterface() != NULL;
@@ -411,6 +396,12 @@ void CNetwork::NetworkMessage(EMESSAGE message, int param)
   switch( message )
   {
     case SERVICES_UP:
+      if (GetInterfaceList().empty())
+      {
+        CLog::Log(LOGDEBUG, "%s - There is no configured network interface. Not starting network services",__FUNCTION__);
+        break;
+      }
+
       CLog::Log(LOGDEBUG, "%s - Starting network services",__FUNCTION__);
       CNetworkServices::GetInstance().Start();
       break;
