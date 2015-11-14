@@ -1771,7 +1771,7 @@ void CUtil::ScanForExternalSubtitles(const std::string& strMovie, std::vector<st
 
   if (!CMediaSettings::Get().GetAdditionalSubtitleDirectoryChecked() && !CSettings::Get().GetString("subtitles.custompath").empty()) // to avoid checking non-existent directories (network) every time..
   {
-    if (!g_application.getNetwork().IsAvailable() && !URIUtils::IsHD(CSettings::Get().GetString("subtitles.custompath")))
+    if (!g_application.getNetwork().IsConnected() && !URIUtils::IsHD(CSettings::Get().GetString("subtitles.custompath")))
     {
       CLog::Log(LOGINFO,"CUtil::CacheSubtitles: disabling alternate subtitle directory for this session, it's nonaccessible");
       CMediaSettings::Get().SetAdditionalSubtitleDirectoryChecked(-1); // disabled

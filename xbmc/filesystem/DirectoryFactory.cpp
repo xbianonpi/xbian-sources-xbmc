@@ -175,7 +175,7 @@ IDirectory* CDirectoryFactory::Create(const CURL& url)
 #endif
   if (url.IsProtocol("resource")) return new CResourceDirectory();
 
-  bool networkAvailable = g_application.getNetwork().IsAvailable(true); // true to wait for the network (if possible)
+  bool networkAvailable = g_application.getNetwork().IsConnected();
   if (networkAvailable)
   {
     if (url.IsProtocol("ftp") || url.IsProtocol("ftps")) return new CFTPDirectory();

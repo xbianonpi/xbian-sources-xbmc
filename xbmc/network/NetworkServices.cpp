@@ -475,9 +475,6 @@ void CNetworkServices::Stop(bool bWait)
 bool CNetworkServices::StartWebserver()
 {
 #ifdef HAS_WEB_SERVER
-  if (!g_application.getNetwork().IsAvailable())
-    return false;
-
   if (!CSettings::Get().GetBool("services.webserver"))
     return false;
 
@@ -550,7 +547,7 @@ bool CNetworkServices::StopWebserver()
 bool CNetworkServices::StartAirPlayServer()
 {
 #ifdef HAS_AIRPLAY
-  if (!g_application.getNetwork().IsAvailable() || !CSettings::Get().GetBool("services.airplay"))
+  if (!g_application.getNetwork().IsConnected() || !CSettings::Get().GetBool("services.airplay"))
     return false;
 
   if (IsAirPlayServerRunning())
@@ -619,7 +616,7 @@ bool CNetworkServices::StopAirPlayServer(bool bWait)
 bool CNetworkServices::StartAirTunesServer()
 {
 #ifdef HAS_AIRTUNES
-  if (!g_application.getNetwork().IsAvailable() || !CSettings::Get().GetBool("services.airplay"))
+  if (!g_application.getNetwork().IsConnected() || !CSettings::Get().GetBool("services.airplay"))
     return false;
 
   if (IsAirTunesServerRunning())
