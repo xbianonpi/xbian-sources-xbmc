@@ -141,8 +141,10 @@ CNetwork::CNetwork() :
 CNetwork::~CNetwork()
 {
   m_bStop = true;
+  m_updThread->StopThread(false);
   m_signalNetworkChange.Set();
   CApplicationMessenger::Get().NetworkMessage(SERVICES_DOWN, 0);
+  m_updThread->StopThread(true);
 }
 
 std::string CNetwork::GetIpStr(const struct sockaddr *sa)
@@ -741,4 +743,3 @@ int CreateTCPServerSocket(const int port, const bool bindLocal, const int backlo
 
   return sock;
 }
-
