@@ -82,6 +82,7 @@ public:
 
    friend class CNetworkInterfaceWin32;
 
+   bool ForceRereadInterfaces() { queryInterfaceList(); return true; }
 private:
    int GetSocket() { return m_sock; }
    void queryInterfaceList();

@@ -322,8 +322,9 @@ CNetworkLinux::CNetworkLinux(void)
 {
    m_sock = socket(AF_INET, SOCK_DGRAM, 0);
    queryInterfaceList();
-   m_updThread = new CNetworkLinuxUpdateThread(this);
-   m_updThread->Create(false);
+   NetworkMessage(NETWORK_CHANGED, 0);
+   RegisterWatcher(WatcherProcess);
+   CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, CNetwork::SERVICES_UP, 0);
 }
 
 CNetworkLinux::~CNetworkLinux(void)
@@ -331,11 +332,9 @@ CNetworkLinux::~CNetworkLinux(void)
   if (m_sock != -1)
     close(CNetworkLinux::m_sock);
 
-  m_updThread->StopThread(false);
   CSingleLock lock(m_lock);
   InterfacesClear();
   DeleteRemoved();
-  m_updThread->StopThread(true);
 }
 
 void CNetworkLinux::DeleteRemoved(void)
@@ -1125,18 +1124,13 @@ void CNetworkInterfaceLinux::WriteSettings(FILE* fw, NetworkAssignment assignmen
       fprintf(fw, "auto %s\n\n", GetName().c_str());
 }
 
-CNetworkLinuxUpdateThread::CNetworkLinuxUpdateThread(CNetworkLinux *owner)
-  : CThread("NetConfUpdater")
-  , m_owner(owner)
-{
-}
-
-void CNetworkLinuxUpdateThread::Process(void)
+void WatcherProcess()
 {
   struct sockaddr_nl addr;
   int fds = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
   struct pollfd m_fds = { fds, POLLIN, 0 };
   char msg[4096];
+#define stopping ( g_application.getNetwork().m_updThread->Stopping() )
 
   memset (&addr, 0, sizeof(struct sockaddr_nl));
   addr.nl_family = AF_NETLINK;
@@ -1157,17 +1151,17 @@ void CNetworkLinuxUpdateThread::Process(void)
 
   fcntl(fds, F_SETFL, O_NONBLOCK);
 
-  while(!m_bStop)
+  while(!stopping)
     if (poll(&m_fds, 1, 1000) > 0)
     {
-      while (!m_bStop && recv(fds, &msg, sizeof(msg), 0) > 0);
-      if (m_bStop)
+      while (!stopping && recv(fds, &msg, sizeof(msg), 0) > 0);
+      if (stopping)
         continue;
 
-      if (!m_owner->queryInterfaceList())
+      if (!g_application.getNetwork().ForceRereadInterfaces())
         continue;
 
       CLog::Log(LOGINFO, "Interfaces change %s", __FUNCTION__);
-      CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, m_owner->NETWORK_CHANGED, 0);
+      CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, CNetwork::NETWORK_CHANGED, 0);
     }
 }
