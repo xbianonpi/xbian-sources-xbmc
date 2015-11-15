@@ -360,7 +360,7 @@ public:
     \return  Static functions providing only type<>type conversions or formal valididy checking
              are independent on actual IPv6 stack availability
     */
-   static bool SupportsIPv6(void) { return false; }
+   virtual bool SupportsIPv6(void) { return false; }
 
    /*!
     \brief Return true if given name or ip address corresponds to localhost

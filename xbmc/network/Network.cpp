@@ -309,7 +309,7 @@ bool CNetwork::AddrMatch(const std::string &addr, const std::string &match_ip, c
     unsigned long local = ntohl(inet_addr(match_ip.c_str()));
     return ((address & subnet) == (local & subnet));
   }
-  else if (!SupportsIPv6())
+  else if (!g_application.getNetwork().SupportsIPv6())
   {
     return false;
   }

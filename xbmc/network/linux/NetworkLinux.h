@@ -98,7 +98,7 @@ public:
    virtual std::forward_list<CNetworkInterface*>& GetInterfaceList(void);
    virtual CNetworkInterface* GetFirstConnectedInterface(void);        
 
-   static bool SupportsIPv6() { return true; }
+   virtual bool SupportsIPv6() { return true; }
 
    virtual bool PingHostImpl(const std::string &target, unsigned int timeout_ms = 2000);
 
