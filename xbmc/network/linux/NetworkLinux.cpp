@@ -19,6 +19,7 @@
  */
 
 #include <cstdlib>
+#include <algorithm>
 
 #include "xbmc/ApplicationMessenger.h"
 #include <poll.h>
@@ -461,7 +462,7 @@ bool CNetworkLinux::queryInterfaceList()
    }
 
    freeifaddrs(list);
-   return change;
+   return change | std::count_if(m_interfaces.begin(), m_interfaces.end(), IsRemoved);
 }
 
 std::vector<std::string> CNetworkLinux::GetNameServers(void)
