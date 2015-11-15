@@ -150,6 +150,7 @@ std::string CNetworkInterfaceWin32::GetCurrentDefaultGateway(void)
 CNetworkWin32::CNetworkWin32(void)
 {
   queryInterfaceList();
+  CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, CNetwork::SERVICES_UP, 0);
 }
 
 CNetworkWin32::~CNetworkWin32(void)
