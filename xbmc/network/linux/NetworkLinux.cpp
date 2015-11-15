@@ -19,6 +19,7 @@
  */
 
 #include <cstdlib>
+#include <algorithm>
 
 #include "xbmc/messaging/ApplicationMessenger.h"
 #include <poll.h>
@@ -406,14 +407,17 @@ CNetworkInterfaceLinux *CNetworkLinux::Exists(const std::string &addr, const std
 
 bool CNetworkLinux::queryInterfaceList()
 {
+  bool change = false;
+
+  CSingleLock lock(m_lock);
+
   // Query the list of interfaces.
   struct ifaddrs *list;
   if (getifaddrs(&list) < 0)
     return false;
 
-  CSingleLock lock(m_lock);
+  DeleteRemoved();
   InterfacesClear();
-  bool change = false;
 
   // find last IPv4 record, we will add new interfaces
   // right after this one (to keep IPv4 in front).
@@ -465,7 +469,7 @@ bool CNetworkLinux::queryInterfaceList()
    }
 
    freeifaddrs(list);
-   return change;
+   return change | std::count_if(m_interfaces.begin(), m_interfaces.end(), IsRemoved);
 }
 
 std::vector<std::string> CNetworkLinux::GetNameServers(void)

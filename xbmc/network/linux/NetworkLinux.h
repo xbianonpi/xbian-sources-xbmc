@@ -122,7 +122,7 @@ private:
    std::forward_list<CNetworkInterface*> m_interfaces;
    int m_sock;
 
-   static bool IsRemoved(CNetworkInterface *i) { if (((CNetworkInterfaceLinux*)i)->IsRemoved()) { delete i; return true; } return false; }
+   static bool IsRemoved(const CNetworkInterface *i) { return ((CNetworkInterfaceLinux*)i)->IsRemoved(); }
 };
 
 #endif
