@@ -215,7 +215,7 @@ size_t CPeripheralBus::GetNumberOfPeripheralsWithId(const int iVendorId, const i
 
 size_t CPeripheralBus::GetNumberOfPeripheralsWithFeature(const PeripheralFeature feature) const
 {
-  vector<CPeripheral *> peripherals;
+  std::vector<CPeripheral *> peripherals;
   GetPeripheralsWithFeature(peripherals, feature);
   return peripherals.size();
 }
