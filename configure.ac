@@ -716,8 +716,12 @@ case $use_platform in
      use_neon=no
      use_cpu=arm1176jzf-s
      extrarpiflags=rpi1
+     CFLAGS="$CFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      ;;
   cubox-i)
+     use_arch=armv7-a
      target_platform="cubox-i"
      use_static_ffmpeg=yes
      use_joystick=no
@@ -730,10 +734,13 @@ case $use_platform in
      use_neon=yes
      ;;
   raspberry-pi2)
+     use_arch=armv7-a
      target_platform=target_raspberry_pi
      use_neon=yes
      use_cpu=cortex-a7
      extrarpiflags=rpi2
+     CFLAGS="$CFLAGS -pipe -O3 -march=armv7-a -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
+     CXXFLAGS="$CXXFLAGS -pipe -O3 -march=armv7-a -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
      ;;
 esac
 
@@ -845,13 +852,7 @@ if test "$host_vendor" = "apple" ; then
     #arm/ios
     LIBS="$LIBS -framework CoreFoundation"
   fi
-elif test "$target_platform" = "target_raspberry_pi"; then
-  ARCH="arm"
-  use_arch="arm"
-  CFLAGS="$CFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-  CXXFLAGS="$CXXFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-  FFMPEG_EXTRACFLAGS="$FFMPEG_EXTRACFLAGS -pipe -O3 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations "
-elif test "$use_arch" = "arm"; then
+elif test "$use_arch" = "arm" || test "$ARCH" = "arm"; then
   CFLAGS="$CFLAGS -mno-apcs-stack-check"
   CXXFLAGS="$CXXFLAGS -mno-apcs-stack-check"
   if test "$use_tegra" = "yes"; then
@@ -1181,7 +1182,8 @@ int main() {
   )])
 AC_LANG_POP([C++])
 
-if test "${target_platform}" = "target_linux" || test "${target_platform}" = "target_raspberry_pi" || test "${target_platform}" = "target_android"; then
+if test "${target_platform}" = "target_linux" || test "${target_platform}" = "target_raspberry_pi" || test "${target_platform}" = "target_android" || \
+   test "${target_platform}" = "cubox-i"; then
   PKG_CHECK_MODULES([UUID], [uuid],, AC_MSG_ERROR(libuuid not found))
 fi
 
