@@ -79,7 +79,7 @@ void CEGLEdid::CalcSAR()
   // SAR value wasn't sane
   if (m_fSar == 0)
   {
-    RESOLUTION_INFO res = CDisplaySettings::Get().GetCurrentResolutionInfo();
+    RESOLUTION_INFO res = CDisplaySettings::GetInstance().GetCurrentResolutionInfo();
 
     CLog::Log(LOGWARNING, "%s: Screen SAR - not usable info",__FUNCTION__);
 
