@@ -753,11 +753,9 @@ if test "$target_platform" = "target_raspberry_pi" ; then
      USE_MMAL=1; AC_DEFINE([HAS_MMAL],[1],["Define to 1 if MMAL libs is enabled"])
      CFLAGS="$CFLAGS"
      CXXFLAGS="$CXXFLAGS"
-     ;;
 else
      ARCH="arm"
-     ;;
-esac
+fi
 
 if test "$host_vendor" = "apple"; then
   use_avahi=no
