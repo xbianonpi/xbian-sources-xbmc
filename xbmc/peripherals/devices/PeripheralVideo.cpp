@@ -100,10 +100,10 @@ void CPeripheralVideo::OnTimeout()
     case CABLE_CONNECTED:
       g_screen.SetOn();
 
-      CSettings::Get().SetBool("videoscreen.limitedrange", IsQuantRangeLimited());
-      if (CSettings::Get().GetBool("videoscreen.updateresolutions"))
+      CSettings::GetInstance().SetBool("videoscreen.limitedrange", IsQuantRangeLimited());
+      if (CSettings::GetInstance().GetBool("videoscreen.updateresolutions"))
       {
-        CApplicationMessenger::Get().SetupDisplayReconfigure();
+        CApplicationMessenger::GetInstance().PostMsg(TMSG_DISPLAY_RECONFIGURE);
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, "VIDEO", g_localizeStrings.Get(13288));
       }
 

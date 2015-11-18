@@ -445,7 +445,7 @@ bool CDVDDemuxFFmpeg::Open(CDVDInputStream* pInput, bool streaminfo, bool filein
   if (m_streaminfo)
   {
     for (unsigned int i = 0; i < m_pFormatContext->nb_streams; i++)
-    if (CSettings::Get().GetBool("audiooutput.supportdtshdcpudecoding"))
+    if (CSettings::GetInstance().GetBool("audiooutput.supportdtshdcpudecoding"))
     {
       AVStream *st = m_pFormatContext->streams[i];
       if (st->codec->codec_type == AVMEDIA_TYPE_AUDIO && st->codec->codec_id == AV_CODEC_ID_DTS)

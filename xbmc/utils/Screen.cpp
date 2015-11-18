@@ -42,12 +42,12 @@ CScreen::CScreen()
   , m_changedBlank(false)
   , m_timer(this)
 {
-  CAnnouncementManager::Get().AddAnnouncer(this);
+  CAnnouncementManager::GetInstance().AddAnnouncer(this);
 }
 
 CScreen::~CScreen()
 {
-  CAnnouncementManager::Get().RemoveAnnouncer(this);
+  CAnnouncementManager::GetInstance().RemoveAnnouncer(this);
 }
 
 void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)
@@ -56,7 +56,7 @@ void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *me
     g_application.SetRenderGUI(true);
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverDeactivated"))
     g_screen.SetOn();
-  else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && CSettings::Get().GetString("screensaver.mode") == "screensaver.xbmc.builtin.black")
+  else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && CSettings::GetInstance().GetString("screensaver.mode") == "screensaver.xbmc.builtin.black")
     g_screen.SetOff();
 /*
   else if (flag == Player && !strcmp(sender, "xbmc") && !strcmp(message, "OnPlay"))
@@ -68,7 +68,7 @@ void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *me
 
 void CScreen::ScreenPowerOff(bool doBlank)
 {
-  if (!doBlank || !CSettings::Get().GetBool("videoscreen.blankcurrent"))
+  if (!doBlank || !CSettings::GetInstance().GetBool("videoscreen.blankcurrent"))
     return;
 
   m_changedBlank = true;
