@@ -1465,6 +1465,11 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, CSettings::SETTING_MUSICPLAYER_REPLAYGAINAVOIDCLIPPING))
     m_replayGainSettings.bAvoidClipping = ((CSettingBool*)setting)->GetValue();
+
+#ifdef HAS_IMXVPU
+  if (settingId == CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD)
+    g_IMXContext.RendererAllowed(CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD) == RENDER_METHOD_AUTO);
+#endif
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)

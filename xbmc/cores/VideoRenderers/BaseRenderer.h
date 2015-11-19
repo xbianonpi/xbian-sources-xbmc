@@ -30,7 +30,11 @@
 
 #define MAX_PLANES 3
 #define MAX_FIELDS 3
+#ifdef HAS_IMXVPU
+#define NUM_BUFFERS 10
+#else
 #define NUM_BUFFERS 6
+#endif
 
 class CSetting;
 
@@ -64,6 +68,7 @@ enum RenderMethods
   RENDER_METHOD_SOFTWARE,
   RENDER_METHOD_D3D_PS,
   RENDER_METHOD_DXVA,
+  RENDER_METHOD_IMXv14,
   RENDER_OVERLAYS        = 99   // to retain compatibility
 };
 

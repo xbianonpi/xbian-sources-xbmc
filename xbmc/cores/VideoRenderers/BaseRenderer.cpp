@@ -949,6 +949,11 @@ void CBaseRenderer::SettingOptionsRenderMethodsFiller(const CSetting *setting, s
 {
   list.push_back(make_pair(g_localizeStrings.Get(13416), RENDER_METHOD_AUTO));
 
+#ifdef HAS_IMXVPU
+  list.push_back(make_pair(g_localizeStrings.Get(13424), RENDER_METHOD_IMXv14));
+  list.push_back(make_pair(g_localizeStrings.Get(13419), RENDER_METHOD_SOFTWARE));
+#endif
+
 #ifdef HAS_DX
   list.push_back(make_pair(g_localizeStrings.Get(16319), RENDER_METHOD_DXVA));
   list.push_back(make_pair(g_localizeStrings.Get(13431), RENDER_METHOD_D3D_PS));

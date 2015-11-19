@@ -1033,6 +1033,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_VSYNC);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_MONITOR);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_PREFEREDSTEREOSCOPICMODE);
+  settingSet.insert(CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD);
   m_settingsManager->RegisterCallback(&CDisplaySettings::GetInstance(), settingSet);
   m_settingsManager->RegisterCallback(&g_application, settingSet);
   

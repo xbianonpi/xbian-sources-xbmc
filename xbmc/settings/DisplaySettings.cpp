@@ -42,6 +42,11 @@
 #include "utils/Variant.h"
 #include "utils/XMLUtils.h"
 #include "windowing/WindowingFactory.h"
+#include "cores/VideoRenderers/BaseRenderer.h"
+
+#if defined(HAS_IMXVPU)
+#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
 
 using namespace KODI::MESSAGING;
 

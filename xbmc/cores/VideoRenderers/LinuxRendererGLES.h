@@ -94,7 +94,8 @@ enum RenderMethod
   RENDER_EGLIMG = 0x200,
   RENDER_MEDIACODEC = 0x400,
   RENDER_MEDIACODECSURFACE = 0x800,
-  RENDER_IMXMAP = 0x1000
+  RENDER_IMXMAP = 0x1000,
+  RENDER_IMXv14 = 0x2000
 };
 
 enum RenderQuality
@@ -225,6 +226,7 @@ protected:
   void UploadIMXMAPTexture(int index);
   void DeleteIMXMAPTexture(int index);
   bool CreateIMXMAPTexture(int index);
+  bool CreateIMXMAPTexture(int index, GLuint &tmpTexId);
 
   void CalculateTextureSourceRects(int source, int num_planes);
 
