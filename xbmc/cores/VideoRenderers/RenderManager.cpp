@@ -714,21 +714,24 @@ void CXBMCRenderManager::FlipPage(volatile bool& bStop, double timestamp /* = 0L
         else if (interlacemethod == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE)   presentmethod = PRESENT_METHOD_BOB;
         else                                                                    presentmethod = PRESENT_METHOD_SINGLE;
 
-        /* default to odd field if we want to deinterlace and don't know better */
-        if (deinterlacemode == VS_DEINTERLACEMODE_FORCE && sync == FS_NONE)
+        if (presentmethod != PRESENT_METHOD_SINGLE)
+        {
+          /* default to odd field if we want to deinterlace and don't know better */
+          if (deinterlacemode == VS_DEINTERLACEMODE_FORCE && sync == FS_NONE)
 #ifdef HAS_IMXVPU
-          sync = FS_BOT;
+            sync = FS_BOT;
 #else
-          sync = FS_TOP;
+            sync = FS_TOP;
 #endif
 
-        /* invert present field */
-        if(invert)
-        {
-          if( sync == FS_BOT )
-            sync = FS_TOP;
-          else
-            sync = FS_BOT;
+          /* invert present field */
+          if(invert)
+          {
+            if( sync == FS_BOT )
+              sync = FS_TOP;
+            else
+              sync = FS_BOT;
+          }
         }
       }
     }
