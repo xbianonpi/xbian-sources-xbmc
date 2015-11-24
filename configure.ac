@@ -1548,7 +1548,7 @@ if test "$use_libgif" != "no"; then
       USE_LIBGIF=0
     fi
    ])
-  LIBS=$LIBS -lgif
+  LIBS="$LIBS -lgif "
   if test "$use_libgif" != "no"; then
     AC_DEFINE([HAVE_LIBGIF], [1], [Whether to use libgif library.])
     USE_LIBGIF=1
