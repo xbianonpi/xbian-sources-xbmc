@@ -285,7 +285,7 @@
 					<shadowcolor>black</shadowcolor>
 					<font>font12_title</font>
 				</control>
-				<control type="progress">
+				<!--control type="progress">
 					<description>CPU BAR</description>
 					<left>0</left>
 					<top>375</top>
