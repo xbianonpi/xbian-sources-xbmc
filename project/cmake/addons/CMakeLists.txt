@@ -225,6 +225,8 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+separate_arguments(ADDONS_TO_BUILD)
+
 foreach(addon ${addons})
   if(NOT (addon MATCHES platforms.txt))
     file(STRINGS ${addon} def)
