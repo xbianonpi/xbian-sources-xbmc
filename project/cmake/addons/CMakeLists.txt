@@ -121,7 +121,6 @@ if(NOT ADDONS_TO_BUILD)
   set(ADDONS_TO_BUILD "all")
 else()
   message(STATUS "Building following addons: ${ADDONS_TO_BUILD}")
-  separate_arguments(ADDONS_TO_BUILD)
 endif()
 
 if(NOT ADDONS_DEFINITION_DIR)
@@ -216,6 +215,8 @@ if(NOT addons)
     message(FATAL_ERROR "No addons available to be built")
   endif()
 endif()
+
+separate_arguments(ADDONS_TO_BUILD)
 
 foreach(addon ${addons})
   if(NOT (addon MATCHES platforms.txt))
