@@ -379,6 +379,7 @@ const std::string CSettings::SETTING_NETWORK_HTTPPROXYPORT = "network.httpproxyp
 const std::string CSettings::SETTING_NETWORK_HTTPPROXYUSERNAME = "network.httpproxyusername";
 const std::string CSettings::SETTING_NETWORK_HTTPPROXYPASSWORD = "network.httpproxypassword";
 const std::string CSettings::SETTING_NETWORK_BANDWIDTH = "network.bandwidth";
+const std::string CSettings::SETTING_NETWORK_RESTARTSERVICES = "network.restartservices";
 const std::string CSettings::SETTING_POWERMANAGEMENT_DISPLAYSOFF = "powermanagement.displaysoff";
 const std::string CSettings::SETTING_POWERMANAGEMENT_SHUTDOWNTIME = "powermanagement.shutdowntime";
 const std::string CSettings::SETTING_POWERMANAGEMENT_SHUTDOWNSTATE = "powermanagement.shutdownstate";

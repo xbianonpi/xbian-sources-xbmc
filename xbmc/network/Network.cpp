@@ -419,7 +419,7 @@ void CNetwork::NetworkMessage(EMESSAGE message, int param)
     case NETWORK_CHANGED:
       m_signalNetworkChange.Set();
       ANNOUNCEMENT::CAnnouncementManager::GetInstance().Announce(ANNOUNCEMENT::Network, "network", "OnInterfacesChange");
-      if (CSettings::GetInstance().GetBool("network.restartservices"))
+      if (CSettings::GetInstance().GetBool(CSettings::SETTING_NETWORK_RESTARTSERVICES))
       {
         CLog::Log(LOGDEBUG, "%s - Network setup changed. Will restart network services",__FUNCTION__);
         NetworkMessage(SERVICES_DOWN, 0);
