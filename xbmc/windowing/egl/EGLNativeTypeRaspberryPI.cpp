@@ -554,6 +554,10 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
     GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
     GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
   }
+  {
+    AddUniqueResolution(m_desktopRes, resolutions);
+    CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
+  }
 
   DLOG("CEGLNativeTypeRaspberryPI::ProbeResolutions\n");
   return true;
