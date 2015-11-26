@@ -228,6 +228,9 @@ void CBaseRenderer::FindResolutionFromFpsMatch(float fps, float& weight)
 
 RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight)
 {
+  if (CDisplaySettings::Get().ResolutionInfoSize() < 2)
+    return current;
+
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
 
   float fRefreshRate = fps;
