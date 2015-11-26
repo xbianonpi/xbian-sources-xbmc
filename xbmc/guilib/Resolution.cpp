@@ -197,6 +197,9 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int heig
 
 RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int height, bool is3D, float multiplier, RESOLUTION current, float& weight)
 {
+  if (CDisplaySettings::GetInstance().ResolutionInfoSize() < 2)
+    return current;
+
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(current);
   RESOLUTION orig_res  = CDisplaySettings::GetInstance().GetCurrentResolution();
 
