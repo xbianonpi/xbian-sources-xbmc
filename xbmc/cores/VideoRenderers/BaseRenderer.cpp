@@ -245,18 +245,18 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
   int loop_diff = 0;
 
   // CHANGERESOLUTION
-  if (CSettings::GetInstance().GetBool("videoplayer.adjustresolution"))
+  if (CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION))
   {
     bool i_found = false;
 
     // if interlaced mode
-    if (m_iFlags & CONF_FLAGS_INTERLACED && CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced"))
+    if (m_iFlags & CONF_FLAGS_INTERLACED && CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED))
       for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
-        ||  CSettings::GetInstance().GetInt("videoplayer.minimumhorizontal") > info.iScreenHeight
-        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+        ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
+        || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||    info.iScreenHeight != m_sourceHeight
         ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
@@ -272,10 +272,10 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
         ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
-        ||  CSettings::GetInstance().GetInt("videoplayer.minimumhorizontal") > info.iScreenHeight
+        ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
         ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
-        || (!CSettings::GetInstance().GetBool("videoplayer.adjustresolutioninterlaced") && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
-        || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+        || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED) && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
+        || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
         ||   m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
         ||   pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff)
           continue;
@@ -295,10 +295,10 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
 
       if (m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
-      ||  CSettings::GetInstance().GetInt("videoplayer.minimumhorizontal") > info.iScreenHeight
+      ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
       ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff
       ||  info.iScreen != curr.iScreen
-      || (!CSettings::GetInstance().GetBool("videoplayer.adjustallownoncea") && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+      || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
       ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,

@@ -18208,10 +18208,10 @@ msgctxt "#40011"
 msgid "1080p"
 msgstr ""
 
-#. Label of setting "Settings -> Videos -> Minimum horizontal resolution"
+#. Label of setting "Settings -> Videos -> Minimum vertical resolution"
 #: system/settings/settings.xml
 msgctxt "#40012"
-msgid "Only modes having higher horizontal resolution"
+msgid "Only modes having higher vertical resolution"
 msgstr ""
 
 #. Label of setting "Settings -> Videos -> Allow non-CEA"

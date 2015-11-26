@@ -612,7 +612,7 @@
           </dependencies>
           <control type="toggle" />
         </setting>
-        <setting id="videoplayer.minimumhorizontal" type="integer" parent="videoplayer.adjustresolution" label="40012">
+        <setting id="videoplayer.minimumvertical" type="integer" parent="videoplayer.adjustresolution" label="40012">
           <level>2</level>
           <default>720</default>
           <visible>true</visible>

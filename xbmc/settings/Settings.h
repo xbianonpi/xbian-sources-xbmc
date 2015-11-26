@@ -137,6 +137,10 @@ public:
   static const std::string SETTING_VIDEOPLAYER_USEMMAL;
   static const std::string SETTING_VIDEOPLAYER_USESTAGEFRIGHT;
   static const std::string SETTING_VIDEOPLAYER_LIMITGUIUPDATE;
+  static const std::string SETTING_VIDEOPLAYER_ADJUSTRESOLUTION;
+  static const std::string SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED;
+  static const std::string SETTING_VIDEOPLAYER_MINIMUMVERTICAL;
+  static const std::string SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA;
   static const std::string SETTING_MYVIDEOS_SELECTACTION;
   static const std::string SETTING_MYVIDEOS_EXTRACTFLAGS;
   static const std::string SETTING_MYVIDEOS_EXTRACTCHAPTERTHUMBS;
