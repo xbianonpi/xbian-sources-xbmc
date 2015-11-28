@@ -377,7 +377,7 @@ public:
    virtual bool ForceRereadInterfaces() = 0;
 
 protected:
-   CCriticalSection m_lock;
+   CCriticalSection m_lockInterfaces;
 
 private:
    CEvent  m_signalNetworkChange;
