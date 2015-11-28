@@ -323,7 +323,6 @@ CNetworkLinux::CNetworkLinux(void)
 {
    m_sock = socket(AF_INET, SOCK_DGRAM, 0);
    queryInterfaceList();
-   NetworkMessage(NETWORK_CHANGED, 0);
    RegisterWatcher(WatcherProcess);
    CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, CNetwork::SERVICES_UP, 0);
 }
