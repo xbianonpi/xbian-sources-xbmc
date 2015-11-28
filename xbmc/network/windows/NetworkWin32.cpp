@@ -155,24 +155,20 @@ CNetworkWin32::CNetworkWin32(void)
 
 CNetworkWin32::~CNetworkWin32(void)
 {
-  CleanInterfaceList();
   m_netrefreshTimer.Stop();
+  CleanInterfaceList();
 }
 
 void CNetworkWin32::CleanInterfaceList()
 {
-  std::vector<CNetworkInterface*>::iterator it = m_interfaces.begin();
-  while(it != m_interfaces.end())
-  {
-    CNetworkInterface* nInt = *it;
-    delete nInt;
-    it = m_interfaces.erase(it);
-  }
+  CSingleLock lock (m_lockInterfaces);
+  auto it = m_interfaces.before_begin();
+  m_interfaces.erase_after(it, m_interfaces.end());
 }
 
-std::vector<CNetworkInterface*>& CNetworkWin32::GetInterfaceList(void)
+std::forward_list<CNetworkInterface*>& CNetworkWin32::GetInterfaceList(void)
 {
-  CSingleLock lock (m_critSection);
+  CSingleLock lock (m_lockInterfaces);
   if(m_netrefreshTimer.GetElapsedSeconds() >= 5.0f)
     queryInterfaceList();
 
@@ -186,6 +182,7 @@ void CNetworkWin32::queryInterfaceList()
 
   PIP_ADAPTER_INFO adapterInfo;
   PIP_ADAPTER_INFO adapter = NULL;
+  auto            *pos     = m_interfaces.before_begin();
 
   ULONG ulOutBufLen = sizeof (IP_ADAPTER_INFO);
 
@@ -206,7 +203,8 @@ void CNetworkWin32::queryInterfaceList()
     adapter = adapterInfo;
     while (adapter)
     {
-      m_interfaces.push_back(new CNetworkInterfaceWin32(this, *adapter));
+      m_interfaces.insert_after(pos, new CNetworkInterfaceWin32(this, *adapter));
+      ++pos;
       adapter = adapter->Next;
     }
   }

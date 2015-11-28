@@ -332,7 +332,7 @@ CNetworkLinux::~CNetworkLinux(void)
   if (m_sock != -1)
     close(CNetworkLinux::m_sock);
 
-  CSingleLock lock(m_lock);
+  CSingleLock lock(m_lockInterfaces);
   InterfacesClear();
   DeleteRemoved();
 }
@@ -409,7 +409,7 @@ bool CNetworkLinux::queryInterfaceList()
 {
   bool change = false;
 
-  CSingleLock lock(m_lock);
+  CSingleLock lock(m_lockInterfaces);
 
   // Query the list of interfaces.
   struct ifaddrs *list;
