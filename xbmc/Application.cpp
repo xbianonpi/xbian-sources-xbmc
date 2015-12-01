@@ -4542,7 +4542,6 @@ void CApplication::checkVTchange()
 {
   struct vt_stat vts;
   static int last_active;
-  static bool bRestartClock;
 
   int cur_tty = open("/dev/tty0", O_RDONLY | O_NONBLOCK | O_NOCTTY);
   if(cur_tty < 0 || ioctl(cur_tty, VT_GETSTATE, &vts) < 0)
