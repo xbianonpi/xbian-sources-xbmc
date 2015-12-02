@@ -1150,18 +1150,24 @@ void WatcherProcess()
 #endif
 
   if (-1 == bind(fds, (const struct sockaddr *) &addr, sizeof(struct sockaddr)))
-    return;
-
-  fcntl(fds, F_SETFL, O_NONBLOCK);
+  {
+    close(fds);
+    fds = 0;
+  }
+  else
+    fcntl(fds, F_SETFL, O_NONBLOCK);
 
   while(!stopping)
     if (poll(&m_fds, 1, 1000) > 0)
     {
-      while (!stopping && recv(fds, &msg, sizeof(msg), 0) > 0);
+      while (!stopping && fds && recv(fds, &msg, sizeof(msg), 0) > 0);
       if (stopping)
         continue;
 
-      if (!g_application.getNetwork().ForceRereadInterfaces())
+      if (!fds)
+        g_application.getNetwork().m_updThread->Sleep(5000);
+
+      if (stopping || !g_application.getNetwork().ForceRereadInterfaces())
         continue;
 
       CLog::Log(LOGINFO, "Interfaces change %s", __FUNCTION__);
