@@ -38,6 +38,7 @@
 #include "xbmc/interfaces/AnnouncementManager.h"
 
 using namespace KODI::MESSAGING;
+using namespace ANNOUNCEMENT;
 
 /*
  * in all the geniality of new AF/AF6 compatible system functions & structs,
@@ -686,6 +687,26 @@ int CNetwork::PrefixLengthIPv6(const std::string &address)
   }
 
   return m;
+}
+
+CNetwork::CNetworkUpdater::CNetworkUpdater(void (*watcher)())
+ : CThread("NetConfUpdater")
+ , m_watcher(watcher)
+{
+  CAnnouncementManager::GetInstance().AddAnnouncer(this);
+}
+
+CNetwork::CNetworkUpdater::~CNetworkUpdater()
+{
+  CAnnouncementManager::GetInstance().RemoveAnnouncer(this);
+}
+
+void CNetwork::CNetworkUpdater::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)
+{
+  if (flag == System && !strcmp(sender, "xbmc") && !strcmp(message, "OnSleep"))
+    StopThread(false);
+  else if (flag == System && !strcmp(sender, "xbmc") && !strcmp(message, "OnWake"))
+    Create(false);
 }
 
 //creates, binds and listens a tcp socket on the desired port. Set bindLocal to
