@@ -117,6 +117,8 @@ void CScreen::SetState(bool state, bool doBlank)
   switch (state)
   {
   case true:
+    if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPausedPlayback())
+      break;
 
     g_VideoReferenceClock.Stop();
     if (!g_application.IsInScreenSaver())
