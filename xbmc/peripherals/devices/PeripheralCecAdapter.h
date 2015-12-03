@@ -148,6 +148,8 @@ namespace PERIPHERALS
     void SetMenuLanguage(const char *strLanguage);
     void OnTvStandby(void);
 
+    static void CecEventPostAction(void *cbParam, const uint8_t activated, bool wait);
+
     // callbacks from libCEC
     static void CecLogMessage(void *cbParam, const CEC::cec_log_message* message);
     static void CecCommand(void *cbParam, const CEC::cec_command* command);
