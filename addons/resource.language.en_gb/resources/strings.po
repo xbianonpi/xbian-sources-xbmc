@@ -5445,7 +5445,12 @@ msgctxt "#13005"
 msgid "Shutdown"
 msgstr ""
 
-#empty strings from id 13006 to 13007
+#empty strings from id 13006
+
+#: system/peripherals.xml
+msgctxt "#13007"
+msgid "Same as \"switching source\""
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#13008"

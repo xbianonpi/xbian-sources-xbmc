@@ -644,7 +644,11 @@ int CPeripheralCecAdapter::CecCommand(void *cbParam, const cec_command command)
           g_application.ExecuteXBMCAction("Shutdown");
       }
       if (command.initiator == CECDEVICE_TV)
+      {
+        if (adapter->GetSettingInt("standby_pc_on_tv_standby") == 13007)
+          CecEventPostAction(cbParam, 0, true);
         g_screen.SetOff();
+      }
       break;
     case CEC_OPCODE_SET_MENU_LANGUAGE:
       if (adapter->m_configuration.bUseTVMenuLanguage == 1 && command.initiator == CECDEVICE_TV && command.parameters.size == 3)
@@ -1156,15 +1160,12 @@ void CPeripheralCecAdapter::OnSettingChanged(const std::string &strChangedSettin
   }
 }
 
-void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_logical_address address, const uint8_t activated)
+
+void CPeripheralCecAdapter::CecEventPostAction(void *cbParam, const uint8_t activated, bool wait)
 {
   CPeripheralCecAdapter *adapter = (CPeripheralCecAdapter *)cbParam;
   if (!adapter)
     return;
-
-  // wake up the screensaver, so the user doesn't switch to a black screen
-  if (activated == 1)
-    g_application.WakeUpScreenSaverAndDPMS();
 
   if (adapter->GetSettingInt("pause_or_stop_playback_on_deactivate") != LOCALISED_ID_NONE)
   {
@@ -1187,16 +1188,29 @@ void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_log
         pSlideShow->OnAction(CAction(ACTION_PAUSE));
       else
         // pause/resume player
-        CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE);
+        CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE, wait);
     }
     else if (adapter->GetSettingInt("pause_or_stop_playback_on_deactivate") == LOCALISED_ID_STOP)
     {
       if (pSlideShow)
         pSlideShow->OnAction(CAction(ACTION_STOP));
       else
-        CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_STOP);
+        CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_STOP, wait);
     }
   }
+}
+
+void CPeripheralCecAdapter::CecSourceActivated(void *cbParam, const CEC::cec_logical_address address, const uint8_t activated)
+{
+  CPeripheralCecAdapter *adapter = (CPeripheralCecAdapter *)cbParam;
+  if (!adapter)
+    return;
+
+  // wake up the screensaver, so the user doesn't switch to a black screen
+  if (activated == 1)
+    g_application.WakeUpScreenSaverAndDPMS();
+
+  CecEventPostAction(cbParam, activated, true);
 
   if (activated != 1)
     g_screen.SetOff();
@@ -1303,7 +1317,7 @@ void CPeripheralCecAdapter::SetConfigurationFromLibCEC(const CEC::libcec_configu
 
   bChanged |= SetSetting("standby_pc_on_tv_standby",
              m_configuration.bPowerOffOnStandby == 1 ? 13011 :
-             m_configuration.bShutdownOnStandby == 1 ? 13005 : 36028);
+             m_configuration.bShutdownOnStandby == 1 ? 13005 : GetSettingInt("standby_pc_on_tv_standby"));
 
   if (bChanged)
     CLog::Log(LOGDEBUG, "SetConfigurationFromLibCEC - settings updated by libCEC");
