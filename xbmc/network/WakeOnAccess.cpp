@@ -62,11 +62,11 @@ static int GetTotalSeconds(const CDateTimeSpan& ts)
   return ts.GetSeconds() + minutes * 60;
 }
 
-static unsigned long HostToIP(const std::string& host)
+std::string HostToIP(const std::string& host)
 {
   std::string ip;
   CDNSNameCache::Lookup(host, ip);
-  return inet_addr(ip.c_str());
+  return ip;
 }
 
 CWakeOnAccess::WakeUpEntry::WakeUpEntry (bool isAwake)
@@ -101,9 +101,9 @@ private:
 
 bool CMACDiscoveryJob::DoWork()
 {
-  unsigned long ipAddress = HostToIP(m_host);
+  std::string ipAddress = HostToIP(m_host);
 
-  if (ipAddress == INADDR_NONE)
+  if (ipAddress.empty())
   {
     CLog::Log(LOGERROR, "%s - can't determine ip of '%s'", __FUNCTION__, m_host.c_str());
     return false;
@@ -234,8 +234,7 @@ public:
   }
   virtual bool SuccessWaiting () const
   {
-    unsigned long address = ntohl(HostToIP(m_host));
-    bool online = g_application.getNetwork().HasInterfaceForIP(address);
+    bool online = g_application.getNetwork().HasInterfaceForIP(m_host);
 
     if (!online) // setup endtime so we dont return true until network is consistently connected
       m_end.Set (m_settle_time_ms);
@@ -276,9 +275,7 @@ public:
 
   static bool Ping (const CWakeOnAccess::WakeUpEntry& server)
   {
-    ULONG dst_ip = HostToIP(server.host);
-
-    return g_application.getNetwork().PingHost(dst_ip, server.ping_port, 2000, server.ping_mode & 1);
+    return g_application.getNetwork().PingHost(server.host, server.ping_port, 2000, server.ping_mode & 1);
   }
 
 private:
@@ -371,7 +368,7 @@ bool CWakeOnAccess::WakeUpHost(const WakeUpEntry& server)
 
     if (dlg.ShowAndWait (waitObj, m_netinit_sec, LOCALIZED(13028)) != ProgressDialogHelper::Success)
     {
-      if (g_application.getNetwork().IsConnected() && HostToIP(server.host) == INADDR_NONE)
+      if (g_application.getNetwork().IsConnected() && HostToIP(server.host).empty())
       {
         // network connected (at least one interface) but dns-lookup failed (host by name, not ip-address), so dont abort yet
         CLog::Log(LOGWARNING, "WakeOnAccess timeout/cancel while waiting for network (proceeding anyway)");
@@ -385,9 +382,7 @@ bool CWakeOnAccess::WakeUpHost(const WakeUpEntry& server)
   }
 
   {
-    ULONG dst_ip = HostToIP(server.host);
-
-    if (g_application.getNetwork().PingHost(dst_ip, server.ping_port, 500)) // quick ping with short timeout to not block too long
+    if (g_application.getNetwork().PingHost(HostToIP(server.host), server.ping_port, 500)) // quick ping with short timeout to not block too long
     {
       CLog::Log(LOGNOTICE,"WakeOnAccess success exit, server already running");
       return true;
