@@ -136,7 +136,7 @@ bool CNetworkInterfaceLinux::IsConnected()
    if (IsRemoved() || m_interfaceFlags & IFF_LOOPBACK)
      return false;
 
-   unsigned int needFlags = IFF_RUNNING | IFF_LOWER_UP;
+   unsigned int needFlags = IFF_RUNNING;
    bool iRunning = (m_interfaceFlags & needFlags) == needFlags;
 
    // return only interfaces which has ip address
@@ -322,6 +322,7 @@ CNetworkLinux::CNetworkLinux(void)
    m_sock = socket(AF_INET, SOCK_DGRAM, 0);
    queryInterfaceList();
    RegisterWatcher(WatcherProcess);
+   CApplicationMessenger::Get().NetworkMessage(CNetwork::SERVICES_UP, 0);
 }
 
 CNetworkLinux::~CNetworkLinux(void)
