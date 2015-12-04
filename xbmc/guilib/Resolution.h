@@ -95,6 +95,7 @@ struct RESOLUTION_INFO
   uint32_t dwFlags;
   float fPixelRatio;
   float fRefreshRate;
+  float refresh_rate;
   std::string strMode;
   std::string strOutput;
   std::string strId;
@@ -127,6 +128,6 @@ public:
     iScreenWidth = res.iScreenWidth; iScreenHeight = res.iScreenHeight;
     iSubtitles = res.iSubtitles; dwFlags = res.dwFlags;
     fPixelRatio = res.fPixelRatio; fRefreshRate = res.fRefreshRate;
-    iBlanking = res.iBlanking;
+    refresh_rate = res.refresh_rate; iBlanking = res.iBlanking;
   }
 };

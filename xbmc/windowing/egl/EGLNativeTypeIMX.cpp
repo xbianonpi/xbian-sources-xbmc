@@ -40,6 +40,7 @@
 #include "windowing/WindowingFactory.h"
 #include "cores/AudioEngine/AEFactory.h"
 #include <fstream>
+#include <float.h>
 #include "peripherals/Peripherals.h"
 #include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
 
@@ -51,6 +52,7 @@ CEGLNativeTypeIMX::CEGLNativeTypeIMX()
 #ifdef HAS_IMXVPU
   : m_display(NULL)
   , m_window(NULL)
+  , m_ntsc(0)
 #endif
 {
 #ifdef HAS_IMXVPU
@@ -181,6 +183,8 @@ void CEGLNativeTypeIMX::Destroy()
   }
   close(fd);
 
+  if (!m_readonly)
+    SysfsUtils::SetString("/sys/class/graphics/fb0/mode", m_init.strId + "\n");
   SysfsUtils::SetInt("/sys/class/graphics/fb1/blank", 1);
 
   system("/usr/bin/splash --force -i -m 'stopping kodi...'");
@@ -280,6 +284,21 @@ bool CEGLNativeTypeIMX::DestroyNativeWindow()
 #endif
 }
 
+#ifdef HAS_IMXVPU
+bool ntsc_mode()
+{
+  std::ifstream file("/sys/class/graphics/fb0/ntsc_mode");
+  return file.is_open();
+}
+
+bool get_ntsc()
+{
+  std::string mode;
+  SysfsUtils::GetString("/sys/class/graphics/fb0/ntsc_mode", mode);
+  return mode.find("active") != std::string::npos;
+}
+#endif
+
 bool CEGLNativeTypeIMX::GetNativeResolution(RESOLUTION_INFO *res) const
 {
 #ifdef HAS_IMXVPU
@@ -287,7 +306,14 @@ bool CEGLNativeTypeIMX::GetNativeResolution(RESOLUTION_INFO *res) const
   SysfsUtils::GetString("/sys/class/graphics/fb0/mode", mode);
   CLog::Log(LOGDEBUG,": %s, %s", __FUNCTION__, mode.c_str());
 
-  return ModeToResolution(mode, res);
+  bool ret = ModeToResolution(mode, res);
+  if (ntsc_mode() && get_ntsc())
+    res->fRefreshRate  = (float)res->refresh_rate * (1000.0f/1001.0f);
+  else if (!ntsc_mode())
+    return ret;
+
+  SetStrMode(res);
+  return ret;
 #else
   return false;
 #endif
@@ -300,19 +326,32 @@ bool CEGLNativeTypeIMX::SetNativeResolution(const RESOLUTION_INFO &res)
     return false;
 
   std::string mode;
+  int new_ntsc;
+
+  if (ntsc_mode())
+    new_ntsc = fabs(res.refresh_rate - res.fRefreshRate) < FLT_EPSILON ? 0 : 1;
+  else
+    new_ntsc = 0;
+
   SysfsUtils::GetString("/sys/class/graphics/fb0/mode", mode);
-  if (res.strId == mode)
+
+  if (res.strId == mode && m_ntsc == new_ntsc)
   {
-    CLog::Log(LOGDEBUG,": %s - not changing res (%s vs %s)", __FUNCTION__, res.strId.c_str(), mode.c_str());
+    CLog::Log(LOGDEBUG,": %s - not changing res (%s vs %s)%s", __FUNCTION__, res.strId.c_str(), mode.c_str(), new_ntsc ? " mode NTSC" : "");
     return true;
   }
-
-  ShowWindow(false);
 
   DestroyNativeWindow();
   DestroyNativeDisplay();
 
-  CLog::Log(LOGDEBUG,": %s - changing resolution to %s", __FUNCTION__, res.strId.c_str());
+  if (ntsc_mode())
+  {
+    SysfsUtils::SetInt("/sys/class/graphics/fb0/ntsc_mode", new_ntsc);
+    m_ntsc = new_ntsc;
+  }
+
+  ShowWindow(false);
+  CLog::Log(LOGDEBUG,": %s - changing resolution to %s%s", __FUNCTION__, res.strId.c_str(), new_ntsc ? " mode NTSC" : "");
   SysfsUtils::SetString("/sys/class/graphics/fb0/mode", res.strId + "\n");
 
   CreateNativeDisplay();
@@ -370,7 +409,19 @@ bool CEGLNativeTypeIMX::ProbeResolutions(std::vector<RESOLUTION_INFO> &resolutio
 
     if(ModeToResolution(probe_str[i], &res))
       if(!FindMatchingResolution(res, resolutions))
+      {
         resolutions.push_back(res);
+        if (!ntsc_mode())
+          continue;
+
+        if (res.refresh_rate == 24 || res.refresh_rate == 30 || res.refresh_rate == 60)
+        {
+          RESOLUTION_INFO res2 = res;
+          res2.fRefreshRate  = (float)res.refresh_rate * (1000.0f/1001.0f);
+          SetStrMode(&res2);
+          resolutions.push_back(res2);
+        }
+      }
   }
   return resolutions.size() > 0;
 #else
@@ -453,6 +504,14 @@ bool CEGLEdid::ReadEdidData()
   return true;
 }
 
+void CEGLNativeTypeIMX::SetStrMode(RESOLUTION_INFO *res) const
+{
+  res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
+                                           StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
+                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
+                                           res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "- 3DSBS" : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "- 3DTB" : "");
+}
+
 bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res) const
 {
   if (!res)
@@ -496,10 +555,11 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iHeight= h;
   res->iScreenWidth = w;
   res->iScreenHeight= h;
-  if (StringUtils::isasciilowercaseletter(mode[0]))
+  if (!ntsc_mode() && StringUtils::isasciilowercaseletter(mode[0]))
     res->fRefreshRate = (float)r * 1000 / 1001;
   else
     res->fRefreshRate = (float)r;
+  res->refresh_rate = (float)r;
   res->dwFlags |= p[0] == 'p' ? D3DPRESENTFLAG_PROGRESSIVE : D3DPRESENTFLAG_INTERLACED;
 
   res->iScreen       = 0;
@@ -507,11 +567,8 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   res->iSubtitles    = (int)(0.965 * res->iHeight);
 
   res->fPixelRatio  *= (g_EGLEdid.GetSAR() ? (float)g_EGLEdid.GetSAR() / res->iScreenWidth * res->iScreenHeight : (float)1.0f);
-  res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
-                                           StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
-                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
-                                           res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "- 3DSBS" : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "- 3DTB" : "");
   res->strId         = mode;
+  SetStrMode(res);
 
   return res->iWidth > 0 && res->iHeight> 0;
 }
