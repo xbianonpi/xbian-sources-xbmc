@@ -65,5 +65,9 @@ protected:
 
   EGLNativeDisplayType m_display;
   EGLNativeWindowType  m_window;
+
+private:
+  void SetStrMode(RESOLUTION_INFO *res) const;
+  int  m_ntsc;
 #endif
 };

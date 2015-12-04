@@ -88,6 +88,7 @@ struct RESOLUTION_INFO
   uint32_t dwFlags;
   float fPixelRatio;
   float fRefreshRate;
+  float refresh_rate;
   std::string strMode;
   std::string strOutput;
   std::string strId;
