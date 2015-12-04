@@ -55,7 +55,7 @@ RESOLUTION_INFO::RESOLUTION_INFO(const RESOLUTION_INFO& res) :
   iScreenWidth = res.iScreenWidth; iScreenHeight = res.iScreenHeight;
   iSubtitles = res.iSubtitles; dwFlags = res.dwFlags;
   fPixelRatio = res.fPixelRatio; fRefreshRate = res.fRefreshRate;
-  iBlanking = res.iBlanking;
+  refresh_rate = res.refresh_rate; iBlanking = res.iBlanking;
 }
 
 float RESOLUTION_INFO::DisplayRatio() const
