@@ -59,13 +59,6 @@ static int GetTotalSeconds(const CDateTimeSpan& ts)
   return ts.GetSeconds() + minutes * 60;
 }
 
-std::string HostToIP(const std::string& host)
-{
-  std::string ip;
-  CDNSNameCache::Lookup(host, ip);
-  return ip;
-}
-
 CWakeOnAccess::WakeUpEntry::WakeUpEntry (bool isAwake)
   : timeout (0, 0, 0, DEFAULT_TIMEOUT_SEC)
   , wait_online1_sec(DEFAULT_WAIT_FOR_ONLINE_SEC_1)
@@ -98,13 +91,10 @@ private:
 
 bool CMACDiscoveryJob::DoWork()
 {
-  std::string ipAddress = HostToIP(m_host);
+  std::string ipAddress = CDNSNameCache::Lookup(m_host);
 
   if (ipAddress.empty())
-  {
-    CLog::Log(LOGERROR, "%s - can't determine ip of '%s'", __FUNCTION__, m_host.c_str());
     return false;
-  }
 
   for (auto &&iface : g_application.getNetwork().GetInterfaceList())
     if (iface->GetHostMacAddress(ipAddress, m_macAddres))
@@ -365,7 +355,7 @@ bool CWakeOnAccess::WakeUpHost(const WakeUpEntry& server)
 
     if (dlg.ShowAndWait (waitObj, m_netinit_sec, LOCALIZED(13028)) != ProgressDialogHelper::Success)
     {
-      if (g_application.getNetwork().IsConnected() && HostToIP(server.host).empty())
+      if (g_application.getNetwork().IsConnected() && CDNSNameCache::Lookup(server.host).empty())
       {
         // network connected (at least one interface) but dns-lookup failed (host by name, not ip-address), so dont abort yet
         CLog::Log(LOGWARNING, "WakeOnAccess timeout/cancel while waiting for network (proceeding anyway)");
@@ -379,7 +369,7 @@ bool CWakeOnAccess::WakeUpHost(const WakeUpEntry& server)
   }
 
   {
-    if (g_application.getNetwork().PingHost(HostToIP(server.host), server.ping_port, 500)) // quick ping with short timeout to not block too long
+    if (g_application.getNetwork().PingHost(CDNSNameCache::Lookup(server.host), server.ping_port, 500)) // quick ping with short timeout to not block too long
     {
       CLog::Log(LOGNOTICE,"WakeOnAccess success exit, server already running");
       return true;
