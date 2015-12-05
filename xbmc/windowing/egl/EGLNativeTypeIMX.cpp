@@ -182,11 +182,11 @@ void CEGLNativeTypeIMX::Destroy()
   }
   close(fd);
 
+  system("/usr/bin/splash --force -i -m 'stopping kodi...'");
+
   if (!m_readonly)
     SysfsUtils::SetString("/sys/class/graphics/fb0/mode", m_init.strId + "\n");
   SysfsUtils::SetInt("/sys/class/graphics/fb1/blank", 1);
-
-  system("/usr/bin/splash --force -i -m 'stopping kodi...'");
 #endif
   return;
 }
