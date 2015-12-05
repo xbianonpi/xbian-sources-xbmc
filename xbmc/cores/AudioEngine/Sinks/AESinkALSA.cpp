@@ -928,16 +928,12 @@ unsigned int CAESinkALSA::AddPackets(uint8_t **data, unsigned int frames, unsign
     if (ret < 0)
     {
       CLog::Log(ret == -32 ? LOGDEBUG : LOGERROR, "CAESinkALSA - snd_pcm_writei(%d) %s - trying to recover", ret, snd_strerror(ret));
-      ret = snd_pcm_recover(m_pcm, ret, 1);
-      if(ret < 0)
+      HandleError("snd_pcm_writei(1)", ret);
+      ret = snd_pcm_writei(m_pcm, buffer, amount);
+      if (ret < 0)
       {
-        HandleError("snd_pcm_writei(1)", ret);
-        ret = snd_pcm_writei(m_pcm, buffer, amount);
-        if (ret < 0)
-        {
-          HandleError("snd_pcm_writei(2)", ret);
-          ret = 0;
-        }
+        HandleError("snd_pcm_writei(2)", ret);
+        ret = 0;
       }
     }
 
