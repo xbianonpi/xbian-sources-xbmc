@@ -341,6 +341,7 @@ CNetworkLinux::~CNetworkLinux(void)
 
 void CNetworkLinux::DeleteRemoved(void)
 {
+  CSingleLock lock(m_lockInterfaces);
   m_interfaces.remove_if(IsRemoved);
 }
 
@@ -352,7 +353,8 @@ void CNetworkLinux::InterfacesClear(void)
 
 std::forward_list<CNetworkInterface*>& CNetworkLinux::GetInterfaceList(void)
 {
-   return m_interfaces;
+  CSingleLock lock(m_lockInterfaces);
+  return m_interfaces;
 }
 
 //! @bug
@@ -422,7 +424,6 @@ bool CNetworkLinux::queryInterfaceList()
   std::map<std::string,struct ifaddrs> t_hwaddrs;
 #endif
 
-  DeleteRemoved();
   InterfacesClear();
 
   // find last IPv4 record, we will add new interfaces
@@ -487,7 +488,11 @@ bool CNetworkLinux::queryInterfaceList()
    }
 
    freeifaddrs(list);
-   return change | std::count_if(m_interfaces.begin(), m_interfaces.end(), IsRemoved);
+
+   change |= std::count_if(m_interfaces.begin(), m_interfaces.end(), IsRemoved);
+   DeleteRemoved();
+
+   return change;
 }
 
 std::vector<std::string> CNetworkLinux::GetNameServers(void)
