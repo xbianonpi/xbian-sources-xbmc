@@ -1548,7 +1548,9 @@ if test "$use_libgif" != "no"; then
       USE_LIBGIF=0
     fi
    ])
-  LIBS=$LIBS -lgif
+  if test "$use_libgif" != "no"; then
+    XB_FIND_SONAME([GIF], [gif], [use_libgif])
+  fi
   if test "$use_libgif" != "no"; then
     AC_DEFINE([HAVE_LIBGIF], [1], [Whether to use libgif library.])
     USE_LIBGIF=1
