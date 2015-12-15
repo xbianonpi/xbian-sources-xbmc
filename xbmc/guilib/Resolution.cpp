@@ -304,6 +304,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
       if ((width < orig.iScreenWidth) || // orig res large enough
          (info.iScreenWidth < orig.iScreenWidth) || // new res is smaller
          (info.iScreenHeight < orig.iScreenHeight) || // new height would be smaller
+         (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA)) ||
          (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK) || // don't switch to interlaced modes
          (info.iScreen != curr.iScreen) || // skip not current displays
          is3D) // skip res changing when doing 3D
