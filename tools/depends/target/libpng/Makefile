@@ -8,7 +8,7 @@ SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
 # configuration settings
-CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
+CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; CFLAGS=-fPIC \
           ./configure --prefix=$(PREFIX) --disable-shared
 
 LIBDYLIB=$(PLATFORM)/.libs/$(LIBNAME)15.a
