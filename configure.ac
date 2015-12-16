@@ -2011,11 +2011,10 @@ else
 fi
 
 if test "x$use_texturepacker" != "xno"; then
-  AC_PATH_PROG([TEXTUREPACKER], [TexturePacker], ["none"],
-    [$PATH$PATH_SEPARATOR${abs_top_srcdir}/tools/depends/native/TexturePacker/bin])
-  if test "$TEXTUREPACKER" = "none"; then
+  AC_CHECK_PROG(TEXTUREPACKER, ${abs_top_srcdir}/tools/TexturePacker/TexturePacker, "yes", "no",)
+  if test "$TEXTUREPACKER" = "no"; then
     make -C ${abs_top_srcdir}/tools/depends/native/TexturePacker
-    TEXTUREPACKER="${abs_top_srcdir}/tools/depends/native/TexturePacker/bin/TexturePacker"
+    TEXTUREPACKER="${abs_top_srcdir}/tools/TexturePacker/TexturePacker"
   fi
   if test -x "$TEXTUREPACKER"; then
     final_message="$final_message\n  TexturePacker:Yes"
