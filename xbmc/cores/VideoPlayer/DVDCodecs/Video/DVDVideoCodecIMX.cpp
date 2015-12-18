@@ -1269,7 +1269,6 @@ CIMXContext::~CIMXContext()
 {
   Stop(false);
   Dispose();
-  Blank();
   CloseDevices();
 }
 
@@ -1406,7 +1405,6 @@ bool CIMXContext::TaskRestart()
   Stop();
   MemMap();
   CloseDevices();
-  StopThread();
 
   Create();
   return true;
