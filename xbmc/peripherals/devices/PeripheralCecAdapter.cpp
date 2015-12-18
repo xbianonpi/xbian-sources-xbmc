@@ -1621,7 +1621,6 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
   if (!WaitReady())
     return false;
 
-  m_adapter->m_bIsReady = true;
   UpdateMenuLanguage();
   CTimer m_timer(this);
   m_timer.Start(10000);
@@ -1639,6 +1638,7 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000), strNotification);
 
   CSingleLock lock(m_critSection);
+  m_adapter->m_bIsReady = true;
   m_bIsUpdating = false;
   return true;
 }
