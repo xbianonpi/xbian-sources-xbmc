@@ -1336,7 +1336,6 @@ CIMXContext::~CIMXContext()
 {
   StopThread(false);
   Dispose();
-  Blank();
   CloseDevices();
 }
 
@@ -1470,9 +1469,9 @@ bool CIMXContext::TaskRestart()
 {
   CLog::Log(LOGINFO, "iMX : %s - restarting IMX rendererer\n", __FUNCTION__);
   // Stop the ipu thread
-  CThread::StopThread(false);
-  CloseDevices();
   StopThread();
+  MemMap();
+  CloseDevices();
 
   Create();
   return true;
@@ -1491,7 +1490,10 @@ bool CIMXContext::OpenDevices()
 {
   m_fbHandle = open(m_deviceName.c_str(), O_RDWR, 0);
   if (m_fbHandle < 0)
+  {
+    m_fbHandle = 0;
     CLog::Log(LOGWARNING, "iMX : Failed to open framebuffer: %s\n", m_deviceName.c_str());
+  }
 
   return m_fbHandle > 0;
 }
@@ -2100,6 +2102,8 @@ bool CIMXContext::DoTask(IPUTask &ipu, int targetPage)
 
 void CIMXContext::RendererAllowed(bool yes)
 {
+  if (IsRunning() == yes)
+    return;
   CLog::Log(LOGNOTICE, "iMX : changing to %s", yes ? "enabled" : "disabled");
   if (yes)
     TaskRestart();
@@ -2124,10 +2128,14 @@ void CIMXContext::OnExit()
 
 void CIMXContext::StopThread(bool bWait /*= true*/)
 {
+  if (!IsRunning())
+    return;
+
+  Blank();
   CThread::StopThread(false);
   m_inputNotFull.notifyAll();
   m_inputNotEmpty.notifyAll();
-  if (bWait)
+  if (bWait && IsRunning())
     CThread::StopThread(true);
 }
 
