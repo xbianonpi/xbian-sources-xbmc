@@ -1189,11 +1189,14 @@ void WatcherProcess()
 
       if (!fds)
         g_application.getNetwork().m_updThread->Sleep(5000);
+      else
+        g_application.getNetwork().m_updThread->Sleep(1000);
 
       if (stopping || !g_application.getNetwork().ForceRereadInterfaces())
         continue;
 
       CLog::Log(LOGINFO, "Interfaces change %s", __FUNCTION__);
-      CApplicationMessenger::GetInstance().PostMsg(TMSG_NETWORKMESSAGE, CNetwork::NETWORK_CHANGED, 0);
+      CApplicationMessenger::GetInstance().SendMsg(TMSG_NETWORKMESSAGE, CNetwork::NETWORK_CHANGED, 0);
     }
 }
+
