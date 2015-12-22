@@ -23,7 +23,7 @@
 #include "threads/CriticalSection.h"
 #include "threads/Timer.h"
 
-class CScreen : public ANNOUNCEMENT::IAnnouncer, protected ITimerCallback
+class CScreen : public ANNOUNCEMENT::IAnnouncer
 {
 public:
   CScreen();
@@ -37,9 +37,6 @@ public:
 
   bool         GetScreenState() { return m_state; }
 
-protected:
-  void         OnTimeout();
-
 private:
   void         SetState(bool status, bool doBlank = true);
   void         ScreenPowerOn(bool doBlank);
@@ -48,7 +45,6 @@ private:
   bool             m_state;
   bool             m_changedBlank;
   CCriticalSection m_critSection;
-  CTimer           m_timer;
 };
 
 extern CScreen g_screen;
