@@ -40,7 +40,6 @@ CScreen g_screen;
 CScreen::CScreen()
   : m_state(false)
   , m_changedBlank(false)
-  , m_timer(this)
 {
   CAnnouncementManager::GetInstance().AddAnnouncer(this);
 }
@@ -118,7 +117,7 @@ void CScreen::SetState(bool state, bool doBlank)
   {
   case true:
     if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPausedPlayback())
-      break;
+      return;
 
     g_VideoReferenceClock.Stop();
     if (!g_application.IsInScreenSaver())
@@ -136,19 +135,5 @@ void CScreen::SetState(bool state, bool doBlank)
     ;
   }
 
-  // SetRenderGui(false) doesn't need to be timed (delayed)
-  // It was just try to let ScreenSaver kick in (rewrite screen - black for instance)
-  // before we stop render. But somehow has not the expected effect (perhaps the actual
-  // delay between event <> saver launch is longer.
-  if (!state)
-    OnTimeout();
-  else if (m_timer.IsRunning())
-    m_timer.Restart();
-  else
-    m_timer.Start(2500);
-}
-
-void CScreen::OnTimeout()
-{
   g_application.SetRenderGUI(!m_state);
 }
