@@ -378,7 +378,7 @@ void CPeripheralCecAdapter::Process(void)
       ProcessStandbyDevices();
 
     if (!m_bStop)
-      CThread::Sleep(5ms);
+      CThread::Sleep(20ms);
   }
 
   m_queryThread->StopThread(true);
