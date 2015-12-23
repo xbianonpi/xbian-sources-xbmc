@@ -1431,14 +1431,14 @@ bool CIMXContext::AdaptScreen()
 
   struct fb_fix_screeninfo fb_fix;
 
-  if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) < 0)
+  if (ioctl(m_fbHandle, FBIOPUT_VSCREENINFO, &m_fbVar) == -1)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to setup %s\n", m_deviceName.c_str());
+    CLog::Log(LOGWARNING, "iMX : Failed to setup %s (%s)\n", m_deviceName.c_str(), strerror(errno));
     goto Err;
   }
-  else if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) < 0)
+  else if (ioctl(m_fbHandle, FBIOGET_FSCREENINFO, &fb_fix) == -1)
   {
-    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s\n", m_deviceName.c_str());
+    CLog::Log(LOGWARNING, "iMX : Failed to query fixed screen info at %s (%s)\n", m_deviceName.c_str(), strerror(errno));
     goto Err;
   }
 
