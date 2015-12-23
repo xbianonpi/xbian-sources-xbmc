@@ -258,8 +258,8 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if (!(info.dwFlags & D3DPRESENTFLAG_INTERLACED)
-        ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
-        || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+        ||    CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
+        ||    ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
         ||    info.iScreenHeight != m_sourceHeight
         ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
           continue;
@@ -278,7 +278,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
         ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
         || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED) && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
-        || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+        ||  ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
         ||   m_sourceWidth > info.iScreenWidth || m_sourceHeight > info.iScreenHeight
         ||   pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff)
           continue;
@@ -301,7 +301,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
       ||  pow(info.iScreenWidth*info.iScreenHeight - m_sourceWidth*m_sourceHeight, 2) > last_diff
       ||  info.iScreen != curr.iScreen
-      || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+      ||  ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
       ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK))
         {
         /*  CLog::Log(LOGDEBUG, "curr %.2f, trying %.2f, mode nr. %d, %dx%d msk %d, m_msk %d", info.fPixelRatio, curr.fPixelRatio, i,
@@ -328,6 +328,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
     if (info.iScreenWidth  != curr.iScreenWidth
     ||  info.iScreenHeight != curr.iScreenHeight
     ||  info.iScreen       != curr.iScreen
+    ||  ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
     ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
     ||  info.fRefreshRate < (fRefreshRate * multiplier / 1.001) - 0.001)
     {
@@ -337,7 +338,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       if (((int) m_sourceWidth < orig.iScreenWidth) // orig res large enough
       || (info.iScreenWidth < orig.iScreenWidth) // new width would be smaller
       || (info.iScreenHeight < orig.iScreenHeight) // new height would be smaller
-      || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) && !(GETFLAGS_GROUP(info.dwFlags) & HDMI_RES_GROUP_CEA))
+      || ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
       || (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)) // don't switch to interlaced modes
       {
         continue;

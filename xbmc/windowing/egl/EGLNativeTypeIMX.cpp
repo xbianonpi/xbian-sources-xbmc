@@ -505,9 +505,9 @@ bool CEGLEdid::ReadEdidData()
 
 void CEGLNativeTypeIMX::SetStrMode(RESOLUTION_INFO *res) const
 {
-  res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
+  res->strMode       = StringUtils::Format("%4sx%4s @ %.3f%s - Full Screen %s (%.3f) %s", StringUtils::Format("%d", res->iScreenWidth).c_str(),
                                            StringUtils::Format("%d", res->iScreenHeight).c_str(), res->fRefreshRate,
-                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", res->fPixelRatio,
+                                           res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : " ", HDMI_RES_GROUP_NAME(GETFLAGS_GROUP(res->dwFlags)), res->fPixelRatio,
                                            res->dwFlags & D3DPRESENTFLAG_MODE3DSBS ? "- 3DSBS" : res->dwFlags & D3DPRESENTFLAG_MODE3DTB ? "- 3DTB" : "");
 }
 
@@ -525,20 +525,12 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   std::string fromMode = StringUtils::Mid(mode, 2);
   StringUtils::Trim(fromMode);
 
-  res->dwFlags = MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0);
-  res->fPixelRatio = 1.0f;
+  if (StringUtils::StartsWithNoCase(mode, "U:") || StringUtils::StartsWithNoCase(mode, "V:"))
+    res->dwFlags = HDMI_RES_GROUP_DMT;
+  else
+    res->dwFlags = HDMI_RES_GROUP_CEA;
 
-  if (StringUtils::StartsWithNoCase(mode, "H:")) {
-    res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
-    res->fPixelRatio = 2.0f;
-  } else if (StringUtils::StartsWithNoCase(mode, "T:")) {
-    res->dwFlags |= D3DPRESENTFLAG_MODE3DTB;
-    res->fPixelRatio = 0.5f;
-  } else if (StringUtils::StartsWithNoCase(mode, "U:") || StringUtils::StartsWithNoCase(mode, "V:")) {
-    res->dwFlags &= ~(MAKEFLAGS(HDMI_RES_GROUP_CEA, 0, 0));
-  } else if (StringUtils::StartsWithNoCase(mode, "F:")) {
-    return false;
-  }
+  res->fPixelRatio = 1.0f;
 
   CRegExp split(true);
   split.RegComp("([0-9]+)x([0-9]+)([pi])-([0-9]+)");
@@ -559,7 +551,16 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
   else
     res->fRefreshRate = (float)r;
   res->refresh_rate = (float)r;
-  res->dwFlags |= p[0] == 'p' ? D3DPRESENTFLAG_PROGRESSIVE : D3DPRESENTFLAG_INTERLACED;
+
+  res->dwFlags = MAKEFLAGS(res->dwFlags, 0, p[0] != 'p');
+
+  if (StringUtils::StartsWithNoCase(mode, "H:")) {
+    res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
+    res->fPixelRatio = 2.0f;
+  } else if (StringUtils::StartsWithNoCase(mode, "T:")) {
+    res->dwFlags |= D3DPRESENTFLAG_MODE3DTB;
+    res->fPixelRatio = 0.5f;
+  }
 
   res->iScreen       = 0;
   res->bFullScreen   = true;
