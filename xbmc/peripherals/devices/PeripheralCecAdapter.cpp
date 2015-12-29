@@ -1602,20 +1602,22 @@ std::string CPeripheralCecAdapterUpdateThread::UpdateAudioSystemStatus(void)
 
 bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
 {
+  std::string strNotification;
+  std::string strAmpName = UpdateAudioSystemStatus();
+  if (!strAmpName.empty())
+    strNotification += StringUtils::Format("- %s", strAmpName.c_str());
+
   // devices to wake are set
   if (!m_configuration.wakeDevices.IsEmpty() && (m_configuration.wakeDevices.primary != CECDEVICE_TV || m_configuration.bActivateSource == 0))
   {
     m_adapter->m_cecAdapter->PowerOnDevices(m_configuration.wakeDevices.primary);
+    if (m_configuration.wakeDevices.primary == CECDEVICE_AUDIOSYSTEM && m_adapter->GetAudioSystemConnected())
+      WaitReady();
   }
 
   // the option to make XBMC the active source is set
   if (m_configuration.bActivateSource == 1)
     m_adapter->ActivateSource();
-
-  std::string strNotification;
-  std::string strAmpName = UpdateAudioSystemStatus();
-  if (!strAmpName.empty())
-    strNotification += StringUtils::Format("- %s", strAmpName.c_str());
 
   // wait until power up
   if (!WaitReady())
