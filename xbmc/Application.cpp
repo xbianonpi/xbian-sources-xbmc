@@ -3965,6 +3965,7 @@ bool CApplication::OnMessage(CGUIMessage& message)
 
   case GUI_MSG_PLAYBACK_STARTED:
     {
+      int64_t Start = CurrentHostCounter();
 #ifdef TARGET_DARWIN_EMBEDDED
       // @TODO move this away to platform code
       CDarwinUtils::SetScheduling(m_appPlayer.IsPlayingVideo());
@@ -4011,6 +4012,10 @@ bool CApplication::OnMessage(CGUIMessage& message)
         if (dialog && !dialog->IsDialogRunning())
           dialog->WaitOnEvent(m_playerEvent);
       }
+
+      float duration = (CurrentHostCounter()-Start) * 1e-9;
+      if (duration > 0.1f)
+        CLog::LogF(LOGWARNING, "Suspiciously long time to handle GUI_MSG_PLAYBACK_STARTED (%.2fs)", duration);
 
       return true;
     }
