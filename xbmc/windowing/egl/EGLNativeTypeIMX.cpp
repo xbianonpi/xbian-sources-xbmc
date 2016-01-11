@@ -552,7 +552,7 @@ bool CEGLNativeTypeIMX::ModeToResolution(std::string mode, RESOLUTION_INFO *res)
     res->fRefreshRate = (float)r;
   res->refresh_rate = (float)r;
 
-  res->dwFlags = MAKEFLAGS(res->dwFlags, 0, p[0] != 'p');
+  res->dwFlags = MAKEFLAGS(res->dwFlags, 0, p[0] != 'p' && p[0] != 'd');
 
   if (StringUtils::StartsWithNoCase(mode, "H:")) {
     res->dwFlags |= D3DPRESENTFLAG_MODE3DSBS;
