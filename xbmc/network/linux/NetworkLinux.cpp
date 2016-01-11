@@ -83,10 +83,9 @@
 
 using namespace KODI::MESSAGING;
 
-CNetworkInterfaceLinux::CNetworkInterfaceLinux(CNetworkLinux* network, bool sa_ipv6, unsigned int ifa_flags,
+CNetworkInterfaceLinux::CNetworkInterfaceLinux(CNetworkLinux* network, unsigned int ifa_flags,
                                                std::string ifa_addr, std::string ifa_netmask, std::string interfaceName,
                                                char interfaceMacAddrRaw[6]) :
-  m_interfaceIpv6(sa_ipv6),
   m_interfaceFlags(ifa_flags),
   m_interfaceAddr(ifa_addr),
   m_interfaceNetmask(ifa_netmask),
@@ -477,8 +476,7 @@ bool CNetworkLinux::queryInterfaceList()
      GetMacAddress(cur, macAddrRaw);
 #endif
 
-     CNetworkInterfaceLinux *i = new CNetworkInterfaceLinux(this, cur->ifa_addr->sa_family == AF_INET6,
-                                                            cur->ifa_flags, addr, mask, name, macAddrRaw);
+     CNetworkInterfaceLinux *i = new CNetworkInterfaceLinux(this, cur->ifa_flags, addr, mask, name, macAddrRaw);
 
      m_interfaces.insert_after(pos, i);
      if (i->isIPv4())

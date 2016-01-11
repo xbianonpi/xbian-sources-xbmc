@@ -35,7 +35,7 @@ class CNetworkInterfaceLinux : public CNetworkInterface
   friend class CNetworkLinux;
 
 public:
-   CNetworkInterfaceLinux(CNetworkLinux* network, bool sa_ipv6,
+   CNetworkInterfaceLinux(CNetworkLinux* network,
                 unsigned int ifa_flags, std::string ifa_addr, std::string ifa_netmask,
                 std::string interfaceName, char interfaceMacAddrRaw[6]);
    ~CNetworkInterfaceLinux(void);
@@ -59,8 +59,8 @@ public:
    virtual void GetSettings(NetworkAssignment& assignment, std::string& ipAddress, std::string& networkMask, std::string& defaultGateway, std::string& essId, std::string& key, EncMode& encryptionMode);
    virtual void SetSettings(NetworkAssignment& assignment, std::string& ipAddress, std::string& networkMask, std::string& defaultGateway, std::string& essId, std::string& key, EncMode& encryptionMode);
 
-   bool isIPv6() { return m_interfaceIpv6; }
-   bool isIPv4() { return !m_interfaceIpv6; }
+   bool isIPv6() { return CNetwork::ConvIPv6(m_interfaceAddr); }
+   bool isIPv4() { return CNetwork::ConvIPv4(m_interfaceAddr); }
 
    // Returns the list of access points in the area
    virtual std::vector<NetworkAccessPoint> GetAccessPoints(void);
@@ -76,7 +76,6 @@ protected:
 
 private:
    void WriteSettings(FILE* fw, NetworkAssignment assignment, std::string& ipAddress, std::string& networkMask, std::string& defaultGateway, std::string& essId, std::string& key, EncMode& encryptionMode);
-   bool            m_interfaceIpv6;
    unsigned int    m_interfaceFlags;   /* Flags from SIOCGIFFLAGS */
    std::string     m_interfaceAddr;    /* Address of interface */
    std::string     m_interfaceNetmask; /* Netmask of interface */
