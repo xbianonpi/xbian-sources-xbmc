@@ -1458,6 +1458,12 @@ Err:
   return false;
 }
 
+void CIMXContext::OnLostDevice()
+{
+  CSingleLock lk(m_pageSwapLock);
+  m_bFbIsConfigured = false;
+}
+
 void CIMXContext::OnResetDevice()
 {
   CSingleLock lk(m_pageSwapLock);

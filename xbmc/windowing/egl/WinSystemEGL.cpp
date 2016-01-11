@@ -294,6 +294,13 @@ bool CWinSystemEGL::CreateNewWindow(const std::string& name, bool fullScreen, RE
 #endif
   }
 
+  {
+    CSingleLock lock(m_resourceSection);
+    // tell any shared resources
+    for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); ++i)
+      (*i)->OnLostDevice();
+  }
+
   m_bFullScreen   = fullScreen;
   // Destroy any existing window
   if (m_surface != EGL_NO_SURFACE)

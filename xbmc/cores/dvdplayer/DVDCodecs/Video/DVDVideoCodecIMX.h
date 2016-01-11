@@ -143,6 +143,7 @@ public:
   void *GetCaptureBuffer() const { if (m_bufferCapture) return m_bufferCapture->buf_vaddr; else return NULL; }
   void WaitCapture();
 
+  void OnLostDevice();
   void OnResetDevice();
 
   void RendererAllowed(bool yes);
