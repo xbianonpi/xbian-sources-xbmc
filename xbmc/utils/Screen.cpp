@@ -120,9 +120,9 @@ void CScreen::SetState(bool state, bool doBlank)
       return;
 
     g_VideoReferenceClock.Stop();
+    ScreenPowerOff(doBlank);
     if (!g_application.IsInScreenSaver())
       g_application.ActivateScreenSaver();
-    ScreenPowerOff(doBlank);
 
     break;
   case false:
