@@ -221,6 +221,14 @@ void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY, float wid
     return;
   }
 
+  RESOLUTION_INFO info = g_graphicsContext.GetResInfo(m_resolution);
+
+  if (info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+  {
+    inputFrameRatio = (float) width / height;
+    zoomAmount = 1.0f;
+  }
+
   // scale up image as much as possible
   // and keep the aspect ratio (introduces with black bars)
   // calculate the correct output frame ratio (using the users pixel ratio setting
