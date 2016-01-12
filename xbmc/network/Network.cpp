@@ -39,6 +39,28 @@
 
 using namespace KODI::MESSAGING;
 
+/*
+ * in all the geniality of new AF/AF6 compatible system functions & structs,
+ * most of *UNIX socket interface calls vitally depends on (struct)addr size to be specified.
+ *
+ * TODO for v18: as was initially discussed in PR#7030 let's define common 'ADT' to represent
+ * network entity (physical as well as logical ones (connectors/listeners/servers(services),
+ * but also interfaces, hosts).
+ *
+ * ((someone nicely started back in 2008 - xbmc/network/Socket.{cpp,h}))
+ */
+socklen_t sa_len(struct sockaddr *addr)
+{
+  switch(((struct sockaddr_storage*)addr)->ss_family)
+  {
+  case AF_INET:
+    return sizeof(struct sockaddr_in);
+  case AF_INET6:
+    return sizeof(struct sockaddr_in6);
+  }
+  return 0;
+}
+
 /* slightly modified in_ether taken from the etherboot project (http://sourceforge.net/projects/etherboot) */
 bool in_ether (const char *bufp, unsigned char *addr)
 {
@@ -501,7 +523,7 @@ bool CNetwork::WakeOnLan(const char* mac)
 }
 
 // ping helper
-static const char* ConnectHostPort(SOCKET soc, const struct sockaddr_in& addr, struct timeval& timeOut, bool tryRead)
+static const char* ConnectHostPort(SOCKET soc, struct sockaddr *addr, struct timeval& timeOut, bool tryRead)
 {
   // set non-blocking
 #ifdef TARGET_WINDOWS
@@ -514,7 +536,7 @@ static const char* ConnectHostPort(SOCKET soc, const struct sockaddr_in& addr, s
   if (result != 0)
     return "set non-blocking option failed";
 
-  result = connect(soc, (struct sockaddr *)&addr, sizeof(addr)); // non-blocking connect, will fail ..
+  result = connect(soc, addr, sa_len(addr)); // non-blocking connect, will fail ..
 
   if (result < 0)
   {
@@ -598,7 +620,7 @@ bool CNetwork::PingHost(const std::string &ipaddr, unsigned short port, unsigned
     tmout.tv_sec = timeOutMs / 1000; 
     tmout.tv_usec = (timeOutMs % 1000) * 1000; 
 
-    err_msg = ConnectHostPort (soc, (const struct sockaddr_in&)addr, tmout, readability_check);
+    err_msg = ConnectHostPort (soc, (struct sockaddr *)addr, tmout, readability_check);
 
     (void) closesocket (soc);
   }
