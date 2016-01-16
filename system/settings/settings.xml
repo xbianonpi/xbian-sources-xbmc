@@ -323,7 +323,7 @@
       <group id="1">
         <setting id="screensaver.mode" type="addon" label="356" help="36130">
           <level>0</level>
-          <default>screensaver.xbmc.builtin.dim</default>
+          <default>screensaver.xbmc.builtin.black</default>
           <constraints>
             <addontype>xbmc.ui.screensaver</addontype>
             <allowempty>true</allowempty>
