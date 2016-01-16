@@ -340,7 +340,6 @@ CNetworkLinux::~CNetworkLinux(void)
 
 void CNetworkLinux::DeleteRemoved(void)
 {
-  CSingleLock lock(m_lockInterfaces);
   m_interfaces.remove_if(IsRemoved);
 }
 
