@@ -997,8 +997,8 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         CLog::Log(LOGNOTICE, "%s - EOS encountered.\n", __FUNCTION__);
       }
 
-      if ((decRet & VPU_DEC_NO_ENOUGH_INBUF) ||
-          (decRet & VPU_DEC_OUTPUT_DIS))
+      if (decRet & (VPU_DEC_NO_ENOUGH_INBUF | VPU_DEC_OUTPUT_DROPPED |
+                    VPU_DEC_OUTPUT_REPEAT | VPU_DEC_OUTPUT_DIS))
       {
         // We are done with VPU decoder that time
         break;
