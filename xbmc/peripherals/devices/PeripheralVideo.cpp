@@ -48,6 +48,9 @@ CPeripheralVideo::~CPeripheralVideo()
 
 void CPeripheralVideo::OnDeviceChanged(int state)
 {
+  if (g_application.m_bStop)
+    return;
+
   if (!GetSettingBool("pass_events"))
     return;
 
