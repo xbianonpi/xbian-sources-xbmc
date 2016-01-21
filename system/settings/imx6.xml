@@ -9,6 +9,9 @@
         <setting id="videoplayer.adjustresolutioninterlaced">
           <default>false</default>
         </setting>
+        <setting id="videoplayer.usedisplayasclock">
+          <default>true</default>
+        </setting>
       </group>
     </category>
   </section>
