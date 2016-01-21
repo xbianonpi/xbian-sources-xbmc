@@ -190,11 +190,11 @@ void CPeripheralCecAdapter::Announce(AnnouncementFlag flag, const char *sender, 
     // Don't put devices to standby if application is currently playing
     if (!g_application.m_pPlayer->IsPlaying() && m_bPowerOffScreensaver)
     {
-      if (!(CEC_POWER_STATUS_ON == m_cecAdapter->GetDevicePowerStatus(CECDEVICE_TV) && m_cecAdapter->IsLibCECActiveSource()))
-        g_screen.SetOff();
       // only power off when we're the active source
       if (m_cecAdapter->IsLibCECActiveSource())
         StandbyDevices();
+      if (!(CEC_POWER_STATUS_ON == m_cecAdapter->GetDevicePowerStatus(CECDEVICE_TV) && m_cecAdapter->IsLibCECActiveSource()))
+        g_screen.SetOff();
     }
   }
   else if (flag == System && !strcmp(sender, "xbmc") && !strcmp(message, "OnSleep"))
