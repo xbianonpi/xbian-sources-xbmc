@@ -970,12 +970,14 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame repeat.\n", __FUNCTION__);
         m_dropState = true;
+        retStatus |= VC_DROPPED;
       }
       else if (decRet & VPU_DEC_OUTPUT_DROPPED)
       {
         if (g_advancedSettings.CanLogComponent(LOGVIDEO))
           CLog::Log(LOGDEBUG, "%s - Frame dropped.\n", __FUNCTION__);
         m_dropState = true;
+        retStatus |= VC_DROPPED;
       }
       else if (decRet & VPU_DEC_NO_ENOUGH_BUF)
       {
