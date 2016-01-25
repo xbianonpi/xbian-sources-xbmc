@@ -304,6 +304,7 @@ public:
   static const std::string SETTING_VIDEOSCREEN_GUICALIBRATION;
   static const std::string SETTING_VIDEOSCREEN_TESTPATTERN;
   static const std::string SETTING_VIDEOSCREEN_LIMITEDRANGE;
+  static const std::string SETTING_VIDEOSCREEN_BLANKCURRENT;
   static const std::string SETTING_AUDIOOUTPUT_AUDIODEVICE;
   static const std::string SETTING_AUDIOOUTPUT_CHANNELS;
   static const std::string SETTING_AUDIOOUTPUT_CONFIG;

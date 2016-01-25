@@ -67,7 +67,7 @@ void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *me
 
 void CScreen::ScreenPowerOff(bool doBlank)
 {
-  if (!doBlank || !CSettings::GetInstance().GetBool("videoscreen.blankcurrent"))
+  if (!doBlank || !CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOSCREEN_BLANKCURRENT))
     return;
 
   m_changedBlank = true;
