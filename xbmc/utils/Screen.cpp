@@ -56,7 +56,11 @@ void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *me
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverDeactivated"))
     g_screen.SetOn();
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && CSettings::GetInstance().GetString("screensaver.mode") == "screensaver.xbmc.builtin.black")
-    g_screen.SetOff();
+  {
+    if (g_application.m_pPlayer->IsPlaying() && g_application.m_pPlayer->IsPausedPlayback() &&
+       !CSettings::GetInstance().GetBool(CSettings::SETTING_SCREENSAVER_USEDIMONPAUSE))
+      g_screen.SetOff();
+  }
 /*
   else if (flag == Player && !strcmp(sender, "xbmc") && !strcmp(message, "OnPlay"))
     g_VideoReferenceClock.Start();
