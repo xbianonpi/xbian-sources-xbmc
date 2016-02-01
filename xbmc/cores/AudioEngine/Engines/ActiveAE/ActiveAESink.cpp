@@ -820,25 +820,21 @@ unsigned int CActiveAESink::OutputSamples(CSampleBuffer* samples)
   {
     maxFrames = std::min(frames, m_sinkFormat.m_frames);
     written = m_sink->AddPackets(buffer, maxFrames, samples->pkt->nb_samples-frames);
-    if (written == 0)
+    if (written == 0 && retry++ < 4)
     {
       Sleep(500*m_sinkFormat.m_frames/m_sinkFormat.m_sampleRate);
-      retry++;
-      if (retry > 4)
-      {
-        m_extError = true;
-        CLog::Log(LOGERROR, "CActiveAESink::OutputSamples - failed");
-        status.SetDelay(0);
-        m_stats->UpdateSinkDelay(status, frames, 0);
-        return 0;
-      }
-      else
-        continue;
+      continue;
+    }
+    else if (written == 0)
+    {
+      m_extError = true;
+      status.SetDelay(0);
+      m_stats->UpdateSinkDelay(status, frames, 0);
+      return 0;
     }
     else if (written > maxFrames)
     {
       m_extError = true;
-      CLog::Log(LOGERROR, "CActiveAESink::OutputSamples - sink returned error");
       status.SetDelay(0);
       m_stats->UpdateSinkDelay(status, samples->pool ? maxFrames : 0, 0);
       return 0;

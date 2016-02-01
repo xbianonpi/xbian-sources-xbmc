@@ -916,46 +916,43 @@ unsigned int CAESinkALSA::AddPackets(uint8_t **data, unsigned int frames, unsign
   unsigned int amount = 0;
   int64_t data_left = (int64_t) frames;
   int frames_written = 0;
+  int ret = 0;
 
-  while (data_left > 0)
+  snd_pcm_nonblock(m_pcm, 0);
+  while (data_left > 0 && HandleError(__func__, ret))
   {
     if (m_fragmented)
       amount = std::min((unsigned int) data_left, m_originalPeriodSize);
     else // take care as we can come here a second time if the sink does not eat all data
       amount = (unsigned int) data_left;
 
-    int ret = snd_pcm_writei(m_pcm, buffer, amount);
+    ret = snd_pcm_writei(m_pcm, buffer, amount);
+
     if (ret < 0)
-    {
-      CLog::Log(ret == -32 ? LOGDEBUG : LOGERROR, "CAESinkALSA - snd_pcm_writei(%d) %s - trying to recover", ret, snd_strerror(ret));
-      HandleError("snd_pcm_writei(1)", ret);
-      ret = snd_pcm_writei(m_pcm, buffer, amount);
-      if (ret < 0)
-      {
-        HandleError("snd_pcm_writei(2)", ret);
-        ret = 0;
-      }
-    }
-
-    if ( ret > 0 && snd_pcm_state(m_pcm) == SND_PCM_STATE_PREPARED)
+      continue;
+    else if (ret > 0 && snd_pcm_state(m_pcm) == SND_PCM_STATE_PREPARED)
       snd_pcm_start(m_pcm);
-
-    if (ret <= 0)
-      break;
 
     frames_written += ret;
     data_left -= ret;
     buffer = data[0]+offset*m_format.m_frameSize + frames_written*m_format.m_frameSize;
   }
+
   return frames_written;
 }
 
-void CAESinkALSA::HandleError(const char* name, int err)
+inline
+int CAESinkALSA::HandleError(const char* name, int err)
 {
+  static int recoveries;
+
+  if (err >= 0)
+    recoveries = -2;
+
   switch(err)
   {
     case -EPIPE:
-      CLog::Log(LOGERROR, "CAESinkALSA::HandleError(%s) - underrun", name);
+      CLog::Log(LOGDEBUG, "CAESinkALSA::HandleError(%s) - underrun", name);
       if ((err = snd_pcm_prepare(m_pcm)) < 0)
         CLog::Log(LOGERROR, "CAESinkALSA::HandleError(%s) - snd_pcm_prepare returned %d (%s)", name, err, snd_strerror(err));
       break;
@@ -974,9 +971,11 @@ void CAESinkALSA::HandleError(const char* name, int err)
       break;
 
     default:
-      CLog::Log(LOGERROR, "CAESinkALSA::HandleError(%s) - snd_pcm_writei returned %d (%s)", name, err, snd_strerror(err));
       break;
   }
+
+  snd_pcm_avail_update(m_pcm);
+  return recoveries++;
 }
 
 void CAESinkALSA::Drain()
