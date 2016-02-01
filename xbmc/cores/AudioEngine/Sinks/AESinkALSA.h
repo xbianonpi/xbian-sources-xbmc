@@ -73,7 +73,7 @@ private:
 #endif
 
   void           GetAESParams(const AEAudioFormat& format, std::string& params);
-  void           HandleError(const char* name, int err);
+  int            HandleError(const char* name, int err);
 
   std::string       m_initDevice;
   AEAudioFormat     m_initFormat;

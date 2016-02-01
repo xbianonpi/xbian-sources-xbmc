@@ -1025,28 +1025,15 @@ unsigned int CActiveAESink::OutputSamples(CSampleBuffer* samples)
   {
     maxFrames = std::min(frames, m_sinkFormat.m_frames);
     written = m_sink->AddPackets(buffer, maxFrames, totalFrames - frames);
-    if (written == 0)
+    if (written == 0 && retry++ < 4)
     {
       Sleep(500*m_sinkFormat.m_frames/m_sinkFormat.m_sampleRate);
-      retry++;
-      if (retry > 4)
-      {
-        m_extError = true;
-        CLog::Log(LOGERROR, "CActiveAESink::OutputSamples - failed");
-        status.SetDelay(0);
-        framesOrPackets = frames;
-        if (m_requestedFormat.m_dataFormat == AE_FMT_RAW)
-          framesOrPackets = 1;
-        m_stats->UpdateSinkDelay(status, samples->pool ? framesOrPackets : 0);
-        return 0;
-      }
-      else
-        continue;
+      continue;
     }
-    else if (written > maxFrames)
+    else if (!written || written > maxFrames)
     {
       m_extError = true;
-      CLog::Log(LOGERROR, "CActiveAESink::OutputSamples - sink returned error");
+      CLog::Log(LOGERROR, "CActiveAESink::OutputSamples - %s", written ? "sink returned error" : "failed");
       status.SetDelay(0);
       framesOrPackets = frames;
       if (m_requestedFormat.m_dataFormat == AE_FMT_RAW)
