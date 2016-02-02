@@ -814,6 +814,10 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
       {
         VpuFreeBuffers();
       }
+      else if (decRet & VPU_DEC_NO_ENOUGH_INBUF)
+      {
+        break;
+      }
       else if (ret != VPU_DEC_RET_SUCCESS)
       {
         CLog::Log(LOGERROR, "%s - VPU decode failed with error code %d (0x%x).\n", __FUNCTION__, ret, decRet);
@@ -1005,8 +1009,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
       {
         CLog::Log(LOGNOTICE, "%s - EOS encountered.\n", __FUNCTION__);
       }
-
-      if (decRet & (VPU_DEC_NO_ENOUGH_INBUF | VPU_DEC_OUTPUT_DROPPED |
+      if (decRet & (VPU_DEC_OUTPUT_DROPPED| VPU_DEC_OUTPUT_NODIS |
                     VPU_DEC_OUTPUT_REPEAT | VPU_DEC_OUTPUT_DIS))
       {
         // We are done with VPU decoder that time
