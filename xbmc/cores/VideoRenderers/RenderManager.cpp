@@ -718,11 +718,7 @@ void CXBMCRenderManager::FlipPage(volatile bool& bStop, double timestamp /* = 0L
         {
           /* default to odd field if we want to deinterlace and don't know better */
           if (deinterlacemode == VS_DEINTERLACEMODE_FORCE && sync == FS_NONE)
-#ifdef HAS_IMXVPU
-            sync = FS_BOT;
-#else
             sync = FS_TOP;
-#endif
 
           /* invert present field */
           if(invert)
