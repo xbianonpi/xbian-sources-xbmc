@@ -1488,6 +1488,8 @@ void CIMXContext::SetFieldData(uint8_t fieldFmt, double fps)
     return;
 
   static EINTERLACEMETHOD imPrev;
+  fieldFmt &= -!m_fbInterlaced;
+
   bool dr = IsDoubleRate();
   bool deint = !!m_currentFieldFmt;
   m_currentFieldFmt = fieldFmt;
