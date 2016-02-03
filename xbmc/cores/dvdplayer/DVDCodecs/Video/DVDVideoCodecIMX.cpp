@@ -1595,12 +1595,15 @@ void CIMXContext::SetFieldData(uint8_t fieldFmt)
   if (!g_graphicsContext.IsFullScreenVideo())
     fieldFmt = 0;
 
+  bool dr = IsDoubleRate();
   bool deint = !!m_currentFieldFmt;
   m_currentFieldFmt = fieldFmt;
-  if (!!fieldFmt == deint)
+  if (!!fieldFmt == deint && dr == IsDoubleRate())
     return;
 
   CLog::Log(LOGDEBUG, "iMX : Deinterlacing parameters changed (%s) %s\n", !!fieldFmt ? "active" : "not active", IsDoubleRate() ? "DR" : "");
+  if (!!fieldFmt == deint)
+    return;
 
   CSingleLock lk(m_pageSwapLock);
   m_bFbIsConfigured = false;
