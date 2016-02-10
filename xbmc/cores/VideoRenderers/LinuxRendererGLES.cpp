@@ -3228,7 +3228,7 @@ CRenderInfo CLinuxRendererGLES::GetRenderInfo()
     if(CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD) == RENDER_METHOD_IMXv14)
       info.optimal_buffer_size = info.max_buffer_size;
     else
-      info.optimal_buffer_size = 6;
+      info.optimal_buffer_size = NUM_BUFFERS;
   }
   else
     info.optimal_buffer_size = 3;
