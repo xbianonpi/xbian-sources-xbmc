@@ -248,7 +248,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
   int loop_diff = 0;
 
   // CHANGERESOLUTION
-  if (CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION))
+  if (CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION) && !CONF_FLAGS_STEREO_MODE_MASK(m_iFlags))
   {
     bool i_found = false;
 
@@ -261,7 +261,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
         ||    CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
         ||    ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
         ||    info.iScreenHeight != m_sourceHeight
-        ||    fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11)
+        ||    IS_3D(info.dwFlags))
           continue;
 
         current = (RESOLUTION)i;
@@ -274,7 +274,7 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
         if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
-        ||   fabs(info.fPixelRatio - curr.fPixelRatio) > 0.11
+        ||  IS_3D(info.dwFlags)
         ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
         ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
         || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED) && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
