@@ -33,6 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VC_HDMI_H_
 #define _VC_HDMI_H_
 
+#include "guilib/gui3d.h"
+
 typedef int VC_HDMI_BOOL_T;
 
 /**
@@ -557,5 +559,7 @@ typedef VC_HDMI_ERROR_T HDMI_RESULT_T;
 
 #define GETFLAGS_GROUP(f)       ( (HDMI_RES_GROUP_T)( ((f) >> 16) & 0xff ))
 #define GETFLAGS_MODE(f)        ( ( (f) >>24 ) & 0xff )
+
+#define IS_3D(f)                ( f & (D3DPRESENTFLAG_MODE3DSBS | D3DPRESENTFLAG_MODE3DTB) )
 
 #endif /*HDMI_RES_GROUP_NAME*/
