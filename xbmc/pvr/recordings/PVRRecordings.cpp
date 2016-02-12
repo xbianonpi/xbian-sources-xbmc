@@ -179,7 +179,7 @@ void CPVRRecordings::Update(void)
   m_bIsUpdating = true;
   lock.Leave();
 
-  CLog::Log(LOGDEBUG, "CPVRRecordings - %s - updating recordings", __FUNCTION__);
+  CLog::Log(LOGPVR, "CPVRRecordings - %s - updating recordings", __FUNCTION__);
   UpdateFromClients();
 
   lock.Enter();
@@ -290,7 +290,7 @@ bool CPVRRecordings::SetRecordingsPlayCount(const CFileItemPtr &item, int count)
   {
     bResult = true;
 
-    CLog::Log(LOGDEBUG, "CPVRRecordings - %s - item path %s", __FUNCTION__, item->GetPath().c_str());
+    CLog::Log(LOGPVR, "CPVRRecordings - %s - item path %s", __FUNCTION__, item->GetPath().c_str());
     CFileItemList items;
     if (item->m_bIsFolder)
     {
@@ -299,15 +299,15 @@ bool CPVRRecordings::SetRecordingsPlayCount(const CFileItemPtr &item, int count)
     else
       items.Add(item);
 
-    CLog::Log(LOGDEBUG, "CPVRRecordings - %s - will set watched for %d items", __FUNCTION__, items.Size());
+    CLog::Log(LOGPVR, "CPVRRecordings - %s - will set watched for %d items", __FUNCTION__, items.Size());
     for (int i=0;i<items.Size();++i)
     {
-      CLog::Log(LOGDEBUG, "CPVRRecordings - %s - setting watched for item %d", __FUNCTION__, i);
+      CLog::Log(LOGPVR, "CPVRRecordings - %s - setting watched for item %d", __FUNCTION__, i);
 
       CFileItemPtr pItem=items[i];
       if (pItem->m_bIsFolder)
       {
-        CLog::Log(LOGDEBUG, "CPVRRecordings - %s - path %s is a folder, will call recursively", __FUNCTION__, pItem->GetPath().c_str());
+        CLog::Log(LOGPVR, "CPVRRecordings - %s - path %s is a folder, will call recursively", __FUNCTION__, pItem->GetPath().c_str());
         if (pItem->GetLabel() != "..")
         {
           SetRecordingsPlayCount(pItem, count);
