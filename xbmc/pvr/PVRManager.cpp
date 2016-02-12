@@ -174,7 +174,7 @@ CPVRManager::~CPVRManager(void)
 {
   CSettings::GetInstance().UnregisterCallback(this);
   CAnnouncementManager::GetInstance().RemoveAnnouncer(this);
-  CLog::Log(LOGDEBUG,"PVRManager - destroyed");
+  CLog::Log(LOGPVR,"PVRManager - destroyed");
 }
 
 void CPVRManager::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)
@@ -583,7 +583,7 @@ void CPVRManager::Process(void)
   g_EpgContainer.Start(true);
 
   /* main loop */
-  CLog::Log(LOGDEBUG, "PVRManager - %s - entering main loop", __FUNCTION__);
+  CLog::Log(LOGPVR, "PVRManager - %s - entering main loop", __FUNCTION__);
 
   bool bRestart(false);
   while (IsStarted() && m_addons->HasCreatedClients() && !bRestart)
@@ -682,7 +682,7 @@ bool CPVRManager::Load(bool bShowProgress)
   if (!IsInitialising() || !m_addons->HasCreatedClients())
     return false;
 
-  CLog::Log(LOGDEBUG, "PVRManager - %s - active clients found. continue to start", __FUNCTION__);
+  CLog::Log(LOGPVR, "PVRManager - %s - active clients found. continue to start", __FUNCTION__);
 
   /* load all channels and groups */
   if (bShowProgress)
@@ -805,7 +805,7 @@ bool CPVRManager::ContinueLastChannel(void)
     return true;
   }
 
-  CLog::Log(LOGDEBUG, "PVRManager - %s - no last played channel to continue playback found", __FUNCTION__);
+  CLog::Log(LOGPVR, "PVRManager - %s - no last played channel to continue playback found", __FUNCTION__);
 
   return false;
 }
@@ -927,7 +927,7 @@ int CPVRManager::GetCurrentEpg(CFileItemList &results) const
   if (channel)
     iReturn = channel->GetEPG(results);
   else
-    CLog::Log(LOGDEBUG,"PVRManager - %s - no current channel set", __FUNCTION__);
+    CLog::Log(LOGPVR,"PVRManager - %s - no current channel set", __FUNCTION__);
 
   return iReturn;
 }
@@ -1314,7 +1314,7 @@ bool CPVRManager::OpenLiveStream(const CFileItem &fileItem)
   if (!fileItem.HasPVRChannelInfoTag())
     return bReturn;
 
-  CLog::Log(LOGDEBUG,"PVRManager - %s - opening live stream on channel '%s'",
+  CLog::Log(LOGPVR,"PVRManager - %s - opening live stream on channel '%s'",
       __FUNCTION__, fileItem.GetPVRChannelInfoTag()->ChannelName().c_str());
 
   // check if we're allowed to play this file
@@ -1602,7 +1602,7 @@ bool CPVRManager::PerformChannelSwitch(const CPVRChannelPtr &channel, bool bPrev
     CSingleLock lock(m_critSection);
     if (m_bIsSwitchingChannels)
     {
-      CLog::Log(LOGDEBUG, "PVRManager - %s - can't switch to channel '%s'. waiting for the previous switch to complete",
+      CLog::Log(LOGPVR, "PVRManager - %s - can't switch to channel '%s'. waiting for the previous switch to complete",
           __FUNCTION__, channel->ChannelName().c_str());
       return false;
     }
@@ -1630,7 +1630,7 @@ bool CPVRManager::PerformChannelSwitch(const CPVRChannelPtr &channel, bool bPrev
 
     m_bIsSwitchingChannels = true;
 
-    CLog::Log(LOGDEBUG, "PVRManager - %s - switching to channel '%s'", __FUNCTION__, channel->ChannelName().c_str());
+    CLog::Log(LOGPVR, "PVRManager - %s - switching to channel '%s'", __FUNCTION__, channel->ChannelName().c_str());
 
     previousFile = m_currentFile;
     m_currentFile = nullptr;
