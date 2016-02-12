@@ -26,6 +26,7 @@
 #include "utils/StringUtils.h"
 #include "CompileInfo.h"
 #include "utils/TimeUtils.cpp"
+#include "settings/AdvancedSettings.h"
 
 static const char* const levelNames[] =
 {"DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "SEVERE", "FATAL", "NONE"};
@@ -168,25 +169,24 @@ int CLog::GetLogLevel()
 void CLog::SetExtraLogLevels(int level)
 {
   CSingleLock waitLock(s_globals.critSec);
-  s_globals.m_extraLogLevels = level;
+  s_globals.m_extraLogLevels = level & ~LOGMASK;
 }
 
 bool CLog::IsLogLevelLogged(int loglevel)
 {
   const int extras = (loglevel & ~LOGMASK);
-  if (extras != 0 && (s_globals.m_extraLogLevels & extras) == 0)
-    return false;
+  const bool canlog = (extras ? g_advancedSettings.CanLogComponent(extras) : true);
 
 #if defined(_DEBUG) || defined(PROFILE)
   return true;
 #else
   if (s_globals.m_logLevel >= LOG_LEVEL_DEBUG)
-    return true;
+    return canlog;
   if (s_globals.m_logLevel <= LOG_LEVEL_NONE)
     return false;
 
   // "m_logLevel" is "LOG_LEVEL_NORMAL"
-  return (loglevel & LOGMASK) >= LOGNOTICE;
+  return ((loglevel & LOGMASK) >= LOGNOTICE) && canlog;
 #endif
 }
 
@@ -226,7 +226,7 @@ bool CLog::WriteLogString(int logLevel, const std::string& logString)
                                   Now,
 #endif
                                   (uint64_t)CThread::GetCurrentThreadId(),
-                                  levelNames[logLevel]) + strData;
+                                  levelNames[logLevel & LOGMASK]) + strData;
 
   return s_globals.m_platform.WriteStringToLog(strData);
 }
