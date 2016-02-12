@@ -174,8 +174,7 @@ ADDON_STATUS CPVRClient::Create(int iClientId)
 
   /* initialise the add-on */
   bool bReadyToUse(false);
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - creating PVR add-on instance '%s'", __FUNCTION__, Name().c_str());
+  CLog::Log(LOGDEBUG, "PVR - %s - creating PVR add-on instance '%s'", __FUNCTION__, Name().c_str());
   try
   {
     if ((status = CAddonDll<DllPVRClient, PVRClient, PVR_PROPERTIES>::Create()) == ADDON_STATUS_OK)
@@ -203,8 +202,7 @@ void CPVRClient::Destroy(void)
   m_bReadyToUse = false;
 
   /* reset 'ready to use' to false */
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - destroying PVR add-on '%s'", __FUNCTION__, GetFriendlyName().c_str());
+  CLog::Log(LOGDEBUG, "PVR - %s - destroying PVR add-on '%s'", __FUNCTION__, GetFriendlyName().c_str());
 
   /* destroy the add-on */
   try { CAddonDll<DllPVRClient, PVRClient, PVR_PROPERTIES>::Destroy(); }
@@ -844,9 +842,8 @@ PVR_ERROR CPVRClient::GetChannelGroupMembers(CPVRChannelGroup *group)
     PVR_CHANNEL_GROUP tag;
     WriteClientGroupInfo(*group, tag);
 
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "PVR - %s - get group members for group '%s' from add-on '%s'",
-          __FUNCTION__, tag.strGroupName, GetFriendlyName().c_str());
+    CLog::Log(LOGDEBUG, "PVR - %s - get group members for group '%s' from add-on '%s'",
+        __FUNCTION__, tag.strGroupName, GetFriendlyName().c_str());
     retVal = m_pStruct->GetChannelGroupMembers(&handle, tag);
 
     LogError(retVal, __FUNCTION__);
@@ -1705,13 +1702,11 @@ bool CPVRClient::OpenStream(const CPVRChannelPtr &channel, bool bIsSwitchingChan
 
   if(!CanPlayChannel(channel))
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "add-on '%s' can not play channel '%s'", GetFriendlyName().c_str(), channel->ChannelName().c_str());
+    CLog::Log(LOGDEBUG, "add-on '%s' can not play channel '%s'", GetFriendlyName().c_str(), channel->ChannelName().c_str());
   }
   else if (!channel->StreamURL().empty())
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "opening live stream on url '%s'", channel->StreamURL().c_str());
+    CLog::Log(LOGDEBUG, "opening live stream on url '%s'", channel->StreamURL().c_str());
     bReturn = true;
 
     // the Njoy N7 sometimes doesn't switch channels, but opens a stream to the previous channel
@@ -1727,8 +1722,7 @@ bool CPVRClient::OpenStream(const CPVRChannelPtr &channel, bool bIsSwitchingChan
   }
   else
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "opening live stream for channel '%s'", channel->ChannelName().c_str());
+    CLog::Log(LOGDEBUG, "opening live stream for channel '%s'", channel->ChannelName().c_str());
     PVR_CHANNEL tag;
     WriteClientChannelInfo(channel, tag);
 
@@ -1951,16 +1945,14 @@ bool CPVRClient::Autoconfigure(void)
       {
         // %s service found at %s
         std::string strLogLine(StringUtils::Format(g_localizeStrings.Get(19689).c_str(), (*it).GetName().c_str(), (*it).GetIP().c_str()));
-        if (g_advancedSettings.CanLogComponent(LOGPVR))
-          CLog::Log(LOGDEBUG, "%s - %s", __FUNCTION__, strLogLine.c_str());
+        CLog::Log(LOGDEBUG, "%s - %s", __FUNCTION__, strLogLine.c_str());
 
         if (DialogResponse::YES != 
           HELPERS::ShowYesNoDialogLines(CVariant{19688}, // Scanning for PVR services
                                         CVariant{strLogLine},
                                         CVariant{19690})) // Do you want to use this service?
         {
-          if (g_advancedSettings.CanLogComponent(LOGPVR))
-            CLog::Log(LOGDEBUG, "%s - %s service found but not enabled by the user", __FUNCTION__, (*it).GetName().c_str());
+          CLog::Log(LOGDEBUG, "%s - %s service found but not enabled by the user", __FUNCTION__, (*it).GetName().c_str());
           m_rejectedAvahiHosts.push_back(*it);
         }
         else

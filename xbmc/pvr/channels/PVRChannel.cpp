@@ -25,7 +25,6 @@
 #include "threads/SingleLock.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
-#include "settings/AdvancedSettings.h"
 #include "utils/Variant.h"
 
 #include "pvr/PVRDatabase.h"
@@ -547,9 +546,8 @@ int CPVRChannel::GetEPG(CFileItemList &results) const
   CEpgPtr epg = GetEPG();
   if (!epg)
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "PVR - %s - cannot get EPG for channel '%s'",
-          __FUNCTION__, m_strChannelName.c_str());
+    CLog::Log(LOGDEBUG, "PVR - %s - cannot get EPG for channel '%s'",
+        __FUNCTION__, m_strChannelName.c_str());
     return -1;
   }
 

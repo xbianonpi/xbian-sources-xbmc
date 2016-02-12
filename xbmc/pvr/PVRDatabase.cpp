@@ -47,8 +47,7 @@ void CPVRDatabase::CreateTables()
 {
   CLog::Log(LOGINFO, "PVR - %s - creating tables", __FUNCTION__);
 
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - creating table 'channels'", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "PVR - %s - creating table 'channels'", __FUNCTION__);
   m_pDS->exec(
       "CREATE TABLE channels ("
         "idChannel            integer primary key, "
@@ -72,8 +71,7 @@ void CPVRDatabase::CreateTables()
       ")"
   );
 
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - creating table 'channelgroups'", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "PVR - %s - creating table 'channelgroups'", __FUNCTION__);
   m_pDS->exec(
       "CREATE TABLE channelgroups ("
         "idGroup         integer primary key,"
@@ -86,8 +84,7 @@ void CPVRDatabase::CreateTables()
       ")"
   );
 
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - creating table 'map_channelgroups_channels'", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "PVR - %s - creating table 'map_channelgroups_channels'", __FUNCTION__);
   m_pDS->exec(
       "CREATE TABLE map_channelgroups_channels ("
         "idChannel         integer, "
@@ -189,8 +186,7 @@ void CPVRDatabase::UpdateTables(int iVersion)
 
 bool CPVRDatabase::DeleteChannels(void)
 {
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - deleting all channels from the database", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "PVR - %s - deleting all channels from the database", __FUNCTION__);
   return DeleteValues("channels");
 }
 
@@ -203,8 +199,7 @@ bool CPVRDatabase::DeleteClientChannels(const CPVRClient &client)
     return false;
   }
 
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - deleting all channels from client '%i' from the database", __FUNCTION__, client.GetID());
+  CLog::Log(LOGDEBUG, "PVR - %s - deleting all channels from client '%i' from the database", __FUNCTION__, client.GetID());
 
   Filter filter;
   filter.AppendWhere(PrepareSQL("iClientId = %u", client.GetID()));
@@ -218,8 +213,7 @@ bool CPVRDatabase::Delete(const CPVRChannel &channel)
   if (channel.ChannelID() <= 0)
     return false;
 
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - deleting channel '%s' from the database", __FUNCTION__, channel.ChannelName().c_str());
+  CLog::Log(LOGDEBUG, "PVR - %s - deleting channel '%s' from the database", __FUNCTION__, channel.ChannelName().c_str());
 
   Filter filter;
   filter.AppendWhere(PrepareSQL("idChannel = %u", channel.ChannelID()));
@@ -266,8 +260,7 @@ int CPVRDatabase::Get(CPVRChannelGroupInternal &results)
         channel->UpdateEncryptionName();
 
 #if PVRDB_DEBUGGING
-        if (g_advancedSettings.CanLogComponent(LOGPVR))
-          CLog::Log(LOGDEBUG, "PVR - %s - channel '%s' loaded from the database", __FUNCTION__, channel->m_strChannelName.c_str());
+        CLog::Log(LOGDEBUG, "PVR - %s - channel '%s' loaded from the database", __FUNCTION__, channel->m_strChannelName.c_str());
 #endif
         PVRChannelGroupMember newMember = { channel, (unsigned int)m_pDS->fv("iChannelNumber").get_asInt() };
         results.m_sortedMembers.push_back(newMember);
@@ -446,8 +439,7 @@ bool CPVRDatabase::RemoveStaleChannelsFromGroup(const CPVRChannelGroup &group)
 
 bool CPVRDatabase::DeleteChannelGroups(void)
 {
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVR - %s - deleting all channel groups from the database", __FUNCTION__);
+  CLog::Log(LOGDEBUG, "PVR - %s - deleting all channel groups from the database", __FUNCTION__);
 
   return DeleteValues("channelgroups") &&
       DeleteValues("map_channelgroups_channels");
@@ -488,8 +480,7 @@ bool CPVRDatabase::Get(CPVRChannelGroups &results)
         data.SetPosition(m_pDS->fv("iPosition").get_asInt());
         results.Update(data);
 
-        if (g_advancedSettings.CanLogComponent(LOGPVR))
-          CLog::Log(LOGDEBUG, "PVR - %s - group '%s' loaded from the database", __FUNCTION__, data.GroupName().c_str());
+        CLog::Log(LOGDEBUG, "PVR - %s - group '%s' loaded from the database", __FUNCTION__, data.GroupName().c_str());
         m_pDS->next();
       }
       m_pDS->close();
@@ -531,8 +522,7 @@ int CPVRDatabase::Get(CPVRChannelGroup &group)
         if (channel)
         {
 #if PVRDB_DEBUGGING
-          if (g_advancedSettings.CanLogComponent(LOGPVR))
-            CLog::Log(LOGDEBUG, "PVR - %s - channel '%s' loaded from the database", __FUNCTION__, channel->m_strChannelName.c_str());
+          CLog::Log(LOGDEBUG, "PVR - %s - channel '%s' loaded from the database", __FUNCTION__, channel->m_strChannelName.c_str());
 #endif
           PVRChannelGroupMember newMember = { channel, (unsigned int)iChannelNumber };
           group.m_sortedMembers.push_back(newMember);

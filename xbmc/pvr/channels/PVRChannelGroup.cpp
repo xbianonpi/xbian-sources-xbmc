@@ -34,7 +34,6 @@
 #include "threads/SingleLock.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
-#include "settings/AdvancedSettings.h"
 
 #include "pvr/PVRDatabase.h"
 #include "pvr/PVRManager.h"
@@ -163,8 +162,7 @@ bool CPVRChannelGroup::Load(void)
   m_bUsingBackendChannelNumbers = CSettings::GetInstance().GetBool(CSettings::SETTING_PVRMANAGER_USEBACKENDCHANNELNUMBERS);
 
   int iChannelCount = m_iGroupId > 0 ? LoadFromDb() : 0;
-  if (g_advancedSettings.CanLogComponent(LOGPVR))
-    CLog::Log(LOGDEBUG, "PVRChannelGroup - %s - %d channels loaded from the database for group '%s'",
+  CLog::Log(LOGDEBUG, "PVRChannelGroup - %s - %d channels loaded from the database for group '%s'",
         __FUNCTION__, iChannelCount, m_strGroupName.c_str());
 
   if (!Update())
@@ -175,9 +173,8 @@ bool CPVRChannelGroup::Load(void)
 
   if (Size() - iChannelCount > 0)
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "PVRChannelGroup - %s - %d channels added from clients to group '%s'",
-          __FUNCTION__, static_cast<int>(Size() - iChannelCount), m_strGroupName.c_str());
+    CLog::Log(LOGDEBUG, "PVRChannelGroup - %s - %d channels added from clients to group '%s'",
+        __FUNCTION__, static_cast<int>(Size() - iChannelCount), m_strGroupName.c_str());
   }
 
   SortAndRenumber();
@@ -903,9 +900,8 @@ bool CPVRChannelGroup::Persist(void)
 
   if (CPVRDatabase *database = GetPVRDatabase())
   {
-    if (g_advancedSettings.CanLogComponent(LOGPVR))
-      CLog::Log(LOGDEBUG, "CPVRChannelGroup - %s - persisting channel group '%s' with %d channels",
-          __FUNCTION__, GroupName().c_str(), (int) m_members.size());
+    CLog::Log(LOGDEBUG, "CPVRChannelGroup - %s - persisting channel group '%s' with %d channels",
+        __FUNCTION__, GroupName().c_str(), (int) m_members.size());
     m_bChanged = false;
     lock.Leave();
 
@@ -1038,9 +1034,8 @@ void CPVRChannelGroup::OnSettingChanged(const CSetting *setting)
     /* check whether this channel group has to be renumbered */
     if (bChannelOrderChanged || bChannelNumbersChanged)
     {
-      if (g_advancedSettings.CanLogComponent(LOGPVR))
-        CLog::Log(LOGDEBUG, "CPVRChannelGroup - %s - renumbering group '%s' to use the backend channel order and/or numbers",
-            __FUNCTION__, m_strGroupName.c_str());
+      CLog::Log(LOGDEBUG, "CPVRChannelGroup - %s - renumbering group '%s' to use the backend channel order and/or numbers",
+          __FUNCTION__, m_strGroupName.c_str());
       SortAndRenumber();
       Persist();
     }

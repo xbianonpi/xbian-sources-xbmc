@@ -37,7 +37,6 @@
 #include "epg/Epg.h"
 #include "pvr/channels/PVRChannel.h"
 
-#include "settings/AdvancedSettings.h"
 #include "Epg.h"
 #include "GUIEPGGridContainer.h"
 
