@@ -31,6 +31,7 @@
 #include "cores/VideoRenderers/RenderManager.h"
 #endif
 #include "utils/BitstreamStats.h"
+#include "guilib/DispResource.h"
 
 class CDemuxStreamVideo;
 
@@ -55,13 +56,16 @@ public:
   unsigned int m_dropRequests;
 };
 
-class CDVDPlayerVideo : public CThread, public IDVDStreamPlayerVideo
+class CDVDPlayerVideo : public CThread, public IDVDStreamPlayerVideo, IDispResource
 {
 public:
   CDVDPlayerVideo( CDVDClock* pClock
                  , CDVDOverlayContainer* pOverlayContainer
                  , CDVDMessageQueue& parent);
   virtual ~CDVDPlayerVideo();
+
+  void OnResetDevice()   { DropStats(); }
+  void DropStats();
 
   bool OpenStream(CDVDStreamInfo &hint);
   void CloseStream(bool bWaitForBuffers);

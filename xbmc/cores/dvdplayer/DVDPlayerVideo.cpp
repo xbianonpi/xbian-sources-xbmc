@@ -289,6 +289,13 @@ void CDVDPlayerVideo::OnStartup()
   m_FlipTimePts   = 0.0;
 }
 
+void CDVDPlayerVideo::DropStats()
+{
+  ResetFrameRateCalc();
+  m_droppingStats.Reset();
+  m_pullupCorrection.Flush();
+}
+
 void CDVDPlayerVideo::Process()
 {
   CLog::Log(LOGNOTICE, "running thread: video_thread");
