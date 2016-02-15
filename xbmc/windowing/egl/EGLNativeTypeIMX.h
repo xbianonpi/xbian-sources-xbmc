@@ -69,5 +69,6 @@ protected:
 private:
   void SetStrMode(RESOLUTION_INFO *res) const;
   int  m_ntsc;
+  bool m_ignorenext;
 #endif
 };
