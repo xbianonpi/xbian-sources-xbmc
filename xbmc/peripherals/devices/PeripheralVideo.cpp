@@ -61,7 +61,7 @@ void CPeripheralVideo::OnDeviceChanged(int state)
   if (m_timer.IsRunning())
     m_timer.Restart();
   else
-    m_timer.Start(5000);
+    m_timer.Start(3000);
 }
 
 bool CPeripheralVideo::IsQuantRangeLimited()
@@ -101,14 +101,15 @@ void CPeripheralVideo::OnTimeout()
   switch (m_cableState)
   {
     case CABLE_CONNECTED:
-      g_screen.SetOn();
-
       CSettings::GetInstance().SetBool("videoscreen.limitedrange", IsQuantRangeLimited());
+
       if (CSettings::GetInstance().GetBool("videoscreen.updateresolutions"))
       {
         CApplicationMessenger::GetInstance().PostMsg(TMSG_DISPLAY_RECONFIGURE);
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, "VIDEO", g_localizeStrings.Get(13288));
       }
+
+      g_screen.SetOn();
 
       break;
     case CABLE_DISCONNECTED:
