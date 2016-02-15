@@ -904,7 +904,6 @@ void PLAYLIST::CPlayListPlayer::OnApplicationMessage(KODI::MESSAGING::ThreadMess
       g_windowManager.PreviousWindow();
 
     g_application.ResetScreenSaver();
-    g_application.WakeUpScreenSaverAndDPMS();
 
     // stop playing file
     if (g_application.m_pPlayer->IsPlaying()) g_application.StopPlaying();
@@ -915,7 +914,6 @@ void PLAYLIST::CPlayListPlayer::OnApplicationMessage(KODI::MESSAGING::ThreadMess
     if (g_application.m_pPlayer->HasPlayer())
     {
       g_application.ResetScreenSaver();
-      g_application.WakeUpScreenSaverAndDPMS();
       g_application.m_pPlayer->Pause();
     }
     break;
@@ -933,7 +931,6 @@ void PLAYLIST::CPlayListPlayer::OnApplicationMessage(KODI::MESSAGING::ThreadMess
     if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPaused())
     {
       g_application.ResetScreenSaver();
-      g_application.WakeUpScreenSaverAndDPMS();
       g_application.m_pPlayer->Pause();
     }
     break;
