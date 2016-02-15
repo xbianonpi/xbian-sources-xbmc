@@ -53,6 +53,7 @@ CEGLNativeTypeIMX::CEGLNativeTypeIMX()
   : m_display(NULL)
   , m_window(NULL)
   , m_ntsc(0)
+  , m_ignorenext(false)
 #endif
 {
 #ifdef HAS_IMXVPU
@@ -440,8 +441,14 @@ bool CEGLNativeTypeIMX::GetPreferredResolution(RESOLUTION_INFO *res) const
 bool CEGLNativeTypeIMX::ShowWindow(bool show)
 {
 #ifdef HAS_IMXVPU
-  if (m_show == show)
+
+  if (m_ignorenext || (m_show == show))
+  {
+    if (!show)
+      m_ignorenext ^= 1;
+
     return true;
+  }
 
   CLog::Log(LOGDEBUG, ": %s %s", __FUNCTION__, show?"show":"hide");
   SysfsUtils::SetInt("/sys/class/graphics/fb0/blank", show ? 0 : 1 );
