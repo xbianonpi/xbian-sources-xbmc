@@ -2862,7 +2862,7 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
   if (processGUI && m_renderGUI)
   {
     m_skipGuiRender = false;
-    int idleSeconds = 3;
+    int idleSeconds = 15 * (m_pPlayer->IsPlayingAudio() && !m_pPlayer->IsPausedPlayback() ? 4*3/*3 min total*/ : 1);
     int fps = 0;
 
 #if defined(TARGET_RASPBERRY_PI) || defined(HAS_IMXVPU)
@@ -2872,9 +2872,9 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
 #endif
     if ((idleSeconds && m_screenSaverTimer.GetElapsedSeconds() > idleSeconds) || !idleSeconds)
 #if defined(TARGET_RASPBERRY_PI) || defined(HAS_IMXVPU)
-      fps = CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_LIMITGUIUPDATE);
+      fps = CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_LIMITGUIUPDATE) * 2;
 #else
-      fps = 5;
+      fps = 10;
 #endif
 
     unsigned int now = XbmcThreads::SystemClockMillis();
