@@ -30,6 +30,7 @@ CEGLEdid::CEGLEdid()
   : m_fSar(0.0f)
   , m_edidEmpty(true)
 {
+  memset(&m_edid, 0, EDID_MAXSIZE);
 }
 
 CEGLEdid::~CEGLEdid()

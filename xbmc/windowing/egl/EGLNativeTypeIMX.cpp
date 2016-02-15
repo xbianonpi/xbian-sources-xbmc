@@ -471,6 +471,19 @@ bool CEGLEdid::ReadEdidData()
   if(!f_edid)
     return false;
 
+  // first check if EDID is in binary format by reading 512bytes, compare 1st 8bytes
+  // against EDID 1.4 identificator [0x0,0xff,0xff,0xff,0xff,0xff,0xff,0x0]
+  // if no match, seek to 0 input file and continue with previous method.
+  if (((done = fread(&m_edid, 1, EDID_MAXSIZE, f_edid)) % 128) == 0 && done)
+    if (!memcmp(&m_edid, &EDID_HEADER, 8))
+    {
+      fclose(f_edid);
+      return true;
+    }
+
+  done = 0;
+  memset(&m_edid, 0, EDID_MAXSIZE);
+  fseek(f_edid, 0L, SEEK_SET);
   // we need to convert mxc_hdmi output format to binary array
   // mxc_hdmi provides the EDID as space delimited 1bytes blocks
   // exported as text with format specifier %x eg:
@@ -487,7 +500,7 @@ bool CEGLEdid::ReadEdidData()
   while(getline(&str, &n, f_edid) > 0)
   {
     char *c = str;
-    while(*c != '\n' && done < 512)
+    while(*c != '\n' && done < EDID_MAXSIZE)
     {
       c += 2;
       sscanf(c, "%hhx", &p);
