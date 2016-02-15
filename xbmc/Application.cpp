@@ -2794,7 +2794,7 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
   if (processGUI && m_renderGUI)
   {
     m_skipGuiRender = false;
-    int idleSeconds = 3;
+    int idleSeconds = 3 * (m_pPlayer->IsPlayingAudio() && !m_pPlayer->IsPausedPlayback() ? 3*20/*3 min total*/ : 1);
     int fps = 0;
 
 #if defined(TARGET_RASPBERRY_PI) || defined(HAS_IMXVPU)
