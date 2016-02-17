@@ -1646,16 +1646,18 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
          bContinue)
     bContinue = !m_event.WaitMSec(1000);
 
+  {
+    CSingleLock lock(m_critSection);
+    m_adapter->m_bIsReady = true;
+    m_bIsUpdating = false;
+  }
+
   // request the OSD name of the TV
   std::string tvName(m_adapter->m_cecAdapter->GetDeviceOSDName(CECDEVICE_TV));
   strNotification = StringUtils::Format("%s: %s", g_localizeStrings.Get(36016).c_str(), tvName.c_str());
 
   // and let the gui know that we're done
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000), strNotification);
-
-  CSingleLock lock(m_critSection);
-  m_adapter->m_bIsReady = true;
-  m_bIsUpdating = false;
   return true;
 }
 
