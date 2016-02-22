@@ -29,6 +29,8 @@
 #include "guilib/GraphicContext.h"
 #include "cores/VideoRenderers/BaseRenderer.h"
 #include "cores/VideoRenderers/RenderFlags.h"
+#include "cores/VideoRenderers/RenderManager.h"
+#include "settings/DisplaySettings.h"
 
 #include <cassert>
 #include <sys/stat.h>
@@ -1415,7 +1417,11 @@ bool CIMXContext::AdaptScreen()
 
   m_fbWidth = fbVar.xres;
   m_fbHeight = fbVar.yres;
-  m_fbInterlaced = fbVar.vmode & FB_VMODE_INTERLACED;
+
+  if (g_renderManager.IsStarted())
+    m_fbInterlaced = g_graphicsContext.GetResInfo(g_renderManager.GetResolution()).dwFlags & D3DPRESENTFLAG_INTERLACED;
+  else
+    m_fbInterlaced = g_graphicsContext.GetResInfo(CDisplaySettings::GetInstance().GetCurrentResolution()).dwFlags & D3DPRESENTFLAG_INTERLACED;
 
   if (!GetFBInfo(m_deviceName, &m_fbVar))
     goto Err;
