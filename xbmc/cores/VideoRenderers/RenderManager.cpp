@@ -712,6 +712,8 @@ void CXBMCRenderManager::FlipPage(volatile bool& bStop, double timestamp /* = 0L
         else if (interlacemethod == VS_INTERLACEMETHOD_DXVA_BOB)                presentmethod = PRESENT_METHOD_BOB;
         else if (interlacemethod == VS_INTERLACEMETHOD_DXVA_BEST)               presentmethod = PRESENT_METHOD_BOB;
         else if (interlacemethod == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE)   presentmethod = PRESENT_METHOD_BOB;
+        else if (interlacemethod == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE_INVERTED)
+                                                                              { presentmethod = PRESENT_METHOD_BOB; invert = true; }
         else                                                                    presentmethod = PRESENT_METHOD_SINGLE;
 
         if (presentmethod != PRESENT_METHOD_SINGLE)

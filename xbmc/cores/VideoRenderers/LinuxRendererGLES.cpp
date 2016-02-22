@@ -3133,7 +3133,8 @@ bool CLinuxRendererGLES::Supports(EINTERLACEMETHOD method)
   if(m_renderMethod & RENDER_IMXMAP)
   {
     if(method == VS_INTERLACEMETHOD_IMX_FASTMOTION
-    || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE)
+    || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE
+    || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE_INVERTED)
       return true;
     else
       return false;
