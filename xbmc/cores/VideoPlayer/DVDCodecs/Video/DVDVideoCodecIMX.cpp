@@ -1283,7 +1283,7 @@ bool CIMXContext::AdaptScreen(bool allocate)
   m_fbWidth = allocate ? 1920 : fbVar.xres;
   m_fbHeight = allocate ? 1080 : fbVar.yres;
 
-  m_fbInterlaced = fbVar.vmode & FB_VMODE_INTERLACED;
+  m_fbInterlaced = g_graphicsContext.GetResInfo().dwFlags & D3DPRESENTFLAG_INTERLACED;
 
   if (!GetFBInfo(m_deviceName, &m_fbVar))
     goto Err;
