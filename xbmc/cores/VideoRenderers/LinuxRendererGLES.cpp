@@ -679,6 +679,7 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
     if (buffer != NULL && buffer->IsValid())
     {
       uint8_t fieldFmt = flags & RENDER_FLAG_FIELDMASK;
+      CDVDVideoCodecIMXBuffer *previous = NULL;
       if (flags & RENDER_FLAG_FIELDS)
       {
         fieldFmt |= IPU_DEINTERLACE_RATE_EN;
@@ -689,10 +690,12 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
           // this makes IPU render same picture as before, just shifted one line
           // correct this
           fieldFmt ^= 0x3;
+
+          previous = buffer;
         }
       }
 
-      g_IMXContext.BlitAsync(NULL, buffer, fieldFmt);
+      g_IMXContext.BlitAsync(previous, buffer, fieldFmt);
     }
 
 #if 0
