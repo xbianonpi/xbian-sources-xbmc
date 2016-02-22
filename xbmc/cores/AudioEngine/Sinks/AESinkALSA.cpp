@@ -918,7 +918,7 @@ unsigned int CAESinkALSA::AddPackets(uint8_t **data, unsigned int frames, unsign
   int frames_written = 0;
   int ret = 0;
 
-  snd_pcm_nonblock(m_pcm, 0);
+  snd_pcm_nonblock(m_pcm, 1);
   while (data_left > 0 && HandleError(__func__, ret))
   {
     if (m_fragmented)
@@ -938,6 +938,7 @@ unsigned int CAESinkALSA::AddPackets(uint8_t **data, unsigned int frames, unsign
     buffer = data[0]+offset*m_format.m_frameSize + frames_written*m_format.m_frameSize;
   }
 
+  snd_pcm_nonblock(m_pcm, 0);
   return frames_written;
 }
 
@@ -1012,7 +1013,7 @@ bool CAESinkALSA::TryDevice(const std::string &name, snd_pcm_t **pcmp, snd_confi
   int err = snd_pcm_open_lconf(pcmp, name.c_str(), SND_PCM_STREAM_PLAYBACK, ALSA_OPTIONS, lconf);
   if (err < 0)
   {
-    CLog::Log(LOGINFO, "CAESinkALSA - Unable to open device \"%s\" for playback", name.c_str());
+    CLog::Log(LOGINFO, "CAESinkALSA - Unable to open device \"%s\" for playback (error: %s)", name.c_str(), snd_strerror(err));
   }
 
   return err == 0;

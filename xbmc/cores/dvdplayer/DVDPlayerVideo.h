@@ -64,9 +64,6 @@ public:
                  , CDVDMessageQueue& parent);
   virtual ~CDVDPlayerVideo();
 
-  void OnResetDevice()   { DropStats(); }
-  void DropStats();
-
   bool OpenStream(CDVDStreamInfo &hint);
   void CloseStream(bool bWaitForBuffers);
 

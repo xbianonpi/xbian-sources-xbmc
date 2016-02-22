@@ -24,17 +24,30 @@
 #include "threads/Thread.h"
 #include "utils/BitstreamConverter.h"
 #include "guilib/Geometry.h"
+#include "system_gl.h"
 #include "DVDVideoCodec.h"
 #include "DVDStreamInfo.h"
 #include "guilib/DispResource.h"
-#include "system_gl.h"
+#include "cores/dvdplayer/DVDCodecs/DVDCodecs.h"
+#include "DVDClock.h"
+#include "utils/log.h"
+#include "utils/StringUtils.h"
 
 #include <vector>
 #include <linux/ipu.h>
 #include <linux/mxcfb.h>
 #include <imx-mm/vpu/vpu_wrapper.h>
 #include <g2d.h>
-#include <map>
+
+#include <unordered_map>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <algorithm>
+
+#define likely(x)       __builtin_expect(!!(x),1)
+#define unlikely(x)     __builtin_expect(!!(x),0)
 
 // The decoding format of the VPU buffer. Comment this to decode
 // as NV12. The VPU works faster with NV12 in combination with
@@ -60,6 +73,108 @@
 // and performance tests. This define must never be active in distributions.
 //#define DUMP_STREAM
 
+inline
+double recalcPts(double pts)
+{
+  return (double)(pts == DVD_NOPTS_VALUE ? 0.0 : pts*1e-6);
+}
+
+template <typename T>
+class lkFIFO
+{
+public:
+  lkFIFO() { size_ = queue_.max_size(); abort_ = &no; }
+
+public:
+  T pop()
+  {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    while (queue_.empty() && !*abort_)
+      read_.wait(mlock);
+
+    T val;
+    if (likely(!*abort_))
+    {
+      val = queue_.front();
+      queue_.pop_front();
+    }
+
+    mlock.unlock();
+    write_.notify_one();
+    return val;
+  }
+
+  bool push(const T& item)
+  {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    while (queue_.size() == size_ && !*abort_)
+      write_.wait(mlock);
+
+    queue_.push_back(item);
+    mlock.unlock();
+    read_.notify_all();
+    return true;
+  }
+
+  void signal_stop()
+  {
+    abort_ = &yes;
+    write_.notify_all();
+    read_.notify_all();
+  }
+
+  void shrink(std::deque<T> shrinkTo)
+  {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    queue_.swap(shrinkTo);
+    write_.notify_all();
+  }
+
+  // will expire unused data
+  // and resize to empty
+  void clear()
+  {
+    std::deque<T> tmp;
+    shrink(tmp);
+  }
+
+  // will expire unused data
+  // and resize to just fit
+  void shrink_to_fit()
+  {
+    std::deque<T> tmp(queue_);
+    shrink(tmp);
+  }
+
+  void set_quota_size(int newsize)
+  {
+    size_ = newsize;
+    if (queue_.size() > size_)
+    {
+      queue_.resize(size_);
+      shrink_to_fit();
+    }
+  }
+
+  void for_each(void (*fn)(T &t))
+  {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    std::for_each(queue_.begin(), queue_.end(), fn);
+    write_.notify_all();
+  }
+
+  int empty() { return queue_.empty(); }
+  int size() { return queue_.size(); }
+private:
+  std::deque<T> queue_;
+  std::mutex mutex_;
+  std::condition_variable read_, write_;
+
+  unsigned int size_;
+  volatile bool *abort_;
+  bool no = false;
+  bool yes = true;
+};
 
 /*>> TO BE MOVED TO A MORE CENTRAL PLACE IN THE SOURCE DIR >>>>>>>>>>>>>>>>>>>*/
 // Generell description of a buffer used by
@@ -87,6 +202,8 @@ protected:
   long         m_iRefs;
 };
 
+#define RENDER_TASK_AUTOPAGE -1
+#define RENDER_TASK_CAPTURE  -2
 
 // iMX context class that handles all iMX hardware
 // related stuff
@@ -98,8 +215,10 @@ public:
 
   bool AdaptScreen();
   bool TaskRestart();
-  bool CloseDevices();
+  void CloseDevices();
+  void g2dCloseDevices();
   bool OpenDevices();
+  void g2dOpenDevices();
 
   bool Blank();
   bool Unblank();
@@ -115,17 +234,12 @@ public:
 
   void SetBlitRects(const CRect &srcRect, const CRect &dstRect);
 
-  // Blits a buffer to a particular page.
+  // Blits a buffer to a particular page (-1 for auto page)
   // source_p (previous buffer) is required for de-interlacing
   // modes LOW_MOTION and MED_MOTION.
-  bool Blit(int targetPage, CIMXBuffer *source_p,
-            CIMXBuffer *source, uint8_t fieldFmt = 0);
-
-  // Same as blit but runs in another thread and returns after the task has
-  // been queued. BlitAsync renders always to the current backbuffer and
-  // swaps the pages.
-  bool BlitAsync(CIMXBuffer *source_p, CIMXBuffer *source,
-                 uint8_t fieldFmt = 0, CRect *dest = NULL);
+  void Blit(CIMXBuffer *source_p, CIMXBuffer *source,
+            uint8_t fieldFmt = 0, int targetPage = RENDER_TASK_AUTOPAGE,
+            CRect *dest = NULL);
 
   // Shows a page vsynced
   bool ShowPage(int page, bool shift = false);
@@ -143,10 +257,12 @@ public:
   void *GetCaptureBuffer() const { if (m_bufferCapture) return m_bufferCapture->buf_vaddr; else return NULL; }
   void WaitCapture();
 
-  void OnLostDevice();
+  void RendererAllowed(bool yes);
   void OnResetDevice();
 
-  void RendererAllowed(bool yes);
+  void SetSpeed(int iSpeed) { m_speed = iSpeed; }
+
+  static const int               m_fbPages;
 
 private:
   struct IPUTask
@@ -169,14 +285,19 @@ private:
 
     // The actual task
     struct ipu_task task;
+
+    int page;
+    int shift;
   };
+
+  static void callDone(IPUTask &t) { t.Done(); }
 
   bool GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *fbVar);
 
   bool PushTask(const IPUTask &);
   void PrepareTask(IPUTask &ipu, CIMXBuffer *source_p, CIMXBuffer *source,
                    CRect *dest = NULL);
-  bool DoTask(IPUTask &ipu, int targetPage);
+  bool DoTask(IPUTask &ipu);
 
   void SetFieldData(uint8_t fieldFmt);
 
@@ -185,11 +306,11 @@ private:
 
   virtual void OnStartup();
   virtual void OnExit();
-  virtual void StopThread(bool bWait = true);
   virtual void Process();
+  void Stop(bool bWait = true);
 
 private:
-  typedef std::vector<IPUTask> TaskQueue;
+  lkFIFO<IPUTask>                m_input;
 
   int                            m_fbHandle;
   int                            m_fbCurrentPage;
@@ -213,23 +334,18 @@ private:
   bool                           m_bFbIsConfigured;
 
   CCriticalSection               m_pageSwapLock;
-  TaskQueue                      m_input;
-  volatile int                   m_beginInput, m_endInput;
-  volatile size_t                m_bufferedInput;
-  XbmcThreads::ConditionVariable m_inputNotEmpty;
-  XbmcThreads::ConditionVariable m_inputNotFull;
-  mutable CCriticalSection       m_monitor;
 
   void                           *m_g2dHandle;
   struct g2d_buf                 *m_bufferCapture;
   bool                           m_CaptureDone;
-  static const int               m_fbPages;
 
   std::string                    m_deviceName;
+  int                            m_speed;
 };
 
 
 extern CIMXContext g_IMXContext;
+
 /*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
 
 typedef std::map<GLvoid*, GLuint> ptrToTexMap_t;
@@ -255,7 +371,9 @@ public:
 
 
 // Base class of IMXVPU and IMXIPU buffer
-class CDVDVideoCodecIMXBuffer : public CIMXBuffer {
+class CDVDVideoCodecIMXBuffer : public CIMXBuffer
+{
+friend class CDVDVideoCodecIMX;
 public:
 #ifdef TRACE_FRAMES
   CDVDVideoCodecIMXBuffer(int idx);
@@ -266,22 +384,19 @@ public:
   // reference counting
   virtual void Lock();
   virtual long Release();
-  virtual bool IsValid();
+  virtual bool IsValid() { return m_frameBuffer; }
 
-  virtual void BeginRender();
-  virtual void EndRender();
+  virtual void BeginRender() { m_renderLock.lock(); }
+  virtual void EndRender()   { m_renderLock.unlock(); }
 
-  void SetPts(double pts);
+  void SetPts(double pts) { m_pts = pts; };
   double GetPts() const { return m_pts; }
 
-  void SetDts(double dts);
+  void SetDts(double dts) { m_dts = dts; };
   double GetDts() const { return m_dts; }
 
-  bool Rendered() const;
-  void Queue(VpuDecOutFrameInfo *frameInfo,
-             CDVDVideoCodecIMXBuffer *previous);
+  void Queue(VpuDecOutFrameInfo *frameInfo);
   VpuDecRetCode ReleaseFramebuffer(VpuDecHandle *handle);
-  CDVDVideoCodecIMXBuffer *GetPreviousBuffer() const { return m_previousBuffer; }
   VpuFieldType GetFieldType() const { return m_fieldType; }
 
 private:
@@ -298,8 +413,8 @@ private:
   double                   m_dts;
   VpuFieldType             m_fieldType;
   VpuFrameBuffer          *m_frameBuffer;
-  bool                     m_rendered;
-  CDVDVideoCodecIMXBuffer *m_previousBuffer; // Holds the reference counted previous buffer
+  CCriticalSection         m_renderLock;     // Lock to protect buffers being rendered
+  unsigned int             iFlags;
 };
 
 
@@ -313,8 +428,8 @@ public:
   virtual bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options);
   virtual void Dispose();
   virtual int  Decode(BYTE *pData, int iSize, double dts, double pts);
-  virtual void SetSkipMode();
-  virtual void Reset();
+  virtual void SetSkipMode(VpuDecSkipMode skip);
+  virtual void Reset() { reset(); }
   virtual bool ClearPicture(DVDVideoPicture *pDvdVideoPicture);
   virtual bool GetPicture(DVDVideoPicture *pDvdVideoPicture);
   virtual void SetDropState(bool bDrop);
@@ -324,45 +439,52 @@ public:
 
   static ptrToTexMap_t ptrToTexMap;
 
-  static void Enter();
-  static void Leave();
+  virtual bool GetCodecStats(double &pts, int &droppedPics);
+  virtual void SetCodecControl(int flags);
+  virtual void SetSpeed(int iSpeed) { g_IMXContext.SetSpeed(iSpeed); m_speed = iSpeed; }
 
 protected:
   bool VpuOpen();
   bool VpuAllocBuffers(VpuMemInfo *);
-  bool VpuFreeBuffers();
+  bool VpuFreeBuffers(bool dispose = true);
   bool VpuAllocFrameBuffers();
-  int  VpuFindBuffer(void *frameAddr);
+
+  void SetVPUParams(VpuDecConfig InDecConf, void* pInParam);
+  void SetDrainMode(VpuDecInputType drop);
+  void SetCodecParam(VpuBufferNode *bn, unsigned char * data, unsigned int size);
+
+  void reset(bool dispose = true);
+  bool getOutputFrame(VpuDecOutFrameInfo *frm);
 
   static const int             m_extraVpuBuffers;   // Number of additional buffers for VPU
-  static const int             m_maxVpuDecodeLoops; // Maximum iterations in VPU decoding loop
                                                     // by both decoding and rendering threads
-  static CCriticalSection      m_codecBufferLock;   // Lock to protect buffers handled
+  VpuMemInfo                   m_memInfo;
   CDVDStreamInfo               m_hints;             // Hints from demuxer at stream opening
+  CDVDCodecOptions             m_options;
   const char                  *m_pFormatName;       // Current decoder format name
   VpuDecOpenParam              m_decOpenParam;      // Parameters required to call VPU_DecOpen
   CDecMemInfo                  m_decMemInfo;        // VPU dedicated memory description
   VpuDecHandle                 m_vpuHandle;         // Handle for VPU library calls
   VpuDecInitInfo               m_initInfo;          // Initial info returned from VPU at decoding start
-  bool                         m_dropRequest;       // Current drop state
-  bool                         m_dropState;         // Current drop state
+  VpuDecSkipMode               m_dropRequest;       // Current drop state
+  int                          m_dropped;
+  VpuDecInputType              m_drainMode;
   int                          m_vpuFrameBufferNum; // Total number of allocated frame buffers
   VpuFrameBuffer              *m_vpuFrameBuffers;   // Table of VPU frame buffers description
-  CDVDVideoCodecIMXBuffer    **m_outputBuffers;     // Table of VPU output buffers
-  CDVDVideoCodecIMXBuffer     *m_lastBuffer;        // Keep track of previous VPU output buffer (needed by deinterlacing motion engin)
+  std::unordered_map<unsigned char*,CDVDVideoCodecIMXBuffer*>
+                               m_outputBuffers;     // Table of VPU output buffers
   CDVDVideoCodecIMXBuffer     *m_currentBuffer;
   VpuMemDesc                  *m_extraMem;          // Table of allocated extra Memory
-  int                          m_frameCounter;      // Decoded frames counter
   bool                         m_usePTS;            // State whether pts out of decoding process should be used
   VpuDecOutFrameInfo           m_frameInfo;         // Store last VPU output frame info
   CBitstreamConverter         *m_converter;         // H264 annex B converter
   bool                         m_convert_bitstream; // State whether bitstream conversion is required
   int                          m_bytesToBeConsumed; // Remaining bytes in VPU
-  double                       m_previousPts;       // Enable to keep pts when needed
   bool                         m_frameReported;     // State whether the frame consumed event will be reported by libfslvpu
   bool                         m_warnOnce;          // Track warning messages to only warn once
+  int                          m_codecControlFlags;
+  int                          m_speed;
 #ifdef DUMP_STREAM
   FILE                        *m_dump;
 #endif
 };
-

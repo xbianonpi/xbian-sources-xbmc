@@ -289,13 +289,6 @@ void CDVDPlayerVideo::OnStartup()
   m_FlipTimePts   = 0.0;
 }
 
-void CDVDPlayerVideo::DropStats()
-{
-  ResetFrameRateCalc();
-  m_droppingStats.Reset();
-  m_pullupCorrection.Flush();
-}
-
 void CDVDPlayerVideo::Process()
 {
   CLog::Log(LOGNOTICE, "running thread: video_thread");
@@ -1417,7 +1410,7 @@ int CDVDPlayerVideo::CalcDropRequirement(double pts, bool updateOnly)
       result |= EOS_DROPPED;
       m_droppingStats.m_dropRequests = 0;
       if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-        CLog::Log(LOGDEBUG,"CDVDPlayerVideo::CalcDropRequirement - dropped pictures, Sleeptime: %f, Bufferlevel: %d, Gain: %f", iSleepTime, iBufferLevel, iGain);
+        CLog::Log(LOGDEBUG,"CDVDPlayerVideo::CalcDropRequirement - dropped pictures, Sleeptime: %f, Bufferlevel: %d, Gain: %f", iSleepTime, iBufferLevel, gain.gain);
     }
     else if (iDroppedPics < 0 && iGain > (1/m_fFrameRate + 0.001))
     {

@@ -235,6 +235,7 @@
 #include "pictures/GUIWindowSlideShow.h"
 #include "windows/GUIWindowLoginScreen.h"
 #include "utils/Screen.h"
+#include "utils/SysfsUtils.h"
 
 using namespace ADDON;
 using namespace XFILE;
@@ -1465,11 +1466,6 @@ void CApplication::OnSettingChanged(const CSetting *setting)
     m_replayGainSettings.iNoGainPreAmp = ((CSettingInt*)setting)->GetValue();
   else if (StringUtils::EqualsNoCase(settingId, CSettings::SETTING_MUSICPLAYER_REPLAYGAINAVOIDCLIPPING))
     m_replayGainSettings.bAvoidClipping = ((CSettingBool*)setting)->GetValue();
-
-#ifdef HAS_IMXVPU
-  if (settingId == CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD)
-    g_IMXContext.RendererAllowed(CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD) == RENDER_METHOD_AUTO);
-#endif
 }
 
 void CApplication::OnSettingAction(const CSetting *setting)
@@ -4539,8 +4535,14 @@ void CApplication::ShowAppMigrationMessage()
 
 void CApplication::ChangeVT(int newVT)
 {
-  std::string cmd = StringUtils::Format("sudo /sbin/start xbian-chvt TTYNR=%d", newVT);
+  std::string cmd;
   CLog::Log(LOGINFO,"%s : activating tty%d", __FUNCTION__, newVT);
+
+  if (SysfsUtils::Has("/sbin/start"))
+    cmd = StringUtils::Format("sudo /sbin/start xbian-chvt TTYNR=%d", newVT);
+  else
+    cmd = StringUtils::Format("/bin/busybox openvt -c %d -s", newVT);
+
   system(cmd.c_str());
 }
 

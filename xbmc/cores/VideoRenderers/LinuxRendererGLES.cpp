@@ -676,10 +676,9 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
     previous = current;
 #endif
     CDVDVideoCodecIMXBuffer *buffer = m_buffers[m_iYV12RenderBuffer].IMXBuffer;
-    if (buffer != NULL && buffer->IsValid())
+    if (buffer)
     {
       uint8_t fieldFmt = flags & RENDER_FLAG_FIELDMASK;
-      CDVDVideoCodecIMXBuffer *previous = NULL;
 
       if (flags & RENDER_FLAG_FIELDS)
       {
@@ -691,12 +690,10 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
           // this makes IPU render same picture as before, just shifted one line
           // correct this
           fieldFmt ^= 0x3;
-
-          previous = buffer;
         }
       }
 
-      g_IMXContext.BlitAsync(previous, buffer, fieldFmt);
+      g_IMXContext.Blit(NULL, buffer, fieldFmt);
     }
 
 #if 0
@@ -3141,7 +3138,8 @@ bool CLinuxRendererGLES::Supports(EINTERLACEMETHOD method)
   {
     if(method == VS_INTERLACEMETHOD_IMX_FASTMOTION
     || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE
-    || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE_INVERTED)
+    || method == VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE_INVERTED
+    || method == VS_INTERLACEMETHOD_IMX_MEDMOTION)
       return true;
     else
       return false;
@@ -3169,6 +3167,9 @@ bool CLinuxRendererGLES::Supports(ESCALINGMETHOD method)
     Features::iterator itr = std::find(m_scalingMethods.begin(),m_scalingMethods.end(), method);
     return itr != m_scalingMethods.end();
   }
+
+  if(method == VS_SCALINGMETHOD_AUTO)
+    return true;
 
   if(m_renderMethod & RENDER_IMXMAP)
     return false;
@@ -3213,7 +3214,7 @@ EINTERLACEMETHOD CLinuxRendererGLES::AutoInterlaceMethod()
     return VS_INTERLACEMETHOD_NONE;
 
   if(m_renderMethod & RENDER_IMXMAP)
-    return VS_INTERLACEMETHOD_IMX_FASTMOTION;
+    return VS_INTERLACEMETHOD_IMX_FASTMOTION_DOUBLE;
 
 #if !defined(TARGET_ANDROID) && (defined(__i386__) || defined(__x86_64__))
   return VS_INTERLACEMETHOD_DEINTERLACE_HALF;
@@ -3322,12 +3323,10 @@ void CLinuxRendererGLES::AddProcessor(CDVDMediaCodecInfo *mediacodec, int index)
 void CLinuxRendererGLES::AddProcessor(CDVDVideoCodecIMXBuffer *buffer, int index)
 {
   YUVBUFFER &buf = m_buffers[index];
-
   SAFE_RELEASE(buf.IMXBuffer);
-  buf.IMXBuffer = buffer;
 
-  if (buffer)
-    buffer->Lock();
+  buf.IMXBuffer = buffer;
+  buffer->Lock();
 }
 #endif
 

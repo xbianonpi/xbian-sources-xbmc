@@ -61,6 +61,9 @@
 #ifdef HAVE_LIBVA
   #include "../dvdplayer/DVDCodecs/Video/VAAPI.h"
 #endif
+#ifdef HAS_IMXVPU
+  #include "../dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
 
 using namespace KODI::MESSAGING;
 
@@ -926,10 +929,15 @@ void CXBMCRenderManager::Recover()
 
 void CXBMCRenderManager::UpdateDisplayLatency()
 {
-  float refresh = g_graphicsContext.GetFPS();
+  float fps = g_graphicsContext.GetFPS();
+  float refresh = fps;
   if (g_graphicsContext.GetVideoResolution() == RES_WINDOW)
     refresh = 0; // No idea about refresh rate when windowed, just get the default latency
   m_displayLatency = (double) g_advancedSettings.GetDisplayLatency(refresh);
+#ifdef HAS_IMXVPU
+  int buffers = g_IMXContext.m_fbPages;
+  m_displayLatency += buffers / fps;
+#endif
   CLog::Log(LOGDEBUG, "CRenderManager::UpdateDisplayLatency - Latency set to %1.0f msec", m_displayLatency * 1000.0f);
 }
 
