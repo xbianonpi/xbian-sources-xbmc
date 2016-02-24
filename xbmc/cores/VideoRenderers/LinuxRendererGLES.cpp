@@ -680,6 +680,7 @@ void CLinuxRendererGLES::RenderUpdateVideo(bool clear, DWORD flags, DWORD alpha)
     {
       uint8_t fieldFmt = flags & RENDER_FLAG_FIELDMASK;
       CDVDVideoCodecIMXBuffer *previous = NULL;
+
       if (flags & RENDER_FLAG_FIELDS)
       {
         fieldFmt |= IPU_DEINTERLACE_RATE_EN;
@@ -983,6 +984,11 @@ void CLinuxRendererGLES::LoadShaders(int field)
     m_textureUpload = &CLinuxRendererGLES::UploadYV12Texture;
     m_textureCreate = &CLinuxRendererGLES::CreateYV12Texture;
     m_textureDelete = &CLinuxRendererGLES::DeleteYV12Texture;
+  }
+
+  if (m_format == RENDER_FMT_IMXMAP && m_renderMethod & RENDER_IMXMAP)
+  {
+    m_textureDelete = &CLinuxRendererGLES::DeleteIMXMAPTexture;
   }
 
   if (m_oldRenderMethod != m_renderMethod)
@@ -2959,7 +2965,8 @@ void CLinuxRendererGLES::UploadIMXMAPTexture(int index)
 void CLinuxRendererGLES::DeleteIMXMAPTexture(int index)
 {
 #ifdef HAS_IMXVPU
-  if (m_buffers[index].IMXBuffer)
+  if (m_format == RENDER_FMT_IMXMAP && m_renderMethod & RENDER_IMXMAP &&
+      m_buffers[index].IMXBuffer)
   {
     CDVDVideoCodecIMXBuffer *buf = m_buffers[index].IMXBuffer;
     GLvoid *virt                 = (GLvoid*)buf->pVirtAddr;
