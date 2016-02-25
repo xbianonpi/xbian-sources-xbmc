@@ -62,8 +62,10 @@ static const struct StereoModeMap VideoModeToGuiModeMap[] = {
     {"anaglyph_cyan_red", RenderStereoMode::ANAGLYPH_RED_CYAN},
     {"anaglyph_green_magenta", RenderStereoMode::ANAGLYPH_GREEN_MAGENTA},
     {"anaglyph_yellow_blue", RenderStereoMode::ANAGLYPH_YELLOW_BLUE},
-    {"block_lr", RenderStereoMode::OFF}, // unsupported
-    {"block_rl", RenderStereoMode::OFF}, // unsupported
+    {"block_lr", RenderStereoMode::HARDWAREBASED},
+    {"block_rl", RenderStereoMode::HARDWAREBASED},
+    {"block_lr", RenderStereoMode::SPLIT_HORIZONTAL}, // fallback
+    {"block_rl", RenderStereoMode::SPLIT_HORIZONTAL}, // fallback
     {}};
 
 static const struct StereoModeMap StringToGuiModeMap[] = {
@@ -316,7 +318,7 @@ RenderStereoMode CStereoscopicsManager::ConvertVideoToGuiStereoMode(const std::s
   size_t i = 0;
   while (VideoModeToGuiModeMap[i].name)
   {
-    if (mode == VideoModeToGuiModeMap[i].name)
+    if (mode == VideoModeToGuiModeMap[i].name && CServiceBroker::GetRenderSystem()->SupportsStereo(VideoModeToGuiModeMap[i].mode))
       return VideoModeToGuiModeMap[i].mode;
     ++i;
   }
