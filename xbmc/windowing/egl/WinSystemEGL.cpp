@@ -30,7 +30,6 @@
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "settings/DisplaySettings.h"
-#include "cores/VideoRenderers/RenderManager.h"
 #include "guilib/Resolution.h"
 #include "guilib/DispResource.h"
 #include "threads/SingleLock.h"

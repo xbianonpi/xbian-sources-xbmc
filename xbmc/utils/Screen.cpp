@@ -27,7 +27,7 @@
 #include "windowing/WindowingFactory.h"
 #include "threads/SingleLock.h"
 #ifdef HAS_IMXVPU
-#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
 #elif defined(TARGET_RASPBERRY_PI)
 #include "linux/RBP.h"
 #endif

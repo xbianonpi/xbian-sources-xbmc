@@ -883,7 +883,7 @@ RESOLUTION CRenderManager::GetResolution()
     return res;
 
   if (CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF)
-    res = CResolutionUtils::ChooseBestResolution(m_fps, m_width, CONF_FLAGS_STEREO_MODE_MASK(m_flags));
+    res = CResolutionUtils::ChooseBestResolution(m_fps, m_width, m_height, CONF_FLAGS_STEREO_MODE_MASK(m_flags), CONF_FLAGS_INTERLACED_MODE_MASK(m_flags));
 
   return res;
 }
@@ -1079,7 +1079,7 @@ void CRenderManager::UpdateResolution()
     {
       if (CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF && m_fps > 0.0f)
       {
-        RESOLUTION res = CResolutionUtils::ChooseBestResolution(m_fps, m_width, CONF_FLAGS_STEREO_MODE_MASK(m_flags));
+        RESOLUTION res = CResolutionUtils::ChooseBestResolution(m_fps, m_width, m_height, CONF_FLAGS_STEREO_MODE_MASK(m_flags), CONF_FLAGS_INTERLACED_MODE_MASK(m_flags));
         g_graphicsContext.SetVideoResolution(res);
         UpdateDisplayLatency();
       }
