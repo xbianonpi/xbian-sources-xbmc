@@ -35,6 +35,7 @@
 #include "utils/SystemInfo.h"
 #include "settings/AdvancedSettings.h"
 #include "cores/VideoPlayer/VideoRenderers/RenderFlags.h"
+#include "cores/VideoPlayer/VideoRenderers/RenderManager.h"
 
 
 CBaseRenderer::CBaseRenderer()
@@ -221,9 +222,7 @@ void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY, float wid
     return;
   }
 
-  RESOLUTION_INFO info = g_graphicsContext.GetResInfo(m_resolution);
-
-  if (info.dwFlags & D3DPRESENTFLAG_INTERLACED)
+  if (g_graphicsContext.GetResInfo().dwFlags & D3DPRESENTFLAG_INTERLACED)
   {
     inputFrameRatio = (float) width / height;
     zoomAmount = 1.0f;

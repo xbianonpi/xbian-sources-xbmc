@@ -24,7 +24,9 @@
 #include "utils/MathUtils.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/DisplaySettings.h"
+#include "settings/Settings.h"
 #include <cstdlib>
+#include <float.h>
 
 #include "Application.h"
 
@@ -63,21 +65,21 @@ float RESOLUTION_INFO::DisplayRatio() const
   return iWidth * fPixelRatio / iHeight;
 }
 
-RESOLUTION CResolutionUtils::ChooseBestResolution(float fps, int width, int height, bool is3D)
+RESOLUTION CResolutionUtils::ChooseBestResolution(float fps, int width, int height, bool is3D, bool isI)
 {
   RESOLUTION res = g_graphicsContext.GetVideoResolution();
   float weight;
-  if (!FindResolutionFromOverride(fps, width, height, is3D, res, weight, false)) //find a refreshrate from overrides
+  if (!FindResolutionFromOverride(fps, width, height, is3D, isI, res, weight, false)) //find a refreshrate from overrides
   {
-    if (!FindResolutionFromOverride(fps, width, height, is3D, res, weight, true))//if that fails find it from a fallback
-      FindResolutionFromFpsMatch(fps, width, height, is3D, res, weight);//if that fails use automatic refreshrate selection
+    if (!FindResolutionFromOverride(fps, width, height, is3D, isI, res, weight, true))//if that fails find it from a fallback
+      FindResolutionFromFpsMatch(fps, width, height, is3D, isI, res, weight);//if that fails use automatic refreshrate selection
   }
   CLog::Log(LOGNOTICE, "Display resolution ADJUST : %s (%d) (weight: %.3f)",
             g_graphicsContext.GetResInfo(res).strMode.c_str(), res, weight);
   return res;
 }
 
-bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, int height, bool is3D, RESOLUTION &resolution, float& weight, bool fallback)
+bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, int height, bool is3D, bool isI, RESOLUTION &resolution, float& weight, bool fallback)
 {
   RESOLUTION_INFO curr = g_graphicsContext.GetResInfo(resolution);
 
@@ -131,12 +133,12 @@ bool CResolutionUtils::FindResolutionFromOverride(float fps, int width, int heig
   return false; //no override found
 }
 
-void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int height, bool is3D, RESOLUTION &resolution, float& weight)
+void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int height, bool is3D, bool isI, RESOLUTION &resolution, float& weight)
 {
   const float maxWeight = 0.0021f;
   RESOLUTION_INFO curr;
 
-  resolution = FindClosestResolution(fps, width, height, is3D, 1.0, resolution, weight);
+  resolution = FindClosestResolution(fps, width, height, is3D, isI, 1.0, resolution, weight);
   curr = g_graphicsContext.GetResInfo(resolution);
 
   if (weight >= maxWeight) //not a very good match, try a 2:3 cadence instead
@@ -144,7 +146,7 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int heig
     CLog::Log(LOGDEBUG, "Resolution %s (%d) not a very good match for fps %.3f (weight: %.3f), trying 2:3 cadence",
         curr.strMode.c_str(), resolution, fps, weight);
 
-    resolution = FindClosestResolution(fps, width, height, is3D, 2.5, resolution, weight);
+    resolution = FindClosestResolution(fps, width, height, is3D, isI, 2.5, resolution, weight);
     curr = g_graphicsContext.GetResInfo(resolution);
 
     if (weight >= maxWeight) //2:3 cadence not a good match
@@ -195,7 +197,7 @@ void CResolutionUtils::FindResolutionFromFpsMatch(float fps, int width, int heig
   }
 }
 
-RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int height, bool is3D, float multiplier, RESOLUTION current, float& weight)
+RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int height, bool is3D, bool isI, float multiplier, RESOLUTION current, float& weight)
 {
   if (CDisplaySettings::GetInstance().ResolutionInfoSize() < 2)
     return current;
@@ -221,7 +223,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
     bool i_found = false;
 
     // if interlaced mode
-    if (m_iFlags & CONF_FLAGS_INTERLACED && CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED))
+    if (isI && CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED))
       for (size_t i = (int)RES_DESKTOP; i < CDisplaySettings::GetInstance().ResolutionInfoSize(); i++)
       {
         const RESOLUTION_INFO info = g_graphicsContext.GetResInfo((RESOLUTION)i);
@@ -244,7 +246,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
         if ((fabs(info.fRefreshRate - fRefreshRate) > 0.001 && fabs(info.fRefreshRate - 2*fRefreshRate) > 0.001)
         ||  IS_3D(info.dwFlags)
         ||  CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight
-        ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !(m_iFlags & CONF_FLAGS_INTERLACED))
+        ||  (info.dwFlags & D3DPRESENTFLAG_INTERLACED && !isI)
         || (!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED) && (info.dwFlags & D3DPRESENTFLAG_INTERLACED))
         || ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
         ||   width > info.iScreenWidth || height > info.iScreenHeight
@@ -305,7 +307,7 @@ RESOLUTION CResolutionUtils::FindClosestResolution(float fps, int width, int hei
       if ((width < orig.iScreenWidth) || // orig res large enough
          (info.iScreenWidth < orig.iScreenWidth) || // new res is smaller
          (info.iScreenHeight < orig.iScreenHeight) || // new height would be smaller
-         ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
+         ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1) ||
          (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK) || // don't switch to interlaced modes
          (info.iScreen != curr.iScreen) || // skip not current displays
          is3D) // skip res changing when doing 3D

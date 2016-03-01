@@ -79,7 +79,9 @@
 #define CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT 0x000000
 #define CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT 0x008000
 
-#define CONF_FLAGS_INTERLACED          0x010000
+/* defines interlaced modes */
+#define CONF_FLAGS_INTERLACED                   0x010000
+#define CONF_FLAGS_INTERLACED_MODE_MASK(a)      ((a) & CONF_FLAGS_INTERLACED)
 
 namespace RenderManager {
 

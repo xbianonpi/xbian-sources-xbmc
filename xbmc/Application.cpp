@@ -225,7 +225,7 @@
 #endif
 
 #ifdef HAS_IMXVPU
-#include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
 #endif
 
 #include "cores/FFmpeg.h"
