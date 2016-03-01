@@ -226,6 +226,7 @@
 
 #ifdef HAS_IMXVPU
 #include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
 #endif
 
 #include "cores/FFmpeg.h"
@@ -1127,6 +1128,9 @@ bool CApplication::Initialize()
 
 #if !defined(TARGET_DARWIN_IOS)
   g_peripherals.Initialise();
+#endif
+#if defined(HAS_IMXVPU)
+  g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
 #endif
 
   // Load curl so curl_global_init gets called before any service threads
