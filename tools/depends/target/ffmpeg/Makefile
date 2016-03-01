@@ -19,7 +19,8 @@ ffmpg_config += --cc=$(CC) --cxx=$(CXX) --ar=$(AR) --ranlib=$(RANLIB)
 ffmpg_config += --disable-devices --disable-doc
 ffmpg_config += --disable-ffplay --disable-ffmpeg --disable-sdl
 ffmpg_config += --disable-ffprobe --disable-ffserver
-ffmpg_config += --enable-gpl --enable-runtime-cpudetect
+ffmpg_config += --enable-gpl
+###--enable-runtime-cpudetect
 ffmpg_config += --enable-postproc --enable-pthreads
 ffmpg_config += --enable-muxer=spdif --enable-muxer=adts
 ffmpg_config += --enable-muxer=asf --enable-muxer=ipod
@@ -84,10 +85,10 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
-	cd $(PLATFORM); patch -p1 < ../ffmpeg_Speed_up_wtv_index_creation.patch
-	cd $(PLATFORM); patch -p1 < ../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
-	##cd $(PLATFORM); patch -p1 < ../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
-	##cd $(PLATFORM); patch -p1 < ../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
+	cd $(PLATFORM); patch -p1 < ../../ffmpeg_Speed_up_wtv_index_creation.patch
+	cd $(PLATFORM); patch -p1 < ../../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
+	##cd $(PLATFORM); patch -p1 < ../../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
+	cd $(PLATFORM); patch -p1 < ../../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
 	cd $(PLATFORM);\
 	CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" \
 	./configure $(ffmpg_config)
