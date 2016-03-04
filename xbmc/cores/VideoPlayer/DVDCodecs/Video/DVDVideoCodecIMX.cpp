@@ -462,10 +462,10 @@ void CIMXCodec::Reset()
   m_queuesLock.lock();
   DisposeDecQueues();
   ProcessSignals(SIGNAL_FLUSH);
-  CLog::Log(LOGDEBUG, "iMX VPU : queues cleared ===== in/out %d/%d =====\n", m_decInput.size(), m_decOutput.size());
+  CLog::Log(LOGVIDEO, "iMX VPU : queues cleared ===== in/out %d/%d =====\n", m_decInput.size(), m_decOutput.size());
 }
 
-bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::string &m_pFormatName, CProcessInfo *m_pProcessInfo)
+bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::string &m_pFormatName)
 {
   CSingleLock lk(m_openLock);
 
@@ -506,27 +506,29 @@ bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::stri
   }
 
   m_hints = hints;
-  if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-    CLog::Log(LOGDEBUG, "Let's decode with iMX VPU\n");
+  CLog::Log(LOGVIDEO, "Let's decode with iMX VPU\n");
+
+  int param = 0;
+  SetVPUParams(VPU_DEC_CONF_INPUTTYPE, &param);
+  SetVPUParams(VPU_DEC_CONF_SKIPMODE, &param);
 
   int param = 0;
   SetVPUParams(VPU_DEC_CONF_INPUTTYPE, &param);
   SetVPUParams(VPU_DEC_CONF_SKIPMODE, &param);
 
 #ifdef MEDIAINFO
-  if (g_advancedSettings.CanLogComponent(LOGVIDEO))
   {
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: fpsrate %d / fpsscale %d\n", m_hints.fpsrate, m_hints.fpsscale);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: CodecID %d \n", m_hints.codec);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: StreamType %d \n", m_hints.type);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: Level %d \n", m_hints.level);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: Profile %d \n", m_hints.profile);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: PTS_invalid %d \n", m_hints.ptsinvalid);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: Tag %d \n", m_hints.codec_tag);
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: %dx%d \n", m_hints.width,  m_hints.height);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: fpsrate %d / fpsscale %d\n", m_hints.fpsrate, m_hints.fpsscale);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: CodecID %d \n", m_hints.codec);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: StreamType %d \n", m_hints.type);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: Level %d \n", m_hints.level);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: Profile %d \n", m_hints.profile);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: PTS_invalid %d \n", m_hints.ptsinvalid);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: Tag %d \n", m_hints.codec_tag);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: %dx%d \n", m_hints.width,  m_hints.height);
   }
   { char str_tag[128]; av_get_codec_tag_string(str_tag, sizeof(str_tag), m_hints.codec_tag);
-      CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: Tag fourcc %s\n", str_tag);
+      CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: Tag fourcc %s\n", str_tag);
   }
   if (m_hints.extrasize)
   {
@@ -535,14 +537,10 @@ bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::stri
     for (unsigned int i=0; i < m_hints.extrasize; i++)
       sprintf(buf+i*2, "%02x", ((uint8_t*)m_hints.extradata)[i]);
 
-    if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-      CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: %s extradata %d %s\n", *(char*)m_hints.extradata == 1 ? "AnnexB" : "avcC", m_hints.extrasize, buf);
+    CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: extradata %d %s\n", m_hints.extrasize, buf);
   }
-  if (g_advancedSettings.CanLogComponent(LOGVIDEO))
-  {
-    CLog::Log(LOGDEBUG, "Decode: MEDIAINFO: %d / %d \n", m_hints.width,  m_hints.height);
-    CLog::Log(LOGDEBUG, "Decode: aspect %f - forced aspect %d\n", m_hints.aspect, m_hints.forced_aspect);
-  }
+  CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: %d / %d \n", m_hints.width,  m_hints.height);
+  CLog::Log(LOGVIDEO, "Decode: aspect %f - forced aspect %d\n", m_hints.aspect, m_hints.forced_aspect);
 #endif
 
   m_warnOnce = true;
@@ -670,7 +668,7 @@ void CIMXCodec::Dispose()
     if (ret != VPU_DEC_RET_SUCCESS)
       CLog::Log(LOGERROR, "%s - VPU close failed with error code %d.\n", __FUNCTION__, ret);
     else
-      CLog::Log(LOGDEBUG, "%s - VPU closed.", __FUNCTION__);
+      CLog::Log(LOGVIDEO, "%s - VPU closed.", __FUNCTION__);
 
     m_vpuHandle = 0;
   }
@@ -812,7 +810,7 @@ int CIMXCodec::Decode(BYTE *pData, int iSize, double dts, double pts)
   }
 
 #ifdef IMX_PROFILE
-  CLog::Log(LOGDEBUG, "%s - demux size: %d  dts : %f - pts : %f - addr : 0x%x, return %d ===== in/out %d/%d =====\n",
+  CLog::Log(LOGVIDEO, "%s - demux size: %d  dts : %f - pts : %f - addr : 0x%x, return %d ===== in/out %d/%d =====\n",
                        __FUNCTION__, iSize, recalcPts(dts), recalcPts(pts), (uint)pData, ret, m_decInput.size(), m_decOutput.size());
 #endif
 
@@ -893,7 +891,7 @@ void CIMXCodec::Process()
     unsigned long long before_dec;
 #ifdef IMX_PROFILE
     current = XbmcThreads::SystemClockMillis();
-    CLog::Log(LOGDEBUG, "%s - delta time decode : %llu - demux size : %d  dts : %f - pts : %f - addr : 0x%x\n",
+    CLog::Log(LOGVIDEO, "%s - delta time decode : %llu - demux size : %d  dts : %f - pts : %f - addr : 0x%x\n",
                                       __FUNCTION__, current - previous, task->demux.iSize, recalcPts(task->demux.dts), recalcPts(task->demux.pts), (uint)task->demux.pData);
     previous = current;
 #endif
@@ -929,7 +927,7 @@ void CIMXCodec::Process()
 #endif
 #ifdef IMX_PROFILE
       VPU_DecGetNumAvailableFrameBuffers(m_vpuHandle, &freeInfo);
-      CLog::Log(LOGDEBUG, "%s - VPU ret %d dec 0x%x decode takes : %lld free: %d\n\n", __FUNCTION__, ret, m_decRet,  XbmcThreads::SystemClockMillis() - before_dec, freeInfo);
+      CLog::Log(LOGVIDEO, "%s - VPU ret %d dec 0x%x decode takes : %lld free: %d\n\n", __FUNCTION__, ret, m_decRet,  XbmcThreads::SystemClockMillis() - before_dec, freeInfo);
 #endif
 
       if (m_skipMode == IN_DECODER_SET)
@@ -1014,17 +1012,17 @@ void CIMXCodec::Process()
         buffer->SetDts(task->demux.dts);
 
 #ifdef IMX_PROFILE_BUFFERS
-        CLog::Log(LOGNOTICE, "+D  %f  %lld\n", recalcPts(buffer->GetPts()), dec_time);
+        CLog::Log(LOGVIDEO, "+D  %f  %lld\n", recalcPts(buffer->GetPts()), dec_time);
         dec_time = 0;
 #endif
 #ifdef TRACE_FRAMES
-        CLog::Log(LOGDEBUG, "+  0x%x dts %f pts %f  (VPU)\n", buffer->GetIdx(), recalcPts(task->demux.dts), recalcPts(buffer->GetPts()));
+        CLog::Log(LOGVIDEO, "+  0x%x dts %f pts %f  (VPU)\n", buffer->GetIdx(), recalcPts(task->demux.dts), recalcPts(buffer->GetPts()));
 #endif
 
 #ifdef IMX_PROFILE_BUFFERS
         static unsigned long long lastD = 0;
         unsigned long long current = XbmcThreads::SystemClockMillis();
-        CLog::Log(LOGNOTICE, "+V  %f  %lld\n", recalcPts(buffer->GetPts()), current-lastD);
+        CLog::Log(LOGVIDEO, "+V  %f  %lld\n", recalcPts(buffer->GetPts()), current-lastD);
         lastD = current;
 #endif
 
@@ -1049,6 +1047,8 @@ void CIMXCodec::Process()
         FlushVPU();
         continue;
       }
+      else if (m_decRet & CLASS_DROP)
+        ++m_dropped;
 
       ProcessSignals();
 
@@ -1129,7 +1129,7 @@ bool CIMXCodec::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   unsigned int current;
 
   current = XbmcThreads::SystemClockMillis();
-  CLog::Log(LOGDEBUG, "+G 0x%x %f/%f tm:%03d : Interlaced 0x%x\n", pDvdVideoPicture->IMXBuffer->GetIdx(),
+  CLog::Log(LOGDEBUG | LOGVIDEO, "+G 0x%x %f/%f tm:%03d : Interlaced 0x%x\n", pDvdVideoPicture->IMXBuffer->GetIdx(),
                             recalcPts(pDvdVideoPicture->IMXBuffer->GetDts()), recalcPts(pDvdVideoPicture->IMXBuffer->GetPts()), current - previous,
                             m_initInfo.nInterlace ? pDvdVideoPicture->IMXBuffer->GetFieldType() : 0);
   previous = current;
@@ -1180,6 +1180,13 @@ void CIMXCodec::SetDropState(bool bDrop)
 bool CIMXCodec::IsCurrentThread() const
 {
   return CThread::IsCurrentThread(m_threadID);
+}
+
+std::string CIMXCodec::GetPlayerInfo()
+{
+  std::ostringstream s;
+  s << "buf In/Out: " << m_decInput.size() << "/" << m_decOutput.size();
+  return s.str();
 }
 
 /*******************************************/
@@ -1243,7 +1250,7 @@ long CDVDVideoCodecIMXBuffer::Release()
 CDVDVideoCodecIMXBuffer::~CDVDVideoCodecIMXBuffer()
 {
 #ifdef TRACE_FRAMES
-  CLog::Log(LOGDEBUG, "~  0x%x  (VPU)\n", m_idx);
+  CLog::Log(LOGVIDEO, "~  0x%x  (VPU)\n", m_idx);
 #endif
 }
 
@@ -1259,6 +1266,7 @@ CIMXContext::CIMXContext()
   , m_bFbIsConfigured(false)
   , m_g2dHandle(NULL)
   , m_bufferCapture(NULL)
+  , m_CaptureDone(true)
   , m_deviceName("/dev/fb1")
 {
   m_pageCrops = new CRectInt[m_fbPages];
@@ -1596,7 +1604,7 @@ void CIMXContext::Blit(CIMXBuffer *source_p, CIMXBuffer *source, const CRect &sr
 
 #ifdef IMX_PROFILE_BUFFERS
   unsigned long long after = XbmcThreads::SystemClockMillis();
-  CLog::Log(LOGDEBUG, "+P 0x%x@%d  %d\n", ((CDVDVideoCodecIMXBuffer*)ipu->current)->GetIdx(), ipu->page, (int)(after-before));
+  CLog::Log(LOGVIDEO, "+P 0x%x@%d  %d\n", ((CDVDVideoCodecIMXBuffer*)ipu->current)->GetIdx(), ipu->page, (int)(after-before));
 #endif
 }
 

@@ -37,6 +37,9 @@
 #include <numeric>
 #include <iterator>
 #include "utils/log.h"
+#ifdef HAS_IMXVPU
+#include "DVDCodecs/Video/DVDVideoCodecIMX.h"
+#endif
 
 using namespace RenderManager;
 
@@ -908,6 +911,9 @@ std::string CVideoPlayerVideo::GetPlayerInfo()
     s << ", pc:" << pc;
   else
     s << ", pc:none";
+#ifdef HAS_IMXVPU
+  s << ", " << ((CDVDVideoCodecIMX*)m_pVideoCodec)->GetPlayerInfo();
+#endif
 
   return s.str();
 }
