@@ -134,6 +134,7 @@ public:
   // the passed overlay. The buffer format is BGRA (4 byte)
   bool CaptureDisplay(unsigned char *&buffer, int iWidth, int iHeight, bool blend = false);
 
+  void RendererAllowed(bool yes);
   void OnResetDisplay();
   void OnLostDisplay();
 
@@ -309,6 +310,9 @@ public:
 
   static void           ReleaseFramebuffer(VpuFrameBuffer* fb);
 
+  virtual bool          GetInterlaced()                         { return m_initInfo.nInterlace; }
+  std::string           GetPlayerInfo();
+
 protected:
   class VPUTask
   {
@@ -445,6 +449,9 @@ public:
   virtual bool          GetCodecStats(double &pts, int &droppedFrames, int &skippedPics) override
                                                                                 { return m_IMXCodec->GetCodecStats(pts, droppedFrames, skippedPics); }
   virtual void          SetCodecControl(int flags) override                     { m_IMXCodec->SetCodecControl(flags); }
+
+  virtual bool          GetInterlaced()                                         { return m_IMXCodec->GetInterlaced(); }
+  std::string           GetPlayerInfo()                                         { return m_IMXCodec ? m_IMXCodec->GetPlayerInfo() : ""; }
 
 private:
   std::shared_ptr<CIMXCodec> m_IMXCodec;
