@@ -264,6 +264,7 @@ void CVideoPlayerVideo::CloseStream(bool bWaitForBuffers)
     m_picture.videoBuffer->Release();
     m_picture.videoBuffer = nullptr;
   }
+  CLog::Log(LOGDEBUG, "CVideoPlayerVideo::CloseStream - drop:{} skip:{}", m_iDroppedFrames, m_renderManager.GetSkippedFrames());
 }
 
 bool CVideoPlayerVideo::AcceptsData() const
