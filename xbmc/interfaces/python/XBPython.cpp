@@ -17,6 +17,7 @@
 #include "ServiceBroker.h"
 #include "Util.h"
 #include "filesystem/SpecialProtocol.h"
+#include "filesystem/File.h"
 #include "interfaces/AnnouncementManager.h"
 #include "interfaces/legacy/AddonUtils.h"
 #include "interfaces/legacy/Monitor.h"
@@ -541,6 +542,12 @@ bool XBPython::OnScriptInitialized(ILanguageInvoker* invoker)
 
 #ifdef HAS_WEB_INTERFACE
     CHTTPPythonWsgiInvoker::GlobalInitializeModules();
+#endif
+
+#if !defined(TARGET_WINDOWS)
+    // use Kodi provided cert if available
+    if (XFILE::CFile::Exists("special://xbmc/system/certs/cacert.pem"))
+      setenv("SSL_CERT_FILE", CSpecialProtocol::TranslatePath("special://xbmc/system/certs/cacert.pem").c_str(), 1);
 #endif
 
     Py_Initialize();
