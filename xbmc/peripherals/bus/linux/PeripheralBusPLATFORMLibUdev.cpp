@@ -30,10 +30,12 @@ extern "C" {
 using namespace PERIPHERALS;
 
 CPeripheralBusPLATFORM::CPeripheralBusPLATFORM(CPeripherals *manager, const std::string &threadname, PeripheralBusType type) :
-    CPeripheralBusUSB(manager, "PeripBusPLATFORMUdev", type)
+    CPeripheralBusUSB(manager, threadname, type)
 {
+  m_bNeedsPolling = false;
   udev_monitor_filter_add_match_subsystem_devtype(m_udevMon, "platform", NULL);
   udev_monitor_filter_update(m_udevMon);
+  Create();
 }
 
 void CPeripheralBusPLATFORM::Clear(void)
@@ -124,6 +126,7 @@ int CPeripheralBusPLATFORM::GetCableState(const std::string &strLocation)
 
 void CPeripheralBusPLATFORM::Process(void)
 {
+  ScanForDevices();
   while (!m_bStop)
     WaitForUpdate();
 

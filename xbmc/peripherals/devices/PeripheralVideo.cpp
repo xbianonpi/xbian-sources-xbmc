@@ -35,8 +35,8 @@ using namespace KODI::MESSAGING;
 
 int CPeripheralVideo::m_cableState = 0;
 
-CPeripheralVideo::CPeripheralVideo(const PeripheralScanResult& scanResult)
-  : CPeripheral(scanResult)
+CPeripheralVideo::CPeripheralVideo(const PeripheralScanResult& scanResult, CPeripheralBus* bus)
+  : CPeripheral(scanResult, bus)
   , m_timer(this)
 {
   m_features.push_back(FEATURE_CABLESTATE);

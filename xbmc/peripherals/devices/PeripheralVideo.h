@@ -28,7 +28,7 @@ namespace PERIPHERALS
   class CPeripheralVideo : public CPeripheral, protected ITimerCallback
   {
   public:
-    CPeripheralVideo(const PeripheralScanResult& scanResult);
+    CPeripheralVideo(const PeripheralScanResult& scanResult, CPeripheralBus* bus);
     virtual ~CPeripheralVideo(void);
 
     virtual void OnDeviceChanged(int state);

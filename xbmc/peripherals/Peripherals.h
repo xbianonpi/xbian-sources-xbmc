@@ -233,7 +233,7 @@ namespace PERIPHERALS
      */
     bool TestFeature(PeripheralFeature feature);
 
-    virtual CPeripheralBus *CreatePeripheralBus(CPeripheralBus *bus);
+    virtual void CreatePeripheralBus(PeripheralBusPtr bus);
 
     bool SupportsCEC() const
     {

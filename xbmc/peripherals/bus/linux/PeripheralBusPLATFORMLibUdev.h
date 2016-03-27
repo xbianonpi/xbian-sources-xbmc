@@ -33,15 +33,15 @@ namespace PERIPHERALS
     CPeripheralBusPLATFORM(CPeripherals *manager, const std::string &threadname = "PeripBusPLATFORMUdev", PeripheralBusType type = PERIPHERAL_BUS_PLATFORM);
     virtual ~CPeripheralBusPLATFORM(void) {};
 
-    virtual void Clear(void);
+    virtual void Clear(void) override;
 
     bool PerformDeviceScan(PeripheralScanResults &results);
 
-    void OnDeviceChanged(const std::string &strLocation);
+    virtual void OnDeviceChanged(const std::string &strLocation) override;
     void OnDeviceAdded(const std::string &strLocation) {};
     int GetCableState(const std::string &strLocation);
 
   protected:
-    virtual void Process(void);
+    virtual void Process(void) override;
   };
 }
