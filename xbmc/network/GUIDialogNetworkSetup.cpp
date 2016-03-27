@@ -209,7 +209,7 @@ void CGUIDialogNetworkSetup::InitializeSettings()
   labels.push_back(std::make_pair(20260, NET_PROTOCOL_SFTP));
 #endif
 #ifdef HAS_FILESYSTEM_AFP
-  labels.push_back(make_pair(g_localizeStrings.Get(20261), NET_PROTOCOL_AFP));
+  labels.push_back(std::make_pair(20261, NET_PROTOCOL_AFP));
 #endif
 
   AddSpinner(group, SETTING_PROTOCOL, 1008, 0, m_protocol, labels);
