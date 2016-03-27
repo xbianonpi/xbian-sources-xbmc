@@ -1130,7 +1130,7 @@ bool CApplication::Initialize()
   g_peripherals.Initialise();
 #endif
 #if defined(HAS_IMXVPU)
-  g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
+  g_peripherals.CreatePeripheralBus(std::make_shared<CPeripheralBusPLATFORM>(&g_peripherals));
 #endif
 
   // Load curl so curl_global_init gets called before any service threads
