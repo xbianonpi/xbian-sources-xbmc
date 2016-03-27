@@ -462,6 +462,7 @@ bool CApplication::Create()
   CApplicationMessenger::GetInstance().RegisterReceiver(this);
   CApplicationMessenger::GetInstance().RegisterReceiver(&g_playlistPlayer);
   CApplicationMessenger::GetInstance().RegisterReceiver(&g_infoManager);
+  g_screen.RegisterToAnnouncer();
 
   for (int i = RES_HDTV_1080i; i <= RES_PAL60_16x9; i++)
   {

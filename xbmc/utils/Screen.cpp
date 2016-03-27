@@ -41,12 +41,15 @@ CScreen::CScreen()
   : m_state(false)
   , m_changedBlank(false)
 {
+}
+
+void CScreen::RegisterToAnnouncer()
+{
   CAnnouncementManager::GetInstance().AddAnnouncer(this);
 }
 
 CScreen::~CScreen()
 {
-  CAnnouncementManager::GetInstance().RemoveAnnouncer(this);
 }
 
 void CScreen::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)

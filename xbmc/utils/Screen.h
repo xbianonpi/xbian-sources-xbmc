@@ -37,6 +37,8 @@ public:
 
   bool         GetScreenState() { return m_state; }
 
+  void         RegisterToAnnouncer();
+
 private:
   void         SetState(bool status, bool doBlank = true);
   void         ScreenPowerOn(bool doBlank);
