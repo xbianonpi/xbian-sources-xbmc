@@ -30,9 +30,11 @@
 #define EDID_DTM_OFFSET_DIMENSION       0x0c
 #define EDID_EXTENSION_BLOCK_START      0x7e
 
-static const char EDID_HEADER[8]    = { 0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0 };
-
+#define EDID_STRUCT_DISPLAY             0x14
 #define EDID_MAXSIZE                    512
+#define EDID_HEADERSIZE                 8
+
+static const char EDID_HEADER[8]    = { 0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0 };
 
 class CEGLEdid
 {
