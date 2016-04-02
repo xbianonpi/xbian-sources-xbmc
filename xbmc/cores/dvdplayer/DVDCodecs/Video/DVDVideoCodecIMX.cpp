@@ -1142,6 +1142,7 @@ CIMXContext::CIMXContext()
   , m_g2dHandle(NULL)
   , m_bufferCapture(NULL)
   , m_deviceName("/dev/fb1")
+  , m_ioctlPan(0x46ff)
 {
   m_pageCrops = new CRectInt[m_fbPages];
   CLog::Log(LOGDEBUG | LOGVIDEO, "iMX : Allocated %d render buffers\n", m_fbPages);
@@ -1512,10 +1513,16 @@ bool CIMXContext::ShowPage(int page, bool shift)
   m_fbCurrentPage = page;
   m_fbVar.activate = FB_ACTIVATE_VBL;
   m_fbVar.yoffset = (m_fbVar.yres + 1) * page + !shift;
-  if (ioctl(m_fbHandle, FBIOPAN_DISPLAY, &m_fbVar) < 0)
+  if (ioctl(m_fbHandle, m_ioctlPan, &m_fbVar) < 0)
   {
-    CLog::Log(LOGWARNING, "Panning failed: %s\n", strerror(errno));
-    return false;
+    if (m_ioctlPan != FBIOPAN_DISPLAY)
+      m_ioctlPan = FBIOPAN_DISPLAY;
+    else
+    {
+      CLog::Log(LOGWARNING, "Panning failed: %s\n", strerror(errno));
+      return false;
+    }
+    ioctl(m_fbHandle, m_ioctlPan, &m_fbVar);
   }
 #ifdef IMX_PROFILE_BUFFERS
   pgflip = XbmcThreads::SystemClockMillis();
