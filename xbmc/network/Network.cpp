@@ -683,7 +683,7 @@ bool CNetwork::CompareAddresses(const struct sockaddr * sa, const struct sockadd
   return false;
 }
 
-CNetwork::CNetworkUpdater::CNetworkUpdater(void (*watcher)())
+CNetwork::CNetworkUpdater::CNetworkUpdater(void (*watcher)(void *caller))
  : CThread("NetConfUpdater")
  , m_watcher(watcher)
 {

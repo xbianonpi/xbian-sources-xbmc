@@ -125,4 +125,4 @@ private:
 
 #endif
 
-void WatcherProcess();
+void WatcherProcess(void *caller);

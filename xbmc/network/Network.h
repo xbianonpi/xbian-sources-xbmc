@@ -111,20 +111,21 @@ public:
 
 class CNetwork
 {
+public:
   class CNetworkUpdater : public CThread, public ANNOUNCEMENT::IAnnouncer
   {
   public:
-    CNetworkUpdater(void (*watcher)());
+    CNetworkUpdater(void (*watcher)(void *caller));
     virtual ~CNetworkUpdater(void);
 
-    bool Stopping() { return m_bStop; }
+    volatile bool *Stopping() { return &m_bStop; }
     void Announce(ANNOUNCEMENT::AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data);
 
   protected:
-    void Process() { m_watcher(); }
+    void Process() { m_watcher(this); }
 
   private:
-    void (*m_watcher)();
+    void (*m_watcher)(void *caller);
   };
 
 public:
@@ -379,7 +380,7 @@ public:
     \brief Registers function as platform. network settings change watcher. Changes on net ifaces
            should be reported by sending message TMSG_NETWORKMESSAGE (CNetwork::NETWORK_CHANGED).
     */
-   void RegisterWatcher(void (*watcher)()) { m_updThread = new CNetworkUpdater(watcher); m_updThread->Create(false); }
+   void RegisterWatcher(void (*watcher)(void *caller)) { m_updThread = new CNetworkUpdater(watcher); m_updThread->Create(false); }
    CNetworkUpdater *m_updThread;
 
    virtual bool ForceRereadInterfaces() = 0;
