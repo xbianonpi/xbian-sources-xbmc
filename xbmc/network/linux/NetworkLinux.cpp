@@ -1140,13 +1140,13 @@ void CNetworkInterfaceLinux::WriteSettings(FILE* fw, NetworkAssignment assignmen
       fprintf(fw, "auto %s\n\n", GetName().c_str());
 }
 
-void WatcherProcess()
+void WatcherProcess(void *caller)
 {
   struct sockaddr_nl addr;
   int fds = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
   struct pollfd m_fds = { fds, POLLIN, 0 };
   char msg[4096];
-#define stopping ( g_application.getNetwork().m_updThread->Stopping() )
+  volatile bool *stopping = ((CNetwork::CNetworkUpdater*)caller)->Stopping();
 
   memset (&addr, 0, sizeof(struct sockaddr_nl));
   addr.nl_family = AF_NETLINK;
@@ -1170,17 +1170,17 @@ void WatcherProcess()
   else
     fcntl(fds, F_SETFL, O_NONBLOCK);
 
-  while(!stopping)
+  while(!*stopping)
     if (poll(&m_fds, 1, 1000) > 0)
     {
-      while (!stopping && fds && recv(fds, &msg, sizeof(msg), 0) > 0);
-      if (stopping)
+      while (!*stopping && fds && recv(fds, &msg, sizeof(msg), 0) > 0);
+      if (*stopping)
         continue;
 
       if (!fds)
-        g_application.getNetwork().m_updThread->Sleep(5000);
+        ((CNetwork::CNetworkUpdater*)caller)->Sleep(5000);
       else
-        g_application.getNetwork().m_updThread->Sleep(1000);
+        ((CNetwork::CNetworkUpdater*)caller)->Sleep(1000);
 
       if (stopping || !g_application.getNetwork().ForceRereadInterfaces())
         continue;
