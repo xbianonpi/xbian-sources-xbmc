@@ -154,7 +154,6 @@ void CDVDAudio::Finish()
 
 void CDVDAudio::Drain()
 {
-  Finish();
   CSingleLock lock (m_critSection);
   if (m_pAudioStream)
     m_pAudioStream->Drain(true);
