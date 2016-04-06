@@ -58,7 +58,6 @@ public:
   double GetCacheTime();  // returns total amount of data cached in audio output at this time
   double GetCacheTotal(); // returns total amount the audio device can buffer
   void Flush();
-  void Finish();
   void Drain();
 
   void SetSpeed(int iSpeed);

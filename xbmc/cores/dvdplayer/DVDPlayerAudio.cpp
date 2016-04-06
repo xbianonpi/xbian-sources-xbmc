@@ -409,7 +409,6 @@ int CDVDPlayerAudio::DecodeFrame(DVDAudioFrame &audioframe)
     else if (pMsg->IsType(CDVDMsg::GENERAL_EOF))
     {
       CLog::Log(LOGDEBUG, "CDVDPlayerAudio - CDVDMsg::GENERAL_EOF");
-      m_dvdAudio.Finish();
     }
     else if (pMsg->IsType(CDVDMsg::GENERAL_DELAY))
     {

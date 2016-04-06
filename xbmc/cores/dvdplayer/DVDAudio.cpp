@@ -145,13 +145,6 @@ unsigned int CDVDAudio::AddPackets(const DVDAudioFrame &audioframe)
   return total - frames;
 }
 
-void CDVDAudio::Finish()
-{
-  CSingleLock lock (m_critSection);
-  if (!m_pAudioStream)
-    return;
-}
-
 void CDVDAudio::Drain()
 {
   CSingleLock lock (m_critSection);
