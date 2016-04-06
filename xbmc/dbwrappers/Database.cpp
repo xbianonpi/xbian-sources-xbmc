@@ -518,6 +518,7 @@ int CDatabase::GetDBVersion()
 bool CDatabase::UpdateVersion(const std::string &dbName)
 {
   int version = GetDBVersion();
+
   if (version < GetMinSchemaVersion())
   {
     CLog::Log(LOGERROR, "Can't update database %s from version %i - it's too old", dbName.c_str(), version);
@@ -525,6 +526,9 @@ bool CDatabase::UpdateVersion(const std::string &dbName)
   }
   else if (version < GetSchemaVersion())
   {
+    CLog::Log(LOGNOTICE, "XBian: notifying Upstart (doing DB upgrades)");
+    system("sudo /sbin/start -n -q xbmc-loaded");
+
     CLog::Log(LOGNOTICE, "Attempting to update the database %s from version %i to %i", dbName.c_str(), version, GetSchemaVersion());
     bool success = true;
     BeginTransaction();
