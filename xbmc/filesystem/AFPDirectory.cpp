@@ -35,6 +35,8 @@
 #include "PasswordManager.h"
 #include "DllLibAfp.h"
 
+#include "linux/XTimeUtils.cpp"
+
 struct CachedDirEntry
 {
   unsigned int type;
