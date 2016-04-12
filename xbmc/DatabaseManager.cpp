@@ -114,6 +114,9 @@ bool CDatabaseManager::Update(CDatabase &db, const DatabaseSettings &settings)
       // Database exists, take a copy for our current version (if needed) and reopen that one
       if (version < db.GetSchemaVersion())
       {
+        CLog::Log(LOGNOTICE, "XBian: notifying Upstart (doing DB upgrades)");
+        system("sudo /sbin/start -n -q xbmc-loaded");
+
         CLog::Log(LOGNOTICE, "Old database found - updating from version %i to %i", version, db.GetSchemaVersion());
         m_bIsUpgrading = true;
 
