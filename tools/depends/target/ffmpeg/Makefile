@@ -6,8 +6,7 @@ TARBALLS_LOCATION = $(shell pwd)
 ARCHIVE_TOOL = tar
 ARCHIVE_TOOL_FLAGS = --strip-components=1 -xf
 
-DEPS= ../../Makefile.include FFMPEG-VERSION Makefile ffmpeg_Speed_up_wtv_index_creation.patch \
-  0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
+DEPS= ../../Makefile.include FFMPEG-VERSION Makefile 0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 
 # set to "yes" to enable patching
 # we don't apply patches until we move to a vanilla ffmpeg tarball
@@ -85,7 +84,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); sed -i".bak" -e "s%pkg_config_default=pkg-config%export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \&\& pkg_config_default=$(NATIVEPREFIX)/bin/pkg-config%" configure
-	cd $(PLATFORM); patch -p1 < ../../ffmpeg_Speed_up_wtv_index_creation.patch
+	##cd $(PLATFORM); patch -p1 < ../../ffmpeg_Speed_up_wtv_index_creation.patch
 	cd $(PLATFORM); patch -p1 < ../../0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch
 	##cd $(PLATFORM); patch -p1 < ../../0001-libavformat-add-mvcC-handling-in-.mov-.mp4.patch
 	cd $(PLATFORM); patch -p1 < ../../0001-Discard-data-before-VO-VOL-in-mpeg-4-over-mpegts.patch
