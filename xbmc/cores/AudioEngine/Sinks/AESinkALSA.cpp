@@ -1021,7 +1021,7 @@ bool CAESinkALSA::TryDevice(const std::string &name, snd_pcm_t **pcmp, snd_confi
   int err = snd_pcm_open_lconf(pcmp, name.c_str(), SND_PCM_STREAM_PLAYBACK, ALSA_OPTIONS, lconf);
   if (err < 0)
   {
-    CLog::Log(LOGINFO, "CAESinkALSA - Unable to open device \"%s\" for playback", name.c_str());
+    CLog::Log(LOGINFO, "CAESinkALSA - Unable to open device \"%s\" for playback (error: %s)", name.c_str(), snd_strerror(err));
   }
 
   return err == 0;
