@@ -21,7 +21,7 @@
 #include "Application.h"
 #include "utils/log.h"
 #include "settings/Settings.h"
-#include "video/VideoReferenceClock.h"
+//#include "video/VideoReferenceClock.h"
 #include "guilib/GUIWindowManager.h"
 #include "utils/Screen.h"
 #include "windowing/WindowingFactory.h"
@@ -127,7 +127,7 @@ void CScreen::SetState(bool state, bool doBlank)
     if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPausedPlayback())
       return;
 
-    g_VideoReferenceClock.Stop();
+//    g_VideoReferenceClock.Stop();
     ScreenPowerOff(doBlank);
     if (!g_application.IsInScreenSaver())
       g_application.ActivateScreenSaver();
@@ -136,8 +136,8 @@ void CScreen::SetState(bool state, bool doBlank)
   case false:
     g_application.WakeUpScreenSaverAndDPMS();
     ScreenPowerOn(doBlank);
-    if (g_application.m_pPlayer->IsPlayingVideo())
-      g_VideoReferenceClock.Start();
+//    if (g_application.m_pPlayer->IsPlayingVideo())
+//      g_VideoReferenceClock.Start();
 
   default:
     ;
