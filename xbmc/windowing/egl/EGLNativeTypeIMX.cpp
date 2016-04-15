@@ -41,12 +41,8 @@
 #include "cores/AudioEngine/AEFactory.h"
 #include <fstream>
 #include <float.h>
-#include "peripherals/Peripherals.h"
-#include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
 
 #include "EGLEdid.h"
-
-using namespace PERIPHERALS;
 
 CEGLNativeTypeIMX::CEGLNativeTypeIMX()
 #ifdef HAS_IMXVPU
@@ -59,8 +55,6 @@ CEGLNativeTypeIMX::CEGLNativeTypeIMX()
 #ifdef HAS_IMXVPU
   m_show = true;
   m_readonly = true;
-
-  g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
 #endif
 }
 

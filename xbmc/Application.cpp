@@ -228,6 +228,7 @@
 
 #ifdef HAS_IMXVPU
 #include "cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+#include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
 #endif
 
 #include "cores/FFmpeg.h"
@@ -1126,6 +1127,10 @@ bool CApplication::Initialize()
   // load the language and its translated strings
   if (!LoadLanguage(false))
     return false;
+
+#if defined(HAS_IMXVPU)
+  g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
+#endif
 
   CEventLog::GetInstance().Add(EventPtr(new CNotificationEvent(
     StringUtils::Format(g_localizeStrings.Get(177).c_str(), g_sysinfo.GetAppName().c_str()),
