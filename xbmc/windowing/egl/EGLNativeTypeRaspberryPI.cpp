@@ -124,9 +124,8 @@ void CEGLNativeTypeRaspberryPI::Initialize()
   TV_DISPLAY_STATE_T tv_state;
   m_DllBcmHost->vc_tv_get_display_state(&tv_state);
 
-  CPeripheralBus *m_bus = g_peripherals.CreatePeripheralBus(new CPeripheralBusPLATFORM(&g_peripherals));
-  if (!m_bus)
-    return;
+  PeripheralBusPtr m_bus = std::make_shared<CPeripheralBusPLATFORM>(&g_peripherals);
+  g_peripherals.CreatePeripheralBus(m_bus);
 
   PeripheralScanResult   result(m_bus->Type());
   PeripheralScanResults  results;
@@ -298,7 +297,7 @@ int CEGLNativeTypeRaspberryPI::FindMatchingResolution(const RESOLUTION_INFO &res
 int CEGLNativeTypeRaspberryPI::AddUniqueResolution(RESOLUTION_INFO &res, std::vector<RESOLUTION_INFO> &resolutions, bool desktop /* = false */)
 {
   SetResolutionString(res);
-  int i = FindMatchingResolution(res, resolutions);
+  int i = FindMatchingResolution(res, resolutions, desktop);
   if (i == -1)
     resolutions.push_back(res);
 
@@ -570,7 +569,7 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
     GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
   }
   {
-    AddUniqueResolution(m_desktopRes, resolutions);
+    AddUniqueResolution(m_desktopRes, resolutions, true);
     CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
   }
 
