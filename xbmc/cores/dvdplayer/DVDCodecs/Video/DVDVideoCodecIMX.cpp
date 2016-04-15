@@ -642,9 +642,10 @@ void CDVDVideoCodecIMX::SetDrainMode(VpuDecInputType drain)
   VpuDecInputType config = drain == IN_DECODER_SET ? VPU_DEC_IN_DRAIN : drain;
   SetVPUParams(VPU_DEC_CONF_INPUTTYPE, &config);
   CLog::Log(LOGDEBUG | LOGVIDEO, ">>>>>>>>>>>>>>>>>>>>> %s - iMX VPU set drain mode %d.\n", __FUNCTION__, config);
+  if (!m_drainMode)
+    SetSkipMode(VPU_DEC_SKIPNONE);
 }
 
-inline
 void CDVDVideoCodecIMX::SetSkipMode(VpuDecSkipMode skip)
 {
   if (!m_vpuHandle || m_dropRequest == skip)
@@ -671,7 +672,12 @@ bool CDVDVideoCodecIMX::GetCodecStats(double &pts, int &droppedPics)
 {
   droppedPics = m_dropped;
   m_dropped = 0;
-  pts = DVD_NOPTS_VALUE;
+
+  if (m_currentBuffer)
+    pts = m_currentBuffer->GetPts();
+  else
+    pts = DVD_NOPTS_VALUE;
+
   return true;
 }
 
@@ -698,7 +704,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
   VpuBufferNode inData;
   VpuDecRetCode ret;
   static int decRet;
-  int retStatus = 0;
+  int retStatus = decRet & VPU_DEC_SKIP ? VC_USERDATA : 0;
   int demuxer_bytes = iSize;
   uint8_t *demuxer_content = pData;
 
@@ -766,7 +772,7 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
     if ((m_decOpenParam.CodecFormat == VPU_V_MPEG2) ||
         (m_decOpenParam.CodecFormat == VPU_V_VC1_AP)||
         (m_decOpenParam.CodecFormat == VPU_V_XVID)  ||
-        (m_convert_bitstream && iSize && !m_vpuFrameBufferNum && decRet & (VPU_DEC_NO_ENOUGH_INBUF | VPU_DEC_OUTPUT_NODIS)))
+        (!m_vpuFrameBufferNum && iSize && decRet & (VPU_DEC_OUTPUT_NODIS | VPU_DEC_NO_ENOUGH_INBUF) && m_convert_bitstream && !m_drainMode))
       SetCodecParam(&inData, (unsigned char *)m_hints.extradata, m_hints.extrasize);
     else
       SetCodecParam(&inData, NULL, 0);
@@ -887,24 +893,23 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         }
       } //VPU_DEC_OUTPUT_DIS
       else if (decRet & (VPU_DEC_OUTPUT_REPEAT  |
-                         VPU_DEC_OUTPUT_DROPPED |
-                         VPU_DEC_SKIP))
+                         VPU_DEC_OUTPUT_DROPPED))
       {
-#ifdef TRACE_FRAMES
-        CLog::Log(LOGDEBUG | LOGVIDEO, "%s - Frame drop/repeat/skip (0x%x).\n", __FUNCTION__, decRet);
-#endif
         m_dropped++;
-        if (decRet & VPU_DEC_SKIP)
-          m_dropped++;
         retStatus |= VC_USERDATA;
       }
 
-      if (decRet & VPU_DEC_NO_ENOUGH_INBUF)
+      if (decRet & VPU_DEC_SKIP)
       {
-        if (iSize)
-          SetSkipMode(VPU_DEC_SKIPNONE);
-        break;
+        m_dropped += 2;
+        retStatus |= VC_USERDATA;
       }
+
+      if (decRet & VPU_DEC_OUTPUT_NODIS)
+        retStatus |= VC_USERDATA;
+
+      if (decRet & VPU_DEC_NO_ENOUGH_INBUF)
+        retStatus |= VC_BUFFER;
 
       if (decRet & VPU_DEC_FLUSH)
         retStatus |= VC_FLUSHED;
@@ -915,11 +920,14 @@ int CDVDVideoCodecIMX::Decode(BYTE *pData, int iSize, double dts, double pts)
         Sleep(5);
       }
 
+      if (decRet & VPU_DEC_OUTPUT_EOS)
+        retStatus |= VC_BUFFER;
+
       break;
     } // Decode loop
   } //(pData && iSize)
 
-  if (!(retStatus & VC_USERDATA) && m_drainMode != VPU_DEC_IN_DRAIN)
+  if (!(retStatus & VC_USERDATA) && !m_drainMode)
     retStatus |= VC_BUFFER;
 
   if (m_drainMode == IN_DECODER_SET)
@@ -1005,14 +1013,9 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
   pDvdVideoPicture->pts = m_currentBuffer->GetPts();
   pDvdVideoPicture->dts = m_currentBuffer->GetDts();
 
-#ifdef DVD_CODEC_CTRL_DROP
-  if (m_codecControlFlags & DVD_CODEC_CTRL_DROP)
-    m_currentBuffer->Release();
-  else
-#endif
   if (m_currentBuffer->iFlags & DVP_FLAG_ALLOCATED)
     pDvdVideoPicture->IMXBuffer = m_currentBuffer;
-  else if (m_currentBuffer->iFlags & DVP_FLAG_DROPPED)
+  else
     SAFE_RELEASE(m_currentBuffer);
 
   return true;
@@ -1020,6 +1023,7 @@ bool CDVDVideoCodecIMX::GetPicture(DVDVideoPicture* pDvdVideoPicture)
 
 void CDVDVideoCodecIMX::SetDropState(bool bDrop)
 {
+
   // We are fast enough to continue to really decode every frames
   // and avoid artefacts...
   // (Of course these frames won't be rendered but only decoded)
