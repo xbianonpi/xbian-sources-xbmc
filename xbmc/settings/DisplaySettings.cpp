@@ -606,16 +606,10 @@ std::string CDisplaySettings::GetStringFromResolution(RESOLUTION resolution, flo
   if (resolution >= RES_DESKTOP && resolution < (RESOLUTION)CDisplaySettings::GetInstance().ResolutionInfoSize())
   {
     const RESOLUTION_INFO &info = CDisplaySettings::GetInstance().GetResolutionInfo(resolution);
-    // also handle RES_DESKTOP resolutions with non-default refresh rates
-    if (resolution != RES_DESKTOP || (refreshrate > 0.0f && refreshrate != info.fRefreshRate))
-    {
-      return StringUtils::Format("%1i%05i%05i%09.5f%s", info.iScreen,
-                                 info.iScreenWidth, info.iScreenHeight,
-                                 refreshrate > 0.0f ? refreshrate : info.fRefreshRate, ModeFlagsToString(info.dwFlags, true).c_str());
-    }
+    return StringUtils::Format("%1i%05i%05i%09.5f%s", info.iScreen,
+                               info.iScreenWidth, info.iScreenHeight,
+                               refreshrate > 0.0f ? refreshrate : info.fRefreshRate, ModeFlagsToString(info.dwFlags, true).c_str());
   }
-
-  return "DESKTOP";
 }
 
 RESOLUTION CDisplaySettings::GetResolutionForScreen()
