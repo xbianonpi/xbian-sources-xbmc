@@ -325,9 +325,14 @@ RESOLUTION CBaseRenderer::FindClosestResolution(float fps, float multiplier, RES
 
     //discard resolutions that are not the same width and height (and interlaced/3D flags)
     //or have a too low refreshrate
-    if (info.iScreenWidth  != curr.iScreenWidth
-    ||  info.iScreenHeight != curr.iScreenHeight
-    ||  info.iScreen       != curr.iScreen
+    if ((!CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION) &&
+        (info.iScreenWidth != curr.iScreenWidth ||
+         info.iScreenHeight != curr.iScreenHeight)) ||
+        (CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION) &&
+         CSettings::GetInstance().GetInt(CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL) > info.iScreenHeight))
+      continue;
+
+    if (info.iScreen != curr.iScreen
     ||  ((int)CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA) < GETFLAGS_GROUP(info.dwFlags)-1)
     ||  (info.dwFlags & D3DPRESENTFLAG_MODEMASK) != (curr.dwFlags & D3DPRESENTFLAG_MODEMASK)
     ||  info.fRefreshRate < (fRefreshRate * multiplier / 1.001) - 0.001)
