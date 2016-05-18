@@ -253,7 +253,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenHeight= tv_state.display.sdtv.height;
       res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, tv_state.display.sdtv.mode, 1);
       res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
-      res->fPixelRatio  = (float)g_EGLEdid.GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)m_desktopRes.iScreenWidth / (float)m_desktopRes.iScreenHeight);
     }
     else if ((tv_state.state & VC_LCD_ATTACHED_DEFAULT) != 0) // lcd
     {
@@ -265,7 +265,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenHeight= tv_state.display.sdtv.height;
       res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, 0, 0);
       res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
-      res->fPixelRatio  = (float)g_EGLEdid.GetSAR() / ((float)res->iScreenWidth / (float)res->iScreenHeight);
+      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)m_desktopRes.iScreenWidth / (float)m_desktopRes.iScreenHeight);
     }
 
   DLOG("CEGLNativeTypeRaspberryPI::GetNativeResolution %s\n", res->strMode.c_str());
@@ -549,11 +549,8 @@ bool CEGLNativeTypeRaspberryPI::ProbeResolutions(std::vector<RESOLUTION_INFO> &r
   g_EGLEdid.CalcSAR();
 
   GetNativeResolution(&m_desktopRes);
-  if(GETFLAGS_GROUP(m_desktopRes.dwFlags) && GETFLAGS_MODE(m_desktopRes.dwFlags))
-  {
-    GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
-    GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
-  }
+  GetSupportedModes(HDMI_RES_GROUP_CEA, resolutions);
+  GetSupportedModes(HDMI_RES_GROUP_DMT, resolutions);
   {
     AddUniqueResolution(m_desktopRes, resolutions);
     CLog::Log(LOGDEBUG, "EGL probe resolution %s:%x\n", m_desktopRes.strMode.c_str(), m_desktopRes.dwFlags);
