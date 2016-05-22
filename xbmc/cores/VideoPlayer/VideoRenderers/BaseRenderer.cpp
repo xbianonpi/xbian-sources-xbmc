@@ -222,11 +222,13 @@ void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY, float wid
     return;
   }
 
+#if defined(HAS_IMXVPU)
   if (g_graphicsContext.GetResInfo().dwFlags & D3DPRESENTFLAG_INTERLACED)
   {
     inputFrameRatio = (float) width / height;
     zoomAmount = 1.0f;
   }
+#endif
 
   // scale up image as much as possible
   // and keep the aspect ratio (introduces with black bars)
