@@ -253,7 +253,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenHeight= tv_state.display.sdtv.height;
       res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, tv_state.display.sdtv.mode, 1);
       res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
-      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)m_desktopRes.iScreenWidth / (float)m_desktopRes.iScreenHeight);
+      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)res->iScreenWidth / (float)res->iScreenHeight);
     }
     else if ((tv_state.state & VC_LCD_ATTACHED_DEFAULT) != 0) // lcd
     {
@@ -265,7 +265,7 @@ bool CEGLNativeTypeRaspberryPI::GetNativeResolution(RESOLUTION_INFO *res) const
       res->iScreenHeight= tv_state.display.sdtv.height;
       res->dwFlags      = MAKEFLAGS(HDMI_RES_GROUP_INVALID, 0, 0);
       res->fRefreshRate = (float)tv_state.display.sdtv.frame_rate;
-      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)m_desktopRes.iScreenWidth / (float)m_desktopRes.iScreenHeight);
+      res->fPixelRatio  = tv_state.display.hdmi.display_options.aspect == 0 ? 1.0f : get_display_aspect_ratio((SDTV_ASPECT_T)tv_state.display.sdtv.display_options.aspect) / ((float)res->iScreenWidth / (float)res->iScreenHeight);
     }
 
   DLOG("CEGLNativeTypeRaspberryPI::GetNativeResolution %s\n", res->strMode.c_str());
