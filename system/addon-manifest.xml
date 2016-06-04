@@ -42,5 +42,7 @@
   <addon>xbmc.pvr</addon>
   <addon>xbmc.python</addon>
   <addon>xbmc.webinterface</addon>
+  <addon>plugin.xbianconfig</addon>
+  <addon>script.service.xbian.upstart-bridge</addon>
   <addon optional="true">peripheral.joystick</addon>
 </addons>
