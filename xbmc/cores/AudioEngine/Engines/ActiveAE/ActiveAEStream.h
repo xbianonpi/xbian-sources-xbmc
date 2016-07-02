@@ -44,7 +44,7 @@ public:
   {
     m_buffer = 0.0f;
     m_lastError = 0.0;
-    m_count  = 0;
+    m_count = 0;
     m_timer.Set(interval);
   }
 
@@ -85,7 +85,7 @@ protected:
   }
   double m_buffer;
   double m_lastError;
-  int m_count;
+  unsigned int m_count;
   XbmcThreads::EndTime m_timer;
 };
 
@@ -227,6 +227,7 @@ protected:
   int m_profile;
   int m_resampleMode;
   double m_resampleIntegral;
+  double m_prevError;
   double m_clockSpeed;
   enum AVMatrixEncoding m_matrixEncoding;
   enum AVAudioServiceType m_audioServiceType;
