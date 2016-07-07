@@ -182,7 +182,9 @@ void CPeripheralCecAdapter::Announce(AnnouncementFlag flag, const char *sender, 
       ActivateSource();
       if (!m_configuration.wakeDevices.IsEmpty() && m_configuration.wakeDevices.primary == CECDEVICE_AUDIOSYSTEM &&
           GetAudioSystemConnected())
-        m_cecAdapter->PowerOnDevices(CECDEVICE_AUDIOSYSTEM);
+      {
+        m_cecAdapter->TransmitSystemAudioModeRequest();
+      }
     }
   }
   else if (flag == GUI && !strcmp(sender, "xbmc") && !strcmp(message, "OnScreensaverActivated") && m_bIsReady)
@@ -693,6 +695,12 @@ void CPeripheralCecAdapter::CecCommand(void *cbParam, const cec_command* command
           strNewLanguage[iPtr] = command->parameters[iPtr];
         strNewLanguage[3] = 0;
         adapter->SetMenuLanguage(strNewLanguage);
+      }
+
+      if (!adapter->m_configuration.wakeDevices.IsEmpty() && adapter->m_configuration.wakeDevices.primary == CECDEVICE_AUDIOSYSTEM &&
+          adapter->GetAudioSystemConnected() && adapter->m_cecAdapter->IsLibCECActiveSource())
+      {
+        adapter->m_cecAdapter->TransmitSystemAudioModeRequest();
       }
       break;
     case CEC_OPCODE_DECK_CONTROL:
