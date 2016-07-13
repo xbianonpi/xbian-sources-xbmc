@@ -1502,7 +1502,7 @@ index 271e17a..4caf720 100644
      int trafo_size = 1 << log2_trafo_size;
      int i;
 -    int qp,shift,add,scale,scale_m;
--    const uint8_t level_scale[] = { 40, 45, 51, 57, 64, 72 };
+-    static const uint8_t level_scale[] = { 40, 45, 51, 57, 64, 72 };
 +    int qp,shift,scale;
 +    static const uint8_t level_scale[] = { 40, 45, 51, 57, 64, 72 };
      const uint8_t *scale_matrix = NULL;
