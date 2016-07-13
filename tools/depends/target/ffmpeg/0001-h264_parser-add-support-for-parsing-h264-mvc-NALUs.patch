@@ -40,9 +40,9 @@ index 12d6397..4337c8c 100644
 --- a/libavcodec/h264_parser.c
 +++ b/libavcodec/h264_parser.c
 @@ -38,6 +38,7 @@ typedef struct H264ParseContext {
-     H264Context h;
-     ParseContext pc;
-     int got_first;
+     uint8_t parse_history[6];
+     int parse_history_count;
+     int parse_last_mb;
 +    int is_mvc;
  } H264ParseContext;
  

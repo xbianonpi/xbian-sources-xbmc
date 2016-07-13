@@ -614,9 +614,9 @@ index f6a4fbb..0fd6767 100644
 +          rpi_shader.h                                                  \
 +          rpi_mailbox.h                                                 \
 +          rpi_hevc_transform.h                                          \
-           dv_profile.h                                                  \
            d3d11va.h                                                     \
            dirac.h                                                       \
+           dv_profile.h                                                  \
 @@ -39,6 +43,9 @@ OBJS = allcodecs.o                                                      \
         resample.o                                                       \
         resample2.o                                                      \
@@ -36954,9 +36954,9 @@ index 0fd6767..bae3f2d 100644
            rpi_mailbox.h                                                 \
            rpi_hevc_transform.h                                          \
 +          rpi_zc.h                                                      \
-           dv_profile.h                                                  \
            d3d11va.h                                                     \
            dirac.h                                                       \
+           dv_profile.h                                                  \
 @@ -46,6 +47,7 @@ OBJS = allcodecs.o                                                      \
         rpi_qpu.o                                                        \
         rpi_shader.o                                                     \
