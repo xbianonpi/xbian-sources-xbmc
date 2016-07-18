@@ -2874,6 +2874,7 @@ void CActiveAE::OnLostDisplay()
 
 void CActiveAE::OnResetDisplay()
 {
+  Message *reply;
   m_controlPort.SendOutMessage(CActiveAEControlProtocol::DISPLAYRESET);
 }
 
