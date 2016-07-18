@@ -18,6 +18,9 @@
  *
  */
 
+#include <linux/mxcfb.h>
+#include "utils/SysfsUtils.h"
+
 #include "DVDVideoCodecIMX.h"
 
 #include "settings/AdvancedSettings.h"

@@ -46,6 +46,7 @@
 #include "peripherals/bus/linux/PeripheralBusPLATFORMLibUdev.h"
 
 #include "EGLEdid.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
 
 using namespace PERIPHERALS;
 
