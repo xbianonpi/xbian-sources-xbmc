@@ -92,7 +92,11 @@ bool CVideoPlayerAudio::OpenStream(CDVDStreamInfo &hints)
   m_processInfo.ResetAudioCodecInfo();
 
   CLog::Log(LOGNOTICE, "Finding audio codec for: %i", hints.codec);
+#ifndef HAS_IMXVPU
   bool allowpassthrough = !CSettings::GetInstance().GetBool(CSettings::SETTING_VIDEOPLAYER_USEDISPLAYASCLOCK);
+#else
+  bool allowpassthrough = CSettings::GetInstance().GetBool(CSettings::SETTING_AUDIOOUTPUT_PASSTHROUGH);
+#endif
   if (hints.realtime)
     allowpassthrough = false;
   CDVDAudioCodec* codec = CDVDFactoryCodec::CreateAudioCodec(hints, m_processInfo, allowpassthrough, m_processInfo.AllowDTSHDDecode());
