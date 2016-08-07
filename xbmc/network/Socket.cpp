@@ -25,7 +25,6 @@
 #ifdef HAS_EVENT_SERVER
 
 #include "Socket.h"
-#include "utils/log.h"
 #include <vector>
 
 using namespace SOCKETS;
@@ -40,6 +39,13 @@ using namespace SOCKETS;
 
 bool CPosixUDPSocket::Bind(bool localOnly, int port, int range)
 {
+#ifdef WINSOCK_VERSION
+  const char yes = 1;
+  const char no  = 0;
+#else
+  int yes = 1;
+  int no  = 0;
+#endif
   // close any existing sockets
   Close();
 
@@ -48,30 +54,23 @@ bool CPosixUDPSocket::Bind(bool localOnly, int port, int range)
   // with an IPv6-only socket).
   if (!localOnly) // Only bind loopback to ipv4. TODO : Implement dual bindinds.
   {
-    m_iSock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+    m_iSock = socket(AF_INET6, SOCK_DGRAM, 0);
     if (m_iSock != INVALID_SOCKET)
     {
-#ifdef WINSOCK_VERSION
-      const char zero = 0;
-#else
-      int zero = 0;
-#endif
-      if (setsockopt(m_iSock, IPPROTO_IPV6, IPV6_V6ONLY, &zero, sizeof(&zero)) == -1)
+      if (setsockopt(m_iSock, IPPROTO_IPV6, IPV6_V6ONLY, &no, sizeof(&no)) == -1)
       {
         close(m_iSock);
         m_iSock = INVALID_SOCKET;
       }
       else
       {
-        m_addr = CAddress("::");
-
-        SOCKET testSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-        setsockopt(testSocket, IPPROTO_IPV6, IPV6_V6ONLY, &zero, sizeof(&zero));
+        SOCKET testSocket = socket(AF_INET6, SOCK_DGRAM, 0);
+        setsockopt(testSocket, IPPROTO_IPV6, IPV6_V6ONLY, &no, sizeof(&no));
         // Try to bind a socket to validate ipv6 status
         for (m_iPort = port; m_iPort <= port + range; ++m_iPort)
         {
-          m_addr.saddr.saddr6.sin6_port = htons(m_iPort);
-          if (bind(testSocket, (struct sockaddr*)&m_addr.saddr, m_addr.size) >= 0)
+          m_addr.SetAddress("::", m_iPort);
+          if (bind(testSocket, m_addr.sa(), CNetwork::sa_len(m_addr.sa())) >= 0)
           {
             closesocket(testSocket);
             m_ipv6Socket = true;
@@ -90,7 +89,7 @@ bool CPosixUDPSocket::Bind(bool localOnly, int port, int range)
   }
 
   if (m_iSock == INVALID_SOCKET)
-    m_iSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    m_iSock = socket(AF_INET, SOCK_DGRAM, 0);
 
   if (m_iSock == INVALID_SOCKET)
   {
@@ -112,42 +111,31 @@ bool CPosixUDPSocket::Bind(bool localOnly, int port, int range)
   }
 
   // make sure we can reuse the address
-#ifdef WINSOCK_VERSION
-  const char yes=1;
-#else
-  int yes = 1;
-#endif
   if (setsockopt(m_iSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))==-1)
   {
     CLog::Log(LOGWARNING, "UDP: Could not enable the address reuse options");
     CLog::Log(LOGWARNING, "UDP: %s", strerror(errno));
   }
 
+  std::string bindAddress = "::";
   // bind to any address or localhost
-  if (m_ipv6Socket)
+  if (m_ipv6Socket && localOnly)
   {
-    if (localOnly)
-      m_addr = CAddress("::1");
-    else
-      m_addr = CAddress("::");
+    bindAddress = "::1";
   }
-  else
+  else if (!m_ipv6Socket)
   {
     if (localOnly)
-      m_addr = CAddress("127.0.0.1");
+      bindAddress = "127.0.0.1";
     else
-      m_addr = CAddress("0.0.0.0");
+      bindAddress = "0.0.0.0";
   }
 
   // bind the socket ( try from port to port+range )
   for (m_iPort = port; m_iPort <= port + range; ++m_iPort)
   {
-    if (m_ipv6Socket)
-      m_addr.saddr.saddr6.sin6_port = htons(m_iPort);
-    else
-      m_addr.saddr.saddr4.sin_port = htons(m_iPort);
-
-    if (bind(m_iSock, (struct sockaddr*)&m_addr.saddr, m_addr.size) != 0)
+    m_addr.SetAddress(bindAddress, m_iPort);
+    if (bind(m_iSock, m_addr.sa(), CNetwork::sa_len(m_addr.sa())) != 0)
     {
       CLog::Log(LOGWARNING, "UDP: Error binding socket on port %d (ipv6 : %s)", m_iPort, m_ipv6Socket ? "true" : "false" );
       CLog::Log(LOGWARNING, "UDP: %s", strerror(errno));
@@ -187,15 +175,18 @@ int CPosixUDPSocket::Read(CAddress& addr, const int buffersize, void *buffer)
 {
   if (m_ipv6Socket)
     addr.SetAddress("::");
-  return (int)recvfrom(m_iSock, (char*)buffer, (size_t)buffersize, 0,
-                       (struct sockaddr*)&addr.saddr, &addr.size);
+
+  struct sockaddr *sa = addr.sa();
+  socklen_t len;
+
+  return (int)recvfrom(m_iSock, (char*)buffer, (size_t)buffersize, 0, sa, &len);
 }
 
 int CPosixUDPSocket::SendTo(const CAddress& addr, const int buffersize,
                           const void *buffer)
 {
   return (int)sendto(m_iSock, (const char *)buffer, (size_t)buffersize, 0,
-                     (const struct sockaddr*)&addr.saddr, addr.size);
+                     (const struct sockaddr *)addr.sa(), CNetwork::sa_len((struct sockaddr *)addr.sa()));
 }
 
 /**********************************************************************/
