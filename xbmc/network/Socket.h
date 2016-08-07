@@ -22,6 +22,9 @@
  *
  */
 
+#include "network/Network.h"
+#include "utils/log.h"
+
 #include <string.h>
 #include <map>
 #include <vector>
@@ -51,61 +54,38 @@ namespace SOCKETS
   class CAddress
   {
   public:
-    union
-    {
-      sockaddr_in saddr4;
-      sockaddr_in6 saddr6;
-      sockaddr saddr_generic;
-    } saddr;
-    socklen_t   size;
+    sockaddrPtr saddr;
 
   public:
-    CAddress()
-    {
-      memset(&saddr, 0, sizeof(saddr));
-      saddr.saddr4.sin_family = AF_INET;
-      saddr.saddr4.sin_addr.s_addr = htonl(INADDR_ANY);
-      size = sizeof(saddr.saddr4);
-    }
+    CAddress() {}
 
     CAddress(const char *address)
     {
       SetAddress(address);
     }
 
-    void SetAddress(const char *address)
+    void SetAddress(const std::string &address, unsigned int port = 0)
     {
-      in6_addr addr6;
-      memset(&saddr, 0, sizeof(saddr));
-      if (inet_pton(AF_INET6, address, &addr6) == 1)
-      {
-        saddr.saddr6.sin6_family = AF_INET6;
-        saddr.saddr6.sin6_addr = addr6;
-        size = sizeof(saddr.saddr6);
-      }
-      else
-      {
-        saddr.saddr4.sin_family = AF_INET;
-        saddr.saddr4.sin_addr.s_addr = inet_addr(address);
-        size = sizeof(saddr.saddr4);
-      }
+      saddr = std::move(CNetwork::ConvIP(address, port));
     }
 
     // returns statically alloced buffer, do not free
-    const char *Address()
+    const char *Address() const
     {
-      if (saddr.saddr_generic.sa_family == AF_INET6)
-      {
-        static char buf[INET6_ADDRSTRLEN];
-        return inet_ntop(AF_INET6, &saddr.saddr6.sin6_addr, buf, size);
-      }
-      else
-        return inet_ntoa(saddr.saddr4.sin_addr);
+      return saddr ? &CNetwork::GetIpStr(sa())[0] : nullptr;
     }
 
-    unsigned long ULong()
+    struct sockaddr *sa() const
     {
-      if (saddr.saddr_generic.sa_family == AF_INET6)
+      return (struct sockaddr *)saddr.get();
+    }
+
+    unsigned long ULong() const
+    {
+      if (!saddr)
+        return ~0L;
+
+      if (((struct sockaddr_storage*)sa())->ss_family == AF_INET6)
       {
         // IPv4 coercion (see http://home.samfundet.no/~sesse/ipv6-porting.pdf).
         // We hash the entire IPv6 address because XBMC might conceivably need to
@@ -114,7 +94,7 @@ namespace SOCKETS
         uint32_t hash = 5381;
         for (int i = 0; i < 16; ++i)
         {
-          hash = hash * 33 + saddr.saddr6.sin6_addr.s6_addr[i];
+          hash = hash * 33 + ((struct sockaddr_in6 *)sa())->sin6_addr.s6_addr[i];
         }
         // Move into 224.0.0.0/3. As a special safeguard, make sure we don't
         // end up with the the special broadcast address 255.255.255.255.
@@ -124,7 +104,7 @@ namespace SOCKETS
         return (unsigned long)htonl(hash);
       }
       else 
-        return (unsigned long)saddr.saddr4.sin_addr.s_addr;
+        return (unsigned long)((struct sockaddr_in *)sa())->sin_addr.s_addr;
     }
   };
 
