@@ -468,7 +468,7 @@ void CIMXCodec::Reset()
   CLog::Log(LOGVIDEO, "iMX VPU : queues cleared ===== in/out %d/%d =====\n", m_decInput.size(), m_decOutput.size());
 }
 
-bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::string &m_pFormatName)
+bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::string &m_pFormatName, CProcessInfo *m_pProcessInfo)
 {
   CSingleLock lk(m_openLock);
 
