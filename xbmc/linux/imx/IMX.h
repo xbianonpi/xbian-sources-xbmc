@@ -34,7 +34,7 @@
 #include <thread>
 #include <map>
 
-#define DIFFRINGSIZE 60
+#define DIFFRINGSIZE 120
 
 #define FB_DEVICE "/dev/fb0"
 
