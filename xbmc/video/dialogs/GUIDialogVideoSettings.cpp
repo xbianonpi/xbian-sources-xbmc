@@ -276,9 +276,10 @@ void CGUIDialogVideoSettings::InitializeSettings()
   entries.push_back(std::make_pair(16333, VS_INTERLACEMETHOD_MMAL_BOB_HALF));
   entries.push_back(std::make_pair(16334, VS_INTERLACEMETHOD_IMX_FASTMOTION));
   entries.push_back(std::make_pair(16335, VS_INTERLACEMETHOD_IMX_ADVMOTION_HALF));
-  entries.push_back(std::make_pair(16336, VS_INTERLACEMETHOD_IMX_ADVMOTION));
+  entries.push_back(std::make_pair(16336, VS_INTERLACEMETHOD_IMX_WEAVE_HALF));
+  entries.push_back(std::make_pair(16337, VS_INTERLACEMETHOD_IMX_ADVMOTION));
+  entries.push_back(std::make_pair(16338, VS_INTERLACEMETHOD_IMX_WEAVE));
   entries.push_back(std::make_pair(16320, VS_INTERLACEMETHOD_DXVA_AUTO));
-  entries.push_back(std::make_pair(16337, VS_INTERLACEMETHOD_IMX_WEAVE));
 
   /* remove unsupported methods */
   for (StaticIntegerSettingOptions::iterator it = entries.begin(); it != entries.end(); )
