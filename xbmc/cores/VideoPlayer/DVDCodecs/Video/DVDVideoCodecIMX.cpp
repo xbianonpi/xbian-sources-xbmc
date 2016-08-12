@@ -430,7 +430,6 @@ CIMXCodec::CIMXCodec()
   m_nrOut.store(0);
 
   m_vpuHandle = 0;
-  m_converter = NULL;
 #ifdef DUMP_STREAM
   m_dump = NULL;
 #endif
@@ -684,12 +683,6 @@ void CIMXCodec::Dispose()
     if (ret != VPU_DEC_RET_SUCCESS)
       CLog::Log(LOGERROR, "%s - VPU unload failed with error code %d.\n", __FUNCTION__, ret);
   }
-
-  if (m_converter)
-  {
-    m_converter->Close();
-    SAFE_DELETE(m_converter);
-  }
 }
 
 void CIMXCodec::SetVPUParams(VpuDecConfig InDecConf, void* pInParam)
@@ -788,7 +781,7 @@ int CIMXCodec::Decode(BYTE *pData, int iSize, double dts, double pts)
   }
 
   if (pData)
-    m_decInput.push(new VPUTask({ pData, iSize, 0, 0, 0, pts, dts, 0, 0 }, m_converter));
+    m_decInput.push(new VPUTask({ pData, iSize, 0, 0, 0, pts, dts, 0, 0 }));
 
   if (!IsDraining() &&
       (m_decInput.size() < m_decInput.getquotasize() -1))
