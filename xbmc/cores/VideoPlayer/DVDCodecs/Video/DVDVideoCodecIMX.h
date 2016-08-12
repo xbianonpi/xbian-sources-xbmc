@@ -24,7 +24,6 @@
 #include "threads/CriticalSection.h"
 #include "threads/Condition.h"
 #include "threads/Thread.h"
-#include "utils/BitstreamConverter.h"
 #include "guilib/Geometry.h"
 #include "DVDVideoCodec.h"
 #include "DVDStreamInfo.h"
@@ -317,18 +316,14 @@ protected:
   class VPUTask
   {
   public:
-    VPUTask(DemuxPacket pkg = { nullptr, 0, 0, 0, 0, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE, 0, 0 },
-            CBitstreamConverter *cnv = nullptr) : demux(pkg)
+    VPUTask(DemuxPacket pkg = { nullptr, 0, 0, 0, 0, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE, 0, 0 })
+      : demux(pkg)
     {
       if (IsEmpty())
         return;
 
-      bool cok = false;
-      if (cnv && (cok = cnv->Convert(pkg.pData, pkg.iSize)))
-        demux.iSize = cnv->GetConvertSize();
-
       posix_memalign((void**)&demux.pData, 1024, demux.iSize);
-      std::memcpy(demux.pData, cok ? cnv->GetConvertBuffer() : pkg.pData, demux.iSize);
+      std::memcpy(demux.pData, pkg.pData, demux.iSize);
     }
 
     void Release()
@@ -380,7 +375,6 @@ protected:
                                m_pts;
   double                       m_lastPTS;
   VpuDecOutFrameInfo           m_frameInfo;         // Store last VPU output frame info
-  CBitstreamConverter         *m_converter;         // H264 annex B converter
   bool                         m_warnOnce;          // Track warning messages to only warn once
   int                          m_codecControlFlags;
   CCriticalSection             m_signalLock;
