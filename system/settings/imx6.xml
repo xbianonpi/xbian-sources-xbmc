@@ -31,17 +31,11 @@
     </category>
   </section>
   <section id="system">
-    <category id="videoscreen">
+    <category id="display">
       <group id="1">
         <setting id="videoscreen.blankcurrent">
           <visible>true</visible>
         </setting>
-      </group>
-    </category>
-  </section>
-  <section id="system">
-    <category id="display">
-      <group id="1">
         <setting id="videoscreen.fakefullscreen">
           <visible>false</visible>
         </setting>
