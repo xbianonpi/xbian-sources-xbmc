@@ -40,6 +40,14 @@
           <visible>false</visible>
         </setting>
       </group>
+      <group id="3">
+        <setting id="videoscreen.noofbuffers">
+          <default>1</default>
+          <constraints>
+            <minimum>1</minimum>
+          </constraints>
+        </setting>
+      </group>
     </category>
   </section>
 </settings>
