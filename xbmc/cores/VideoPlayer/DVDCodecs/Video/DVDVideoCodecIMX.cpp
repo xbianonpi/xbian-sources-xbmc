@@ -19,7 +19,6 @@
  */
 
 #include <linux/mxcfb.h>
-#include "utils/SysfsUtils.h"
 
 #include "DVDVideoCodecIMX.h"
 
@@ -514,10 +513,6 @@ bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::stri
   SetVPUParams(VPU_DEC_CONF_INPUTTYPE, &param);
   SetVPUParams(VPU_DEC_CONF_SKIPMODE, &param);
 
-  int param = 0;
-  SetVPUParams(VPU_DEC_CONF_INPUTTYPE, &param);
-  SetVPUParams(VPU_DEC_CONF_SKIPMODE, &param);
-
 #ifdef MEDIAINFO
   {
     CLog::Log(LOGVIDEO, "Decode: MEDIAINFO: fpsrate %d / fpsscale %d\n", m_hints.fpsrate, m_hints.fpsscale);
@@ -880,6 +875,7 @@ void CIMXCodec::Process()
   {
     RecycleFrameBuffers();
     SAFE_DELETE(task);
+
     if (!(task = m_decInput.pop()))
       task = new VPUTask();
 
@@ -1043,8 +1039,6 @@ void CIMXCodec::Process()
         FlushVPU();
         continue;
       }
-      else if (m_decRet & CLASS_DROP)
-        ++m_dropped;
 
       ProcessSignals();
 
@@ -1181,7 +1175,8 @@ bool CIMXCodec::IsCurrentThread() const
 std::string CIMXCodec::GetPlayerInfo()
 {
   std::ostringstream s;
-  s << "buf In/Out: " << m_decInput.size() << "/" << m_decOutput.size();
+  if (g_IMXCodec)
+    s << "buf In/Out: " << m_decInput.size() << "/" << m_decOutput.size();
   return s.str();
 }
 
@@ -1262,7 +1257,6 @@ CIMXContext::CIMXContext()
   , m_bFbIsConfigured(false)
   , m_g2dHandle(NULL)
   , m_bufferCapture(NULL)
-  , m_CaptureDone(true)
   , m_deviceName("/dev/fb1")
 {
   m_pageCrops = new CRectInt[m_fbPages];
@@ -1336,7 +1330,6 @@ bool CIMXContext::AdaptScreen(bool allocate)
 
   MemMap(&fb_fix);
   Unblank();
-
   OpenIPU();
   m_bFbIsConfigured = true;
 
@@ -1356,14 +1349,12 @@ bool CIMXContext::GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *
     return false;
   }
 
-  Unblank();
+  int err = ioctl(fb, FBIOGET_VSCREENINFO, fbVar);
+  if (err < 0)
+    CLog::Log(LOGWARNING, "iMX : Failed to query variable screen info at %s\n", fbdev.c_str());
 
-  m_bFbIsConfigured = true;
-  return true;
-
-Err:
-  TaskRestart();
-  return false;
+  close(fb);
+  return err >= 0;
 }
 
 void CIMXContext::MemMap(struct fb_fix_screeninfo *fb_fix)
@@ -1474,9 +1465,7 @@ bool CIMXContext::Unblank()
 {
   if (!m_fbHandle) return false;
 
-  int ret = ioctl(m_fbHandle, FBIOBLANK, FB_BLANK_UNBLANK);
-  m_bFbIsConfigured = true;
-  return ret == 0;
+  return ioctl(m_fbHandle, FBIOBLANK, FB_BLANK_UNBLANK) == 0;
 }
 
 bool CIMXContext::SetVSync(bool enable)
@@ -1588,6 +1577,7 @@ void CIMXContext::Blit(CIMXBuffer *source_p, CIMXBuffer *source, const CRect &sr
   pg = ++pg % m_fbPages;
 
 #ifdef IMX_PROFILE_BUFFERS
+  CLog::Log(LOGVIDEO, "+p 0x%x@%d\n", ((CDVDVideoCodecIMXBuffer*)ipu->current)->GetIdx(), ipu->page);
   unsigned long long before = XbmcThreads::SystemClockMillis();
 #endif
   SetFieldData(fieldFmt, source->m_fps);
@@ -1621,6 +1611,12 @@ bool CIMXContext::ShowPage()
   }
 
   m_fbVar.yoffset = (m_fbVar.yres + 1) * (m_fbCurrentPage & 0xf) + !(m_fbCurrentPage >> 4);
+
+#if defined(TRACE_FRAMES) || defined(IMX_PROFILE_BUFFERS)
+  static unsigned long long pgprev;
+  unsigned long long pgstart = XbmcThreads::SystemClockMillis();
+#endif
+
   if (ioctl(m_fbHandle, FBIOPAN_DISPLAY, &m_fbVar) < 0)
     CLog::Log(LOGWARNING, "Panning failed: %s\n", strerror(errno));
 
@@ -1628,6 +1624,12 @@ bool CIMXContext::ShowPage()
 
   if (ioctl(m_fbHandle, MXCFB_WAIT_FOR_VSYNC, nullptr) < 0 && !CIMX::IsBlank())
     CLog::Log(LOGWARNING, "Vsync failed: %s\n", strerror(errno));
+
+#if defined(TRACE_FRAMES) || defined(IMX_PROFILE_BUFFERS)
+  unsigned long long pgend = XbmcThreads::SystemClockMillis();
+  CLog::Log(LOGVIDEO, "NP(@%d) - pgswap: %d (%d)\n", m_fbCurrentPage, (int)(pgend - pgstart), (int)(pgend - pgprev));
+  pgprev = pgend;
+#endif
 }
 
 void CIMXContext::SetProcessInfo(CProcessInfo *m_pProcessInfo)
