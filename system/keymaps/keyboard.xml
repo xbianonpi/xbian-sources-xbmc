@@ -340,6 +340,7 @@
       <enter>OSD</enter>
       <return mod="longpress">PlayPause</return>
       <enter mod="longpress">PlayPause</enter>
+      <d>PlayerDebug</d>
       <m>OSD</m>
       <menu>OSD</menu>
       <i>Info</i>
