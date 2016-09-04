@@ -630,7 +630,7 @@ bool CIMXCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options, std::stri
   std::list<EINTERLACEMETHOD> deintMethods({ EINTERLACEMETHOD::VS_INTERLACEMETHOD_AUTO,
                                              EINTERLACEMETHOD::VS_INTERLACEMETHOD_RENDER_BOB });
 
-  for(int i = EINTERLACEMETHOD::VS_INTERLACEMETHOD_IMX_FASTMOTION; i <= VS_INTERLACEMETHOD_IMX_ADVMOTION_HALF; ++i)
+  for(int i = EINTERLACEMETHOD::VS_INTERLACEMETHOD_IMX_FASTMOTION; i <= EINTERLACEMETHOD::VS_INTERLACEMETHOD_IMX_WEAVE; ++i)
     deintMethods.push_back(static_cast<EINTERLACEMETHOD>(i));
 
   m_processInfo = m_pProcessInfo;
@@ -1537,6 +1537,16 @@ void CIMXContext::SetIPUMotion(EINTERLACEMETHOD imethod)
 
   switch (imethod)
   {
+  case VS_INTERLACEMETHOD_IMX_WEAVE_HALF:
+    strImethod = g_localizeStrings.Get(16336);
+    m_motion   = LOW_MOTION;
+    break;
+
+  case VS_INTERLACEMETHOD_IMX_WEAVE:
+    strImethod = g_localizeStrings.Get(16338);
+    m_motion   = LOW_MOTION;
+    break;
+
   case VS_INTERLACEMETHOD_IMX_ADVMOTION:
     strImethod = g_localizeStrings.Get(16337);
     m_motion   = MED_MOTION;
