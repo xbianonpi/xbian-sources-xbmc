@@ -404,6 +404,9 @@ void CSettingConditions::Initialize()
   m_simpleConditions.emplace("has_dx");
   m_simpleConditions.emplace("hasdxva2");
 #endif
+#if defined(HAVE_LIBMFX) || defined(TARGET_RASPBERRY_PI)
+  m_simpleConditions.insert("has_mvc");
+#endif
 #ifdef HAVE_LCMS2
   m_simpleConditions.emplace("have_lcms2");
 #endif
