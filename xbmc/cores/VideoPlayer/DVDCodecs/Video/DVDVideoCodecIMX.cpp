@@ -795,7 +795,7 @@ int CIMXCodec::Decode(BYTE *pData, int iSize, double dts, double pts)
 
   if (m_burst)
   {
-    if (m_decInput.size() >= RENDER_QUEUE_SIZE * 2)
+    if (m_decInput.size() > m_decInput.getquotasize() /2)
       ret &= ~VC_BUFFER;
     --m_burst;
   }
