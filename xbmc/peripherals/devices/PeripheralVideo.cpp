@@ -109,6 +109,8 @@ void CPeripheralVideo::OnTimeout()
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, "VIDEO", g_localizeStrings.Get(13288));
       }
 
+      g_application.WakeUpScreenSaverAndDPMS();
+
       break;
     case CABLE_DISCONNECTED:
     default:
