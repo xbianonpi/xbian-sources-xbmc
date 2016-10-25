@@ -1465,6 +1465,7 @@ bool CIMXContext::Unblank()
 {
   if (!m_fbHandle) return false;
 
+  m_bFbIsConfigured = true;
   return ioctl(m_fbHandle, FBIOBLANK, FB_BLANK_UNBLANK) == 0;
 }
 
@@ -1637,7 +1638,7 @@ bool CIMXContext::ShowPage()
 
 #if defined(TRACE_FRAMES) || defined(IMX_PROFILE_BUFFERS)
   unsigned long long pgend = XbmcThreads::SystemClockMillis();
-  CLog::Log(LOGVIDEO, "NP(@%d) - pgswap: %d (%d)\n", m_fbCurrentPage, (int)(pgend - pgstart), (int)(pgend - pgprev));
+  CLog::Log(LOGVIDEO, "NP(@%d) - pgswap: %d (%d)\n", m_fbCurrentPage & 0xf, (int)(pgend - pgstart), (int)(pgend - pgprev));
   pgprev = pgend;
 #endif
 }
