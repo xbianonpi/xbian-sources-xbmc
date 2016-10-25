@@ -133,7 +133,6 @@ public:
   // the passed overlay. The buffer format is BGRA (4 byte)
   bool CaptureDisplay(unsigned char *&buffer, int iWidth, int iHeight, bool blend = false);
 
-  void RendererAllowed(bool yes);
   void OnResetDisplay();
   void OnLostDisplay();
 

@@ -60,7 +60,6 @@ CEGLNativeTypeIMX::CEGLNativeTypeIMX()
 #endif
 {
 #ifdef HAS_IMXVPU
-  m_show = true;
   m_readonly = true;
 #endif
 }
@@ -119,6 +118,7 @@ void CEGLNativeTypeIMX::Initialize()
   }
 
   ShowWindow(false);
+  ShowWindow(true);
 
   fd = open("/dev/fb0",O_RDWR);
   if (fd < 0)
@@ -149,10 +149,8 @@ void CEGLNativeTypeIMX::Initialize()
     CLog::Log(LOGERROR, "%s - Failed to setup color keying\n", __FUNCTION__);
 
   close(fd);
-  ShowWindow(true);
 
   g_IMXContext.Allocate();
-  m_sar = GetMonitorSAR();
   // Check if we can change the framebuffer resolution
   if (!m_readonly)
     GetNativeResolution(&m_init);
