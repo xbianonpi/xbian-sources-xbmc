@@ -19,6 +19,7 @@
 #include "utils/URIUtils.h"
 #include "utils/log.h"
 #include "windowing/GraphicContext.h"
+#include "settings/AdvancedSettings.h"
 
 namespace
 {
@@ -79,6 +80,8 @@ CDVDSubtitlesLibass::CDVDSubtitlesLibass()
 
   if(!m_renderer)
     return;
+
+  ass_set_cache_limits(m_renderer, 0, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_libAssCache);
 
   ass_set_margins(m_renderer, 0, 0, 0, 0);
   ass_set_use_margins(m_renderer, 0);
