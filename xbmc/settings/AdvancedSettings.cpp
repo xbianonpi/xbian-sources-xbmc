@@ -397,6 +397,8 @@ void CAdvancedSettings::Initialize()
   // the following setting determines the readRate of a player data
   // as multiply of the default data read rate
   m_cacheReadFactor = 4.0f;
+  m_libAssCache = 0;
+
 
   m_addonPackageFolderSize = 200;
 
@@ -1070,6 +1072,10 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
 
   XMLUtils::GetUInt(pRootElement, "fanartres", m_fanartRes, 0, 9999);
   XMLUtils::GetUInt(pRootElement, "imageres", m_imageRes, 0, 9999);
+
+  XMLUtils::GetUInt(pRootElement, "libasscache", m_libAssCache, 0, 1024);
+
+
   if (XMLUtils::GetString(pRootElement, "imagescalingalgorithm", tmp))
     m_imageScalingAlgorithm = CPictureScalingAlgorithm::FromString(tmp);
   XMLUtils::GetBoolean(pRootElement, "playlistasfolders", m_playlistAsFolders);
