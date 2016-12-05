@@ -128,6 +128,7 @@ class CAdvancedSettings : public ISettingCallback, public ISettingsHandler
 
     int m_audioHeadRoom;
     float m_ac3Gain;
+    int m_ac3Bitrate;
     std::string m_audioDefaultPlayer;
     float m_audioPlayCountMinimumPercent;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(61, 12, 100)
