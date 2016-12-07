@@ -73,6 +73,11 @@ do
       ;;
     --cpu=*)
       FLAGS="$FLAGS --cpu=${1#*=}"
+      case ${1#*=} in
+          cortex-a7) FLAGS="$FLAGS --extra-cflags=-DRPI=1"
+          echo "added --extra-cflags=-DRPI=1"
+          ;;
+      esac
       shift
       ;;
     --arch=*)
