@@ -34,7 +34,7 @@ ffmpg_config += --enable-muxer=asf --enable-muxer=ipod
 ffmpg_config += --enable-encoder=ac3 --enable-encoder=aac
 ffmpg_config += --enable-encoder=wmav2 --enable-protocol=http
 ffmpg_config += --pkg-config=/usr/bin/pkg-config
-ffmpg_config += --enable-gnutls
+ffmpg_config += --enable-gnutls --enable-libspeex
 ffmpg_config += --enable-encoder=png --enable-encoder=mjpeg
 
 ifeq ($(CROSS_COMPILING), yes)
