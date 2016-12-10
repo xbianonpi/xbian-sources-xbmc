@@ -185,6 +185,7 @@ const std::string CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTION = "videoplayer
 const std::string CSettings::SETTING_VIDEOPLAYER_ADJUSTRESOLUTIONINTERLACED = "videoplayer.adjustresolutioninterlaced";
 const std::string CSettings::SETTING_VIDEOPLAYER_MINIMUMVERTICAL = "videoplayer.minimumvertical";
 const std::string CSettings::SETTING_VIDEOPLAYER_ADJUSTALLOWNONCEA = "videoplayer.adjustallownoncea";
+const std::string CSettings::SETTING_VIDEOPLAYER_ACCELERATEDJPEGS = "videoplayer.acceleratedjpegs";
 const std::string CSettings::SETTING_MYVIDEOS_SELECTACTION = "myvideos.selectaction";
 const std::string CSettings::SETTING_MYVIDEOS_EXTRACTFLAGS = "myvideos.extractflags";
 const std::string CSettings::SETTING_MYVIDEOS_EXTRACTCHAPTERTHUMBS = "myvideos.extractchapterthumbs";
