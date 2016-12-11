@@ -149,6 +149,15 @@
 					<icon>icons/settings/system.png</icon>
 				</item>
 				<item>
+					<label>XBian</label>
+					<!--
+					<onclick>StopScript(plugin.xbianconfig)</onclick>
+					-->
+					<onclick>RunAddon(plugin.xbianconfig)</onclick>
+					<icon>icons/settings/system.png</icon>
+					<visible>System.HasAddon(plugin.xbianconfig)</visible>
+				</item>
+				<item>
 					<label>LibreELEC</label>
 					<onclick>RunAddon(service.libreelec.settings)</onclick>
 					<icon>icons/settings/libreelec.png</icon>
