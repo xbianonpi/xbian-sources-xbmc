@@ -175,7 +175,7 @@ namespace PERIPHERALS
     */
     virtual bool EnableButtonMapping() { return false; }
 
-    virtual CPeripheral *RegisterNewDevice(const PeripheralScanResult &result);
+    virtual PeripheralPtr RegisterNewDevice(const PeripheralScanResult &result);
 
   protected:
     virtual void Process(void);

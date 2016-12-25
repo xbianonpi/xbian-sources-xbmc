@@ -680,7 +680,7 @@ void CPeripheralCecAdapter::CecCommand(void *cbParam, const cec_command* command
       {
         adapter->OnTvStandby();
       }
-      if (command.initiator == CECDEVICE_TV)
+      if (command->initiator == CECDEVICE_TV)
       {
         if (adapter->GetSettingInt("standby_pc_on_tv_standby") == 13007)
           CecEventPostAction(cbParam, 0, true);
@@ -1285,8 +1285,6 @@ void CPeripheralCecAdapter::CecLogMessage(void *cbParam, const cec_log_message* 
   }
 
   CLog::Log(iLevel | LOGCEC, "%s - %s", __FUNCTION__, message->message);
-
-  return 1;
 }
 
 void CPeripheralCecAdapter::SetConfigurationFromLibCEC(const CEC::libcec_configuration &config)
