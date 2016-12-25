@@ -133,13 +133,13 @@ void CPeripheralBus::RegisterNewDevices(const PeripheralScanResults &results)
   }
 }
 
-CPeripheral *CPeripheralBus::RegisterNewDevice(const PeripheralScanResult &result)
+PeripheralPtr CPeripheralBus::RegisterNewDevice(const PeripheralScanResult &result)
 {
   CSingleLock lock(m_critSection);
   if (!HasPeripheral(result.m_strLocation))
-    return g_peripherals.CreatePeripheral(*this, result);
-  else
-    return GetPeripheral(result.m_strLocation);
+    g_peripherals.CreatePeripheral(*this, result);
+
+  return GetPeripheral(result.m_strLocation);
 }
 
 bool CPeripheralBus::ScanForDevices(void)
@@ -231,7 +231,7 @@ size_t CPeripheralBus::GetNumberOfPeripheralsWithId(const int iVendorId, const i
 
 size_t CPeripheralBus::GetNumberOfPeripheralsWithFeature(const PeripheralFeature feature) const
 {
-  std::vector<CPeripheral *> peripherals;
+  PeripheralVector peripherals;
   GetPeripheralsWithFeature(peripherals, feature);
   return peripherals.size();
 }

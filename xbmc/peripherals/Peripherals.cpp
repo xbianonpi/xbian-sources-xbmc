@@ -348,7 +348,7 @@ void CPeripherals::CreatePeripheral(CPeripheralBus &bus, const PeripheralScanRes
     break;
 
   case PERIPHERAL_VIDEO:
-    peripheral = new CPeripheralVideo(mappedResult, &bus);
+    peripheral = PeripheralPtr(new CPeripheralVideo(mappedResult, &bus));
     break;
 
   default:

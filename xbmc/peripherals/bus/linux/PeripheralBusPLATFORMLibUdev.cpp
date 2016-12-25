@@ -136,7 +136,7 @@ void CPeripheralBusPLATFORM::Process(void)
 void CPeripheralBusPLATFORM::OnDeviceChanged(const std::string &strLocation)
 {
   CSingleLock lock(m_critSection);
-  CPeripheral *peripheral = GetPeripheral(strLocation);
+  PeripheralPtr peripheral = GetPeripheral(strLocation);
   if (peripheral)
     peripheral->OnDeviceChanged(GetCableState(strLocation));
 }
