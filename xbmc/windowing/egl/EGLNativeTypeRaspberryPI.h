@@ -71,7 +71,7 @@ private:
   int                           m_width;
   int                           m_height;
   int                           m_initDesktopRes;
-  PERIPHERALS::CPeripheral      *m_video;
+  PERIPHERALS::PeripheralPtr    m_video;
 
   void GetSupportedModes(HDMI_RES_GROUP_T group, std::vector<RESOLUTION_INFO> &resolutions);
   void TvServiceCallback(uint32_t reason, uint32_t param1, uint32_t param2);
