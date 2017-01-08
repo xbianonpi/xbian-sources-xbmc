@@ -34,13 +34,14 @@
 
 CRendererIMX::CRendererIMX()
 {
-  m_bufHistory.clear();
+  m_bufHistory[0] = m_bufHistory[1] = nullptr;
 }
 
 CRendererIMX::~CRendererIMX()
 {
   UnInit();
-  std::for_each(m_bufHistory.begin(), m_bufHistory.end(), Release);
+  SAFE_RELEASE(m_bufHistory[1]);
+  SAFE_RELEASE(m_bufHistory[0]);
   g_IMX.Deinitialize();
 }
 
@@ -140,25 +141,20 @@ bool CRendererIMX::RenderUpdateVideoHook(bool clear, DWORD flags, DWORD alpha)
   CDVDVideoCodecIMXBuffer *buffer = static_cast<CDVDVideoCodecIMXBuffer*>(m_buffers[m_iYV12RenderBuffer].hwDec);
   if (buffer)
   {
-    if (!m_bufHistory.empty() && m_bufHistory.back() != buffer || m_bufHistory.empty())
+    if (m_bufHistory[0] != buffer)
     {
       buffer->Lock();
-      m_bufHistory.push_back(buffer);
+      SAFE_RELEASE(m_bufHistory[1]);
+      m_bufHistory[1] = m_bufHistory[0];
+      m_bufHistory[0] = buffer;
     }
-    else if (!m_bufHistory.empty() && m_bufHistory.back() == buffer && flagsPrev == flags)
+    else if (flagsPrev == flags)
     {
       g_IMX.WaitVsync();
       return true;
     }
 
     flagsPrev = flags;
-
-    int size = flags & RENDER_FLAG_FIELDMASK ? 2 : 1;
-    while (m_bufHistory.size() > size)
-    {
-      m_bufHistory.front()->Release();
-      m_bufHistory.pop_front();
-    }
 
     // this hack is needed to get the 2D mode of a 3D movie going
     RENDER_STEREO_MODE stereo_mode = g_graphicsContext.GetStereoMode();
@@ -207,8 +203,7 @@ bool CRendererIMX::RenderUpdateVideoHook(bool clear, DWORD flags, DWORD alpha)
       }
     }
 
-    CDVDVideoCodecIMXBuffer *buffer_p = m_bufHistory.front();
-    g_IMXContext.Blit(buffer_p == buffer ? nullptr : buffer_p, buffer, srcRect, dstRect, fieldFmt);
+    g_IMXContext.Blit(m_bufHistory[1], buffer, srcRect, dstRect, fieldFmt);
   }
 
 #if 0

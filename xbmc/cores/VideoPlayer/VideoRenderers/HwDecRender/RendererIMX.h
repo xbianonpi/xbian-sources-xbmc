@@ -62,8 +62,7 @@ protected:
   virtual int  GetImageHook(YV12Image *image, int source = AUTOSOURCE, bool readonly = false);
   virtual bool RenderUpdateVideoHook(bool clear, DWORD flags = 0, DWORD alpha = 255);
 
-  std::deque<CDVDVideoCodecIMXBuffer*> m_bufHistory;
-  static void Release(CDVDVideoCodecIMXBuffer *&t) { if (t) t->Release(); }
+  CDVDVideoCodecIMXBuffer *m_bufHistory[2];
 };
 
 #endif
