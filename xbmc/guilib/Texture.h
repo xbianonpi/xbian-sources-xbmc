@@ -10,6 +10,7 @@
 
 #include "XBTF.h"
 #include "guilib/imagefactory.h"
+#include "filesystem/File.h"
 
 #pragma pack(1)
 struct COLOR {unsigned char b,g,r,x;};	// Windows GDI expects 4bytes per color
@@ -110,7 +111,7 @@ protected:
   bool LoadFromFileInMem(unsigned char* buffer, size_t size, const std::string& mimeType,
                          unsigned int maxWidth, unsigned int maxHeight);
 public:
-  bool LoadFromFileInternal(const std::string& texturePath, unsigned int maxWidth, unsigned int maxHeight, bool requirePixels, const std::string& strMimeType = "");
+  bool LoadFromFileInternal(const std::string& texturePath, const XFILE::auto_buffer &buf, unsigned int maxWidth, unsigned int maxHeight, bool requirePixels, const std::string& strMimeType = "");
 protected:
   bool LoadIImage(IImage* pImage, unsigned char* buffer, unsigned int bufSize, unsigned int width, unsigned int height);
   // helpers for computation of texture parameters for compressed textures
