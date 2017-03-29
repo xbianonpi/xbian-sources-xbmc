@@ -192,19 +192,27 @@ bool COMXImage::CreateThumb(const std::string& srcFile, const std::vector<uint8_
   int orientation = additional_info == "flipped" ? 1:0;
   unsigned int width = 0, height = 0;
   std::string error;
-  if (URIUtils::HasExtension(srcFile, ".jpg|.tbn") &&
-      GetCodingType(buf, width, height, orientation, error) &&
-      reenc.ReEncode(srcFile, buf, width, height, maxWidth, maxHeight, orientation, pDestBuffer, nDestSize))
+  if (URIUtils::HasExtension(srcFile, ".jpg|.tbn"))
   {
-    XFILE::CFile outfile;
-    if (outfile.OpenForWrite(destFile, true))
+    if (GetCodingType(buf, width, height, orientation, error))
     {
-      outfile.Write(pDestBuffer, nDestSize);
-      outfile.Close();
-      okay = true;
+      if (reenc.ReEncode(srcFile, buf, width, height, maxWidth, maxHeight, orientation, pDestBuffer, nDestSize))
+      {
+        XFILE::CFile outfile;
+        if (outfile.OpenForWrite(destFile, true))
+        {
+          outfile.Write(pDestBuffer, nDestSize);
+          outfile.Close();
+          okay = true;
+        }
+        else
+          CLog::Log(LOGERROR, "{}: can't open output file: {}\n", __func__, destFile.c_str());
+      }
+      else
+        CLog::Log(LOGERROR, "{}::{} {} {}x{} {}", CLASSNAME, __func__, srcFile.c_str(), width, height, "failed to encode");
     }
     else
-      CLog::Log(LOGERROR, "{}: can't open output file: {}", __func__, destFile.c_str());
+      CLog::Log(LOGDEBUG, "{}::{} {} {}x{} {}", CLASSNAME, __func__, srcFile.c_str(), width, height, error.c_str());
   }
   return okay;
 }
