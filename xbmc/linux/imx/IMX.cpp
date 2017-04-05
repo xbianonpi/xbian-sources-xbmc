@@ -37,6 +37,8 @@
 #include "guilib/GraphicContext.h"
 #include "cores/VideoPlayer/DVDCodecs/DVDCodecUtils.h"
 
+#include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecIMX.h"
+
 #define  DCIC_DEVICE    "/dev/mxc_dcic0"
 
 CIMX::CIMX(void) : CThread("CIMX")
@@ -93,7 +95,7 @@ bool CIMX::UpdateDCIC()
   CSingleLock lock(m_critSection);
   m_change = false;
 
-  int fb0 = open(FB_DEVICE, O_RDONLY | O_NONBLOCK);
+  int fb0 = open(FB_DEVICE, O_RDWR | O_NONBLOCK);
   if (fb0 < 0)
     return false;
 
@@ -154,13 +156,22 @@ void CIMX::OnResetDisplay()
   UpdateDCIC();
 }
 
-bool CIMX::IsBlank()
+CIMXIPUTask::CIMXIPUTask(CIMXBuffer *buffer, CIMXBuffer *buffer_p, int p)
+  : pb(static_cast<CDVDVideoCodecIMXBuffer*>(buffer_p))
+  , cb(static_cast<CDVDVideoCodecIMXBuffer*>(buffer))
+  , task({})
+  , page(p)
 {
-  unsigned long curBlank;
-  int fd = open(FB_DEVICE, O_RDONLY | O_NONBLOCK);
-  bool ret = ioctl(fd, MXCFB_GET_FB_BLANK, &curBlank) || curBlank != FB_BLANK_UNBLANK;
-  close(fd);
-  return ret;
+  cb->Lock();
+  if (pb)
+    pb->Lock();
+}
+
+CIMXIPUTask::~CIMXIPUTask()
+{
+  cb->Release();
+  if (pb)
+    pb->Release();
 }
 
 bool CIMXFps::Recalc()

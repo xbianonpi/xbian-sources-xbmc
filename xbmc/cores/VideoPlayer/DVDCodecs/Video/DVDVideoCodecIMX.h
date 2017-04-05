@@ -22,6 +22,7 @@
 #include "linux/imx/IMX.h"
 
 #include "threads/CriticalSection.h"
+#include "threads/SharedSection.h"
 #include "threads/Condition.h"
 #include "threads/Thread.h"
 #include "guilib/Geometry.h"
@@ -39,6 +40,7 @@
 #include <unordered_map>
 #include <cstring>
 #include <stdlib.h>
+#include <memory>
 
 // The decoding format of the VPU buffer. Comment this to decode
 // as NV12. The VPU works faster with NV12 in combination with
@@ -75,6 +77,7 @@ enum SIGNALS
   SIGNAL_DISPOSE       = (1 << 1),
   SIGNAL_SIGNAL        = (1 << 2),
   SIGNAL_FLUSH         = (1 << 3),
+  SIGNAL_NOWAIT        = (1 << 4),
 };
 
 enum RENDER_TASK
@@ -98,17 +101,16 @@ public:
 
   bool AdaptScreen(bool allocate = false);
   bool TaskRestart();
-  void OpenIPU();
-  void CloseIPU();
   void CloseDevices();
   bool OpenDevices();
 
   bool Blank();
   bool Unblank();
-  bool SetVSync(bool enable);
 
   void WaitVSync();
   void Stop(bool bWait = true);
+
+  void ReturnDma(dma_addr_t &addr) { if (addr) m_dmaBuffer.push(addr); addr = 0; }
 
   // Blitter configuration
   bool IsDoubleRate() const { return m_currentFieldFmt & IPU_DEINTERLACE_RATE_EN; }
@@ -120,7 +122,7 @@ public:
   // Blits a buffer to a particular page (-1 for auto page)
   // source_p (previous buffer) is required for de-interlacing
   // modes LOW_MOTION and MED_MOTION.
-  void Blit(CIMXBuffer *source_p, CIMXBuffer *source, const CRect &srcRect, const CRect &dstRect,
+  unsigned int Blit(CIMXBuffer *source_p, CIMXBuffer *source, const CRect &srcRect, const CRect &dstRect,
             uint8_t fieldFmt = 0, int targetPage = RENDER_TASK_AUTOPAGE);
 
   // Shows a page vsynced
@@ -137,52 +139,46 @@ public:
   void OnLostDisplay();
 
   void Allocate();
+  void DeallocateBuffer();
 
   static const int  m_fbPages;
 
 private:
-  struct IPUTask
-  {
-    IPUTask(CIMXBuffer *buffer_p, CIMXBuffer *buffer, int p = 0)
-      : previous(buffer_p), current(buffer), page(p)
-    {
-      memset(&task, 0, sizeof(task));
-    }
-
-    // Kept for reference
-    CIMXBuffer *previous;
-    CIMXBuffer *current;
-
-    // The actual task
-    struct ipu_task task;
-
-    unsigned int page;
-    int shift = true;
-  };
-
-  typedef std::shared_ptr<struct IPUTask> IPUTaskPtr;
+  typedef std::shared_ptr<CIMXIPUTask> IPUTaskPtr;
 
   bool GetFBInfo(const std::string &fbdev, struct fb_var_screeninfo *fbVar);
 
-  void PrepareTask(IPUTaskPtr &ipu, CRect srcRect, CRect dstRect);
-  bool DoTask(IPUTaskPtr &ipu, CRect *dest = nullptr);
+  bool PrepareTask(IPUTaskPtr &ipu, CRect srcRect, CRect dstRect);
+  bool DoTask(IPUTaskPtr &ipu);
   bool TileTask(IPUTaskPtr &ipu);
-  int  CheckTask(IPUTaskPtr &ipu);
+  bool DeintTask(IPUTaskPtr &ipu);
+
+  int  CheckTask(struct ipu_task *task);
+  int  CheckTask(IPUTaskPtr &ipu) { return CheckTask(&ipu->task); }
 
   void SetFieldData(uint8_t fieldFmt, double fps);
 
   void Dispose();
-  void MemMap(struct fb_fix_screeninfo *fb_fix = NULL);
+  void MemMap(struct fb_fix_screeninfo *fb_fix = nullptr);
 
   virtual void OnStartup() override;
   virtual void OnExit() override;
   virtual void Process() override;
 
+  dma_addr_t AllocateBuffer(unsigned int x, unsigned int y);
+
+  static void Release(IPUTaskPtr &t) { t.reset(); }
+
+  bool RunIoctl(int handle, int cmd, struct ipu_task *task);
+
 private:
+  lkFIFO<IPUTaskPtr>             m_showBuffer;
+  lkFIFO<dma_addr_t>             m_dmaBuffer;
+
   int                            m_fbHandle;
   int                            m_fbCurrentPage;
-  int                            m_fbWidth;
-  int                            m_fbHeight;
+  unsigned int                   m_fbWidth;
+  unsigned int                   m_fbHeight;
   bool                           m_fbInterlaced;
   int                            m_fbLineLength;
   int                            m_fbPageSize;
@@ -192,22 +188,17 @@ private:
   struct fb_var_screeninfo       m_fbVar;
   int                            m_ipuHandle;
   uint8_t                        m_currentFieldFmt;
-  bool                           m_vsync;
   CRectInt                      *m_pageCrops;
   bool                           m_bFbIsConfigured;
   CEvent                         m_waitVSync;
-  CEvent                         m_pingFlip;
   CProcessInfo                  *m_processInfo;
   ipu_motion_sel                 m_motion;
 
   bool                           m_zoomAllowed;
   CCriticalSection               m_pageSwapLock;
-public:
-  void                          *m_g2dHandle;
-  struct g2d_buf                *m_bufferCapture;
+  CSharedSection                 m_fbMapLock;
 
   std::string                    m_deviceName;
-
   double                         m_fps;
 };
 
@@ -218,6 +209,8 @@ extern CIMXContext g_IMXContext;
 
 class CDVDVideoCodecIMX;
 class CIMXCodec;
+
+extern std::shared_ptr<CIMXCodec> g_IMXCodec;
 
 class CDecMemInfo
 {
@@ -251,6 +244,8 @@ public:
   virtual void Lock();
   virtual long Release();
 
+  void Recycle();
+
   void                  SetPts(double pts)      { m_pts = pts; }
   double                GetPts() const          { return m_pts; }
 
@@ -264,6 +259,7 @@ public:
   int                   GetIdx()                { return m_idx; }
 #endif
   VpuFieldType          GetFieldType() const    { return m_fieldType; }
+  dma_addr_t            SetConvBuffer(dma_addr_t buf) { return m_convBuffer = buf; }
 
 protected:
   unsigned int             m_pctWidth;
@@ -281,7 +277,7 @@ private:
 #endif
 
 public:
-  struct g2d_buf          *m_convBuffer;
+  dma_addr_t               m_convBuffer;
 };
 
 class CIMXCodec : public CThread
@@ -296,6 +292,7 @@ public:
   void                  SetDropState(bool bDrop);
 
   void                  Reset();
+  void                  Reinit();
 
   void                  WaitStartup()                           { m_loaded.Wait(); }
 
@@ -304,6 +301,8 @@ public:
   bool                  GetCodecStats(double &pts, int &droppedFrames, int &skippedPics);
   void                  SetCodecControl(int flags);
 
+  unsigned int          GetLockedBuffers() { if (m_decRet & VPU_DEC_RESOLUTION_CHANGED && !m_decOutput.size()) return m_nrOut.load(); return -1; }
+
   virtual void Process() override;
 
   static void           ReleaseFramebuffer(VpuFrameBuffer* fb);
@@ -311,31 +310,31 @@ public:
   virtual bool          GetInterlaced()                         { return m_initInfo.nInterlace; }
   std::string           GetPlayerInfo();
 
+  bool                  GetBurst()                              { return m_burst; }
+
 protected:
-  class VPUTask
+  struct VPUTask
   {
-  public:
-    VPUTask(DemuxPacket pkg = { nullptr, 0, 0, 0, 0, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE, 0, 0 })
+    VPUTask(DemuxPacket pkg = { nullptr, 0, 0, 0, 0, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE, 0, 0 }, CIMXCircularPtr r = {})
       : demux(pkg)
+      , ring(r)
     {
-      if (IsEmpty())
+      if (!pkg.pData || !ring)
         return;
 
-      posix_memalign((void**)&demux.pData, 1024, demux.iSize);
-      std::memcpy(demux.pData, pkg.pData, demux.iSize);
+      ring->push(pkg.pData, demux.iSize);
     }
 
-    void Release()
+    bool IsEmpty()
     {
-      if (!IsEmpty())
-        free(demux.pData);
-      demux.pData = nullptr;
+      return !demux.iSize;
     }
-
-    bool IsEmpty() { return !demux.pData; }
 
     DemuxPacket demux;
+    CIMXCircularPtr ring;
   };
+
+  typedef std::shared_ptr<VPUTask> VPUTaskPtr;
 
   bool VpuOpen();
   bool VpuAllocBuffers(VpuMemInfo *);
@@ -348,10 +347,11 @@ protected:
 
   void RecycleFrameBuffers();
 
-  static void Release(VPUTask *&t)                     { SAFE_RELEASE(t); }
+  static void Release(VPUTaskPtr &t)                   { t.reset(); }
   static void Release(CDVDVideoCodecIMXBuffer *&t)     { SAFE_RELEASE(t); }
+  static void Release(g2d_buf *&t)                     { if (t) g2d_free(t); }
 
-  lkFIFO<VPUTask*>             m_decInput;
+  lkFIFO<VPUTaskPtr>           m_decInput;
   lkFIFO<CDVDVideoCodecIMXBuffer*>
                                m_decOutput;
 
@@ -360,7 +360,7 @@ protected:
   CDVDStreamInfo               m_hints;             // Hints from demuxer at stream opening
 
   VpuDecOpenParam              m_decOpenParam;      // Parameters required to call VPU_DecOpen
-  CDecMemInfo                  m_decMemInfo;        // VPU dedicated memory description
+  VpuMemInfo                   m_memInfo;
   VpuDecHandle                 m_vpuHandle;         // Handle for VPU library calls
   VpuDecInitInfo               m_initInfo;          // Initial info returned from VPU at decoding start
   VpuDecSkipMode               m_skipMode;          // Current drop state
@@ -372,8 +372,8 @@ protected:
   std::vector<VpuFrameBuffer>  m_vpuFrameBuffers;   // Table of VPU frame buffers description
   std::unordered_map<VpuFrameBuffer*,double>
                                m_pts;
+  lkFIFO<g2d_buf*>             m_allocated;
   double                       m_lastPTS;
-  VpuDecOutFrameInfo           m_frameInfo;         // Store last VPU output frame info
   bool                         m_warnOnce;          // Track warning messages to only warn once
   int                          m_codecControlFlags;
   CCriticalSection             m_signalLock;
@@ -391,7 +391,7 @@ private:
   void                         ProcessSignals(int signal = 0);
   void                         AddExtraData(VpuBufferNode *bn, bool force = false);
 
-  bool                         VpuAlloc(VpuMemDesc *vpuMem);
+  g2d_buf                     *VpuAlloc(VpuMemDesc *vpuMem);
 
   void                         DisposeDecQueues();
   void                         FlushVPU();
@@ -406,6 +406,9 @@ private:
   unsigned int                 m_burst;
   bool                         m_requestDrop;
   CProcessInfo                *m_processInfo;
+  double                       m_dtsDiff;
+
+  CIMXCircularPtr              m_ring;
 
 private:
   void                         ExitError(const char *msg, ...);
@@ -444,7 +447,7 @@ public:
   virtual void          SetCodecControl(int flags) override                     { m_IMXCodec->SetCodecControl(flags); }
 
   virtual bool          GetInterlaced()                                         { return m_IMXCodec->GetInterlaced(); }
-  std::string           GetPlayerInfo()                                         { return m_IMXCodec ? m_IMXCodec->GetPlayerInfo() : ""; }
+  std::string           GetPlayerInfo()                                         { return g_IMXCodec ? g_IMXCodec->GetPlayerInfo() : ""; }
 
 private:
   std::shared_ptr<CIMXCodec> m_IMXCodec;

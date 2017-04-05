@@ -117,10 +117,7 @@ void CEGLNativeTypeIMX::Initialize()
     }
   }
 
-  ShowWindow(false);
-  ShowWindow(true);
-
-  fd = open("/dev/fb0",O_RDWR);
+  fd = open("/dev/fb0", O_RDWR | O_NONBLOCK);
   if (fd < 0)
   {
     CLog::Log(LOGERROR, "%s - Error while opening /dev/fb0.\n", __FUNCTION__);
@@ -150,7 +147,10 @@ void CEGLNativeTypeIMX::Initialize()
 
   close(fd);
 
+  ShowWindow(false);
   g_IMXContext.Allocate();
+  ShowWindow();
+
   // Check if we can change the framebuffer resolution
   if (!m_readonly)
     GetNativeResolution(&m_init);
@@ -166,7 +166,7 @@ void CEGLNativeTypeIMX::Destroy()
   void *fb_buffer;
   int fd;
 
-  fd = open("/dev/fb0",O_RDWR);
+  fd = open("/dev/fb0",O_RDWR | O_NONBLOCK);
   if (fd < 0)
   {
     CLog::Log(LOGERROR, "%s - Error while opening /dev/fb0.\n", __FUNCTION__);

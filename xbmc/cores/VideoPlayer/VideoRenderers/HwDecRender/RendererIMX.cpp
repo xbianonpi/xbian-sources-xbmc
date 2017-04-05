@@ -42,6 +42,7 @@ CRendererIMX::~CRendererIMX()
   UnInit();
   SAFE_RELEASE(m_bufHistory[1]);
   SAFE_RELEASE(m_bufHistory[0]);
+  g_IMXContext.Clear();
   g_IMX.Deinitialize();
 }
 
@@ -193,17 +194,21 @@ bool CRendererIMX::RenderUpdateVideoHook(bool clear, DWORD flags, DWORD alpha)
     if (flags & RENDER_FLAG_FIELDS)
     {
       fieldFmt |= IPU_DEINTERLACE_RATE_EN;
-      if (flags & RENDER_FLAG_FIELD1)
+
+      if (flags & RENDER_FLAG_FIELD1 && WantsDoublePass())
       {
+        if (flags & RENDER_FLAG_FIELD1)
+          fieldFmt ^= RENDER_FLAG_FIELDMASK;
         fieldFmt |= IPU_DEINTERLACE_RATE_FRAME1;
-        // CXBMCRenderManager::PresentFields() is swapping field flag for frame1
-        // this makes IPU render same picture as before, just shifted one line.
-        // let's correct this
-        fieldFmt ^= RENDER_FLAG_FIELDMASK;
       }
+
     }
 
-    g_IMXContext.Blit(m_bufHistory[1], buffer, srcRect, dstRect, fieldFmt);
+    if (g_IMXContext.Blit(m_bufHistory[1], buffer, srcRect, dstRect, fieldFmt) <= 2)
+    {
+      SAFE_RELEASE(m_bufHistory[1]);
+      SAFE_RELEASE(m_bufHistory[0]);
+    }
   }
 
 #if 0
