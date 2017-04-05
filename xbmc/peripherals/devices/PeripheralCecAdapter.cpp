@@ -1627,6 +1627,12 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
   if (!strAmpName.empty())
     strNotification += StringUtils::Format("- %s", strAmpName.c_str());
 
+  // the option to make XBMC the active source is set
+  if (m_configuration.bActivateSource == 1)
+  {
+    m_adapter->ActivateSource();
+  }
+
   // devices to wake are set
   if (!m_configuration.wakeDevices.IsEmpty() && (m_configuration.wakeDevices.primary != CECDEVICE_TV || m_configuration.bActivateSource == 0))
   {
@@ -1639,10 +1645,6 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
       m_adapter->m_cecAdapter->PowerOnDevices(m_configuration.wakeDevices.primary);
 
   }
-
-  // the option to make XBMC the active source is set
-  if (m_configuration.bActivateSource == 1)
-    m_adapter->ActivateSource();
 
   // wait until power up
   if (!WaitReady())
