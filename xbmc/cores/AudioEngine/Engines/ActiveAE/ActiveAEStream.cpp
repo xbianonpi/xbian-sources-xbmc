@@ -201,11 +201,7 @@ void CActiveAEStream::RemapBuffer()
 
 double CActiveAEStream::CalcResampleRatio(double error)
 {
-  const static double maxChange = 1.005;
-
-  //reset the integral on big errors, failsafe
-  if (fabs(error) > 1000)
-    m_resampleIntegral = 0;
+  const static double maxChange = 1.0065;
 
   m_resampleIntegral += error / 1000;
 
@@ -218,12 +214,10 @@ double CActiveAEStream::CalcResampleRatio(double error)
   if (m_pClock)
   {
     clockspeed = m_pClock->GetClockSpeed();
-    if (m_clockSpeed != clockspeed)
-      m_resampleIntegral = 0;
     m_clockSpeed = clockspeed;
   }
 
-  double ret = 0.43 * error / 1000 + 0.35 * derivative + 0.0015 * m_resampleIntegral;
+  double ret = 0.44 * error / 1000 + 0.37 * derivative + 0.0012 * m_resampleIntegral;
   ret += (double)1.0 / clockspeed;
 
   if (ret / m_processingBuffers->GetRR() > maxChange)
@@ -231,8 +225,8 @@ double CActiveAEStream::CalcResampleRatio(double error)
   else if (m_processingBuffers->GetRR() / ret > maxChange)
     ret = m_processingBuffers->GetRR() / maxChange;
 
-  //CLog::Log(LOGNOTICE,"----- error: %12f/%12f, rr: %12f, de: %12f, int: %12f",
-  //                    error, m_prevError, ret, derivative, m_resampleIntegral);
+  CLog::Log(LOGAUDIO,"----- error: %12f/%12f, rr: %12f, de: %12f, int: %12f",
+                      error, m_prevError, ret, derivative, m_resampleIntegral);
 
   m_prevError = error;
   return ret;
