@@ -100,7 +100,6 @@ void CScreen::ScreenPowerOn(bool doBlank)
   g_RBP.ResumeVideoOutput();
 #elif HAS_IMXVPU
   g_Windowing.Show();
-  g_IMXContext.Unblank();
   CAEFactory::Resume();
 #endif
 }
@@ -116,10 +115,9 @@ void CScreen::SetState(bool state, bool doBlank)
   CSingleLock lock(m_critSection);
   if (state == m_state)
     return;
+  m_state = state;
 
   CLog::Log(LOGDEBUG, "%s - set standby %d, screensaver is %s", __FUNCTION__, (int)state, g_application.IsInScreenSaver() ? "active" : "inactive");
-
-  m_state = state;
 
   switch (state)
   {
@@ -127,7 +125,6 @@ void CScreen::SetState(bool state, bool doBlank)
     if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPausedPlayback())
       return;
 
-//    g_VideoReferenceClock.Stop();
     ScreenPowerOff(doBlank);
     if (!g_application.IsInScreenSaver())
       g_application.ActivateScreenSaver();
@@ -136,8 +133,6 @@ void CScreen::SetState(bool state, bool doBlank)
   case false:
     g_application.WakeUpScreenSaverAndDPMS();
     ScreenPowerOn(doBlank);
-//    if (g_application.m_pPlayer->IsPlayingVideo())
-//      g_VideoReferenceClock.Start();
 
   default:
     ;
