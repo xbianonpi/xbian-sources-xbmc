@@ -2327,7 +2327,9 @@ CSampleBuffer* CActiveAE::SyncStream(CActiveAEStream *stream)
     if (fabs(error) < 30)
     {
       stream->m_syncError.Flush(100);
-      stream->m_syncState = CAESyncInfo::AESyncState::SYNC_INSYNC;
+      if (stream->m_prevError < 30)
+        stream->m_syncState = CAESyncInfo::AESyncState::SYNC_INSYNC;
+      stream->m_prevError = fabs(error);
     }
     else if (newerror)
     {
@@ -2874,7 +2876,6 @@ void CActiveAE::OnLostDisplay()
 
 void CActiveAE::OnResetDisplay()
 {
-  Message *reply;
   m_controlPort.SendOutMessage(CActiveAEControlProtocol::DISPLAYRESET);
 }
 
