@@ -124,7 +124,7 @@ public:
 class CDemuxStreamVideo : public CDemuxStream
 {
 public:
-  CDemuxStreamVideo() { type = STREAM_VIDEO; };
+  CDemuxStreamVideo() { type = STREAM_VIDEO; workaround_bugs = 0; };
 
   ~CDemuxStreamVideo() override = default;
   int iFpsScale = 0; // scale of 1000 and a rate of 29970 will result in 29.97 fps
@@ -148,6 +148,7 @@ public:
   std::shared_ptr<AVContentLightMetadata> contentLightMetaData;
 
   std::string stereo_mode; // expected stereo mode
+  int workaround_bugs; // info for decoder
 };
 
 class CDemuxStreamAudio : public CDemuxStream
