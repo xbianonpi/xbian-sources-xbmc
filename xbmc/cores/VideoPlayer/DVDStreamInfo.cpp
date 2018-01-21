@@ -71,6 +71,7 @@ void CDVDStreamInfo::Clear()
   channellayout = 0;
 
   orientation = 0;
+  workaround_bugs = 0;
 }
 
 bool CDVDStreamInfo::Equal(const CDVDStreamInfo& right, int compare)
@@ -226,6 +227,7 @@ void CDVDStreamInfo::Assign(const CDVDStreamInfo& right, bool withextradata)
   masteringMetadata = right.masteringMetadata;
   contentLightMetadata = right.contentLightMetadata;
   stereo_mode = right.stereo_mode;
+  workaround_bugs = right.workaround_bugs;
 
   // AUDIO
   channels      = right.channels;
@@ -293,6 +295,7 @@ void CDVDStreamInfo::Assign(const CDemuxStream& right, bool withextradata)
     masteringMetadata = stream->masteringMetaData;
     contentLightMetadata = stream->contentLightMetaData;
     stereo_mode = stream->stereo_mode;
+    workaround_bugs = stream->workaround_bugs;
   }
   else if (right.type == STREAM_SUBTITLE)
   {

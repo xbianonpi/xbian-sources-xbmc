@@ -73,6 +73,7 @@ public:
   std::shared_ptr<AVMasteringDisplayMetadata> masteringMetadata;
   std::shared_ptr<AVContentLightMetadata> contentLightMetadata;
   std::string stereo_mode; // stereoscopic 3d mode
+  int workaround_bugs; // info for decoder
 
   // AUDIO
   int channels;
