@@ -47,7 +47,7 @@ struct StereoModeMap
 
 static const struct StereoModeMap VideoModeToGuiModeMap[] =
 {
-  { "mono",                     RENDER_STEREO_MODE_OFF },
+  { "",                         RENDER_STEREO_MODE_OFF },
   { "left_right",               RENDER_STEREO_MODE_SPLIT_VERTICAL },
   { "right_left",               RENDER_STEREO_MODE_SPLIT_VERTICAL },
   { "top_bottom",               RENDER_STEREO_MODE_SPLIT_HORIZONTAL },
@@ -349,7 +349,7 @@ const char* CStereoscopicsManager::ConvertGuiStereoModeToString(const RENDER_STE
 
 std::string CStereoscopicsManager::NormalizeStereoMode(const std::string &mode)
 {
-  if (!mode.empty() && mode != "mono")
+  if (!mode.empty())
   {
     int guiMode = ConvertStringToGuiStereoMode(mode);
 
@@ -359,7 +359,7 @@ std::string CStereoscopicsManager::NormalizeStereoMode(const std::string &mode)
       return mode;
   }
 
-  return "mono";
+  return "";
 }
 
 CAction CStereoscopicsManager::ConvertActionCommandToAction(const std::string &command, const std::string &parameter)
@@ -533,7 +533,7 @@ std::string CStereoscopicsManager::GetVideoStereoMode() const
 bool CStereoscopicsManager::IsVideoStereoscopic() const
 {
   std::string mode = GetVideoStereoMode();
-  return !mode.empty() && mode != "mono";
+  return !mode.empty();
 }
 
 void CStereoscopicsManager::OnStreamChange()
