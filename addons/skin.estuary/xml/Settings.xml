@@ -97,6 +97,15 @@
 						<icon>icons/settings/games.png</icon>
 					</item>
 					<item>
+						<label>XBian</label>
+						<!--
+						<onclick>StopScript(plugin.xbianconfig)</onclick>
+						-->
+						<onclick>RunAddon(plugin.xbianconfig)</onclick>
+						<icon>icons/settings/system.png</icon>
+						<visible>System.HasAddon(plugin.xbianconfig)</visible>
+					</item>
+					<item>
 						<label>$LOCALIZE[14206]</label>
 						<onclick>ActivateWindow(InterfaceSettings)</onclick>
 						<icon>icons/settings/interface.png</icon>
