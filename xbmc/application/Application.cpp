@@ -2142,6 +2142,14 @@ bool CApplication::Stop(int exitCode)
     if (g_SkinInfo != nullptr)
       g_SkinInfo->SaveSettings();
 
+    //system("sudo start xbian-chvt TTYNR=1 >/dev/null");
+    switch (exitCode)
+    {
+      case EXITCODE_REBOOT:    system("sudo splash --msgtxt='rebooting...' --percentage=25");     break;
+      case EXITCODE_POWERDOWN: system("sudo splash --msgtxt='shutting down...' --percentage=25"); break;
+      default:                 system("sudo splash --msgtxt='stopping kodi...' --percentage=25");
+    }
+
     m_bStop = true;
     // Add this here to keep the same ordering behaviour for now
     // Needs cleaning up
