@@ -20,6 +20,8 @@
 
 #if defined(TARGET_ANDROID)
 #include "platform/android/activity/XBMCApp.h"
+#include "stdlib.h"
+#include "utils/log.h"
 #endif
 
 #include "platform/MessagePrinter.h"
@@ -68,6 +70,10 @@ extern "C" int XBMC_Run(bool renderGUI, const CAppParamParser &params)
     pEnumerator = nullptr;
   }
 #endif
+
+  CLog::Log(LOGNOTICE, "XBian: notifying Upstart that I'm well");
+  system("sudo start -nq xbmc-loaded");
+  //system("splash --black >/dev/null");
 
   status = g_application.Run(params);
 
