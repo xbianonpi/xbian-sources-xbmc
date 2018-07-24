@@ -10,6 +10,15 @@ endif()
 set(CPU "@use_cpu@")
 set(PLATFORM "@target_platform@")
 
+set(CMAKE_SYSTEM_PROCESSOR "@use_cpu@")
+if(CPU STREQUAL "cortex-a7")
+  set(CMAKE_SYSTEM_ARCH "armv7-a")
+elseif(CPU STREQUAL "cortex-a53")
+  set(CMAKE_SYSTEM_ARCH "armv7-a")
+else()
+  set(CMAKE_SYSTEM_ARCH ${CPU})
+endif()
+
 # set CORE_SYSTEM_NAME and CMAKE_SYSTEM_NAME (sets CMAKE_CROSSCOMPILING)
 if(OS STREQUAL linux)
   set(CMAKE_SYSTEM_NAME Linux)
@@ -58,15 +67,6 @@ if(CORE_SYSTEM_NAME STREQUAL ios OR CORE_SYSTEM_NAME STREQUAL osx)
 endif()
 set(CMAKE_SYSTEM_VERSION 1)
 
-# specify the cross compiler
-set(CMAKE_C_COMPILER @CC@)
-set(CMAKE_CXX_COMPILER @CXX@)
-set(CMAKE_AR @AR@ CACHE FILEPATH "Archiver")
-set(CMAKE_LINKER @LD@ CACHE FILEPATH "Linker")
-set(CMAKE_STRIP @STRIP@ CACHE PATH "strip binary" FORCE)
-set(CMAKE_OBJDUMP @OBJDUMP@ CACHE FILEPATH "Objdump")
-set(CMAKE_RANLIB @RANLIB@ CACHE FILEPATH "Ranlib")
-
 if(PROJECT_SOURCE_DIR MATCHES "tools/depends")
   if(@use_ccache@ STREQUAL "yes")
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "@CCACHE@")
@@ -112,18 +112,9 @@ set(ENV{CFLAGS} ${CMAKE_C_FLAGS})
 set(ENV{CXXFLAGS} ${CMAKE_CXX_FLAGS})
 set(ENV{CPPFLAGS} ${CMAKE_CPP_FLAGS})
 set(ENV{LDFLAGS} ${CMAKE_EXE_LINKER_FLAGS})
-# search for programs in the build host directories
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-# for libraries and headers in the target directories
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_FRAMEWORK LAST)
 set(ENV{PKG_CONFIG_LIBDIR} @prefix@/@deps_dir@/lib/pkgconfig:@prefix@/@deps_dir@/share/pkgconfig)
 
 # Binary Addons
 if(NOT CORE_SYSTEM_NAME STREQUAL linux)
   set(ADDONS_PREFER_STATIC_LIBS ON)
 endif()
-
-set(KODI_DEPENDSBUILD 1)
-
