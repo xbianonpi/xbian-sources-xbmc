@@ -180,6 +180,8 @@ endif()
 
 list(APPEND ffmpeg_conf ${CONFIGARCH})
 
+list(APPEND ffmpeg_conf --enable-libspeex)
+
 message(STATUS "FFMPEG_CONF: ${ffmpeg_conf}")
 
 set(MAKE_COMMAND $(MAKE))
