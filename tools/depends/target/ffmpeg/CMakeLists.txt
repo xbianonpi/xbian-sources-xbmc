@@ -121,6 +121,8 @@ if(EXTRA_FLAGS)
   list(APPEND ffmpeg_conf ${EXTRA_FLAGS})
 endif()
 
+list(APPEND ffmpeg_conf --enable-libspeex)
+
 message(STATUS "FFMPEG_CONF: ${ffmpeg_conf}")
 
 set(MAKE_COMMAND $(MAKE))
