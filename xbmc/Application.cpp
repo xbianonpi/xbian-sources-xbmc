@@ -2401,7 +2401,7 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
       m_skipGuiRender = true;
 #endif
 
-    if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw && m_guiRefreshTimer.IsTimePast())
+    if ((CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw || m_screensaverActive) && m_guiRefreshTimer.IsTimePast())
     {
       CServiceBroker::GetGUI()->GetWindowManager().SendMessage(GUI_MSG_REFRESH_TIMER, 0, 0);
       m_guiRefreshTimer.Set(500);

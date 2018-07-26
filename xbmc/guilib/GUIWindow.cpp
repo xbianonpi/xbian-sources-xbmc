@@ -13,6 +13,7 @@
 #include "GUIControlFactory.h"
 #include "GUIControlGroup.h"
 #include "GUIControlProfiler.h"
+#include "Application.h"
 
 #include "addons/Skin.h"
 #include "GUIInfoManager.h"
@@ -325,7 +326,7 @@ void CGUIWindow::CenterWindow()
 
 void CGUIWindow::DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyregions)
 {
-  if (!IsControlDirty() && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw)
+  if (!IsControlDirty() && (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw || g_application.IsInScreenSaver()))
     return;
 
   CServiceBroker::GetWinSystem()->GetGfxContext().SetRenderingResolution(m_coordsRes, m_needsScaling);
