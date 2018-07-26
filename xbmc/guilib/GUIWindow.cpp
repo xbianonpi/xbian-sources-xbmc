@@ -13,6 +13,8 @@
 #include "GUIControlFactory.h"
 #include "GUIControlGroup.h"
 #include "GUIControlProfiler.h"
+#include "application/ApplicationComponents.h"
+#include "application/ApplicationPowerHandling.h"
 #include "GUIInfoManager.h"
 #include "GUIWindowManager.h"
 #include "ServiceBroker.h"
@@ -326,7 +328,9 @@ void CGUIWindow::CenterWindow()
 
 void CGUIWindow::DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyregions)
 {
-  if (!IsControlDirty() && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw)
+  auto& components = CServiceBroker::GetAppComponents();
+  const auto appPower = components.GetComponent<CApplicationPowerHandling>();
+  if (!IsControlDirty() && (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw || appPower->IsInScreenSaver()))
     return;
 
   CServiceBroker::GetWinSystem()->GetGfxContext().SetRenderingResolution(m_coordsRes, m_needsScaling);

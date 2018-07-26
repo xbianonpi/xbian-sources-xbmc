@@ -1886,7 +1886,9 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
       m_skipGuiRender = true;
 #endif
 
-    if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw && m_guiRefreshTimer.IsTimePast())
+    //const auto appPower = components.GetComponent<CApplicationPowerHandling>(); **KM**
+    const auto appPower = GetComponent<CApplicationPowerHandling>();
+    if ((CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw || appPower->IsInScreenSaver()) && m_guiRefreshTimer.IsTimePast())
     {
       CServiceBroker::GetGUI()->GetWindowManager().SendMessage(GUI_MSG_REFRESH_TIMER, 0, 0);
       m_guiRefreshTimer.Set(500ms);
