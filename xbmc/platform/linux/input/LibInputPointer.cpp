@@ -68,8 +68,8 @@ void CLibInputPointer::ProcessButton(libinput_event_pointer *e)
 
 void CLibInputPointer::ProcessMotion(libinput_event_pointer *e)
 {
-  const double dx = libinput_event_pointer_get_dx(e);
-  const double dy = libinput_event_pointer_get_dy(e);
+  const double dx = libinput_event_pointer_get_dx_unaccelerated(e);
+  const double dy = libinput_event_pointer_get_dy_unaccelerated(e);
 
   m_pos.X += static_cast<int>(dx);
   m_pos.Y += static_cast<int>(dy);
