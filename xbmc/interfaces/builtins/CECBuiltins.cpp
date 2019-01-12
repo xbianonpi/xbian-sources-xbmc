@@ -18,7 +18,7 @@ static int ActivateSource(const std::vector<std::string>& params)
 {
   CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECACTIVATESOURCE);
 
-  return 0;
+  return 1; // Don't wake up screensaver
 }
 
 /*! \brief Put device in standby through CEC.
@@ -28,7 +28,7 @@ static int Standby(const std::vector<std::string>& params)
 {
   CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECSTANDBY);
 
-  return 0;
+  return 1; // Don't wake up screensaver
 }
 
 /*! \brief Toggle device state through CEC.
@@ -40,7 +40,7 @@ static int ToggleState(const std::vector<std::string>& params)
   CServiceBroker::GetAppMessenger()->SendMsg(TMSG_CECTOGGLESTATE, 0, 0,
                                              static_cast<void*>(&result));
 
-  return 0;
+  return 1; // Don't wake up screensaver
 }
 
 // Note: For new Texts with comma add a "\" before!!! Is used for table text.
