@@ -7,6 +7,7 @@
  */
 
 #include "log.h"
+#include "syslog.h"
 #include "CompileInfo.h"
 #include "ServiceBroker.h"
 #include "settings/AdvancedSettings.h"
@@ -28,6 +29,10 @@ typedef class CWin32InterfaceForCLog PlatformInterfaceForCLog;
 static const char* const levelNames[] =
 {"DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "SEVERE", "FATAL", "NONE"};
 
+static const int syslogLevel[8] =
+{ LOG_DEBUG, LOG_INFO, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_CRIT, LOG_ALERT, 0 };
+std::string syslogID;
+
 // add 1 to level number to get index of name
 static const char* const logLevelNames[] =
 { "LOG_LEVEL_NONE" /*-1*/, "LOG_LEVEL_NORMAL" /*0*/, "LOG_LEVEL_DEBUG" /*1*/, "LOG_LEVEL_DEBUG_FREEMEM" /*2*/ };
@@ -44,6 +49,7 @@ public:
   std::string m_repeatLine;
   int         m_logLevel = LOG_LEVEL_DEBUG;
   int         m_extraLogLevels = 0;
+  int         m_logType = 1;
   CCriticalSection critSec;
 };
 
@@ -57,7 +63,8 @@ CLog::~CLog() = default;
 void CLog::Close()
 {
   CSingleLock waitLock(g_logState.critSec);
-  g_logState.m_platform.CloseLogFile();
+  if (g_logState.m_logType & 1)
+    g_logState.m_platform.CloseLogFile();
   g_logState.m_repeatLine.clear();
 }
 
@@ -106,7 +113,14 @@ bool CLog::Init(const std::string& path)
 
   std::string appName = CCompileInfo::GetAppName();
   StringUtils::ToLower(appName);
-  return g_logState.m_platform.OpenLogFile(path + appName + ".log", path + appName + ".old.log");
+  if (g_logState.m_logType & 2)
+  {
+    syslogID = appName;
+    openlog(syslogID.c_str(), LOG_PID, LOG_LOCAL7 | LOG_DEBUG);
+  }
+  if (g_logState.m_logType & 1)
+    return g_logState.m_platform.OpenLogFile(path + appName + ".log", path + appName + ".old.log");
+  return true;
 }
 
 void CLog::MemDump(char *pData, int length)
@@ -178,6 +192,11 @@ bool CLog::IsLogLevelLogged(int loglevel)
   return (loglevel & LOGMASK) >= LOGNOTICE;
 }
 
+void CLog::SetLogType(int type)
+{
+  g_logState.m_logType = type;
+}
+
 
 void CLog::PrintDebugString(const std::string& line)
 {
@@ -209,5 +228,9 @@ bool CLog::WriteLogString(int logLevel, const std::string& logString)
                                   (uint64_t)CThread::GetDisplayThreadId(CThread::GetCurrentThreadId()),
                                   levelNames[logLevel]) + strData;
 
-  return g_logState.m_platform.WriteStringToLog(strData);
+  if (g_logState.m_logType & 2)
+    syslog(LOG_LOCAL7 | syslogLevel[logLevel & LOGMASK], "%s", strData.c_str()+9);
+  if (g_logState.m_logType & 1)
+    return g_logState.m_platform.WriteStringToLog(strData);
+  return true;
 }

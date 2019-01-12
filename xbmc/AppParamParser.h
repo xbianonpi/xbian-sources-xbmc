@@ -26,6 +26,7 @@ public:
   const CFileItemList& GetPlaylist() const;
 
   int m_logLevel;
+  int m_logType = 1;
   bool m_startFullScreen = false;
   bool m_platformDirectories = true;
   bool m_testmode = false;

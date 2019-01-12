@@ -58,15 +58,19 @@ void CAppParamParser::DisplayHelp()
   printf("\t\t\tenables network settings.\n");
   printf("  -p or --portable\t%s will look for configurations in install folder instead of ~/.%s\n", CSysInfo::GetAppName().c_str(), lcAppName.c_str());
   printf("  --debug\t\tEnable debug logging\n");
+  printf("  --logtype=<type>\tSet <type> of logging. type is either none|0, local|1, syslog|2 or both|3\n\t\t\tfor example --logtype=2 enables logging via syslog\n");
+  printf("  --syslog\t\tEquivalent to --logtype=syslog\n");
   printf("  --version\t\tPrint version information\n");
   printf("  --test\t\tEnable test mode. [FILE] required.\n");
-  printf("  --settings=<filename>\t\tLoads specified file after advancedsettings.xml replacing any settings specified\n");
-  printf("  \t\t\t\tspecified file must exist in special://xbmc/system/\n");
+  printf("  --settings=<filename>\tLoads specified file after advancedsettings.xml replacing any settings specified\n");
+  printf("  \t\t\tspecified file must exist in special://xbmc/system/\n");
   exit(0);
 }
 
 void CAppParamParser::ParseArg(const std::string &arg)
 {
+  if (const char *p = getenv("KODI_LOGTYPE"))
+    m_logType = atoi(p);
   if (arg == "-fs" || arg == "--fullscreen")
     m_startFullScreen = true;
   else if (arg == "-h" || arg == "--help")
@@ -81,6 +85,19 @@ void CAppParamParser::ParseArg(const std::string &arg)
     m_logLevel = LOG_LEVEL_DEBUG;
   else if (arg == "--test")
     m_testmode = true;
+  else if (arg.substr(0, 10) == "--logtype=")
+    if (arg.substr(10) == "local")
+      m_logType = 1;
+    else if (arg.substr(10) == "syslog")
+      m_logType = 2;
+    else if (arg.substr(10) == "both")
+      m_logType = 3;
+    else if (arg.substr(10) == "none")
+      m_logType = 0;
+    else
+      m_logType = atoi(arg.substr(10).c_str());
+  else if (arg == "--syslog")
+      m_logType = 2;
   else if (arg.substr(0, 11) == "--settings=")
     m_settingsFile = arg.substr(11);
   else if (arg.length() != 0 && arg[0] != '-')
@@ -108,6 +125,8 @@ void CAppParamParser::SetAdvancedSettings(CAdvancedSettings& advancedSettings) c
 
   if (m_standAlone)
     advancedSettings.m_handleMounting = true;
+
+  CLog::SetLogType(m_logType);
 }
 
 const CFileItemList& CAppParamParser::GetPlaylist() const
