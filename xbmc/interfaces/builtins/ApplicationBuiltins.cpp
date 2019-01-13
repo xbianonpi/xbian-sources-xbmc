@@ -119,6 +119,25 @@ static int ToggleDebug(const std::vector<std::string>& params)
   return 0;
 }
 
+/*! \brief Set Loglevel.
+ *  \param params the parameters.
+ *  \details params[0] = Loglevel (optional).
+ */
+static int SetLogLevel(const std::vector<std::string>& params)
+{
+  if (!params.size())
+  {
+    CLog::Log(LOGNOTICE, "SetLogLevel called without parameter, assuming 0");
+    CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_logLevel = 0;
+  }
+  else
+    CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_logLevel = atoi(params[0].c_str());
+
+  CLog::SetLogLevel(CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_logLevel);
+
+  return 1; // Don't wake up screensaver
+}
+
 /*! \brief Toggle DPMS state.
  *  \param params (ignored)
  */
@@ -208,6 +227,7 @@ CBuiltins::CommandMap CApplicationBuiltins::GetOperations() const
            {"notifyall", {"Notify all connected clients", 2, NotifyAll}},
            {"setvolume", {"Set the current volume", 1, SetVolume}},
            {"toggledebug", {"Enables/disables debug mode", 0, ToggleDebug}},
+           {"setloglevel", {"Set the current loglevel", 0, SetLogLevel}},
            {"toggledpms", {"Toggle DPMS mode manually", 0, ToggleDPMS}},
            {"wakeonlan", {"Sends the wake-up packet to the broadcast address for the specified MAC address", 1, WakeOnLAN}}
          };
