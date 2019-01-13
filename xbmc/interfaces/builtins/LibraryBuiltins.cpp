@@ -20,6 +20,7 @@
 #include "messaging/helpers/DialogHelper.h"
 #include "music/MusicLibraryQueue.h"
 #include "settings/LibExportSettings.h"
+#include "settings/MediaSourceSettings.h"
 #include "storage/MediaManager.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
@@ -270,6 +271,16 @@ static int UpdateLibrary(const std::vector<std::string>& params)
   return 0;
 }
 
+/*! \brief Load sources.xml from current profile
+ *  \param params (ignored)
+ */
+static int LoadSources(const std::vector<std::string>& params)
+{
+  CMediaSourceSettings::GetInstance().Load();
+
+  return 1; // Don't wake up screensaver
+}
+
 /*! \brief Open a video library search.
  *  \param params (ignored)
  */
@@ -348,6 +359,7 @@ CBuiltins::CommandMap CLibraryBuiltins::GetOperations() const
           {"exportlibrary",       {"Export the video/music library", 1, ExportLibrary}},
           {"exportlibrary2",      {"Export the video/music library", 1, ExportLibrary2}},
           {"updatelibrary",       {"Update the selected library (music or video)", 1, UpdateLibrary}},
+          {"loadsources",         {"Load sources.xml from current profile", 0, LoadSources}},
           {"videolibrary.search", {"Brings up a search dialog which will search the library", 0, SearchVideoLibrary}}
          };
 }
