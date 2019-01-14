@@ -203,7 +203,7 @@ public:
    * @param mode Whether to activate, put on standby or toggle the source.
    * @return True when the playing device has been switched on, false otherwise.
    */
-  bool ToggleDeviceState(const CecStateChange mode = STATE_SWITCH_TOGGLE);
+  bool ToggleDeviceState(const CecStateChange mode = STATE_SWITCH_TOGGLE, const bool forceType = false);
 
   /*!
    * @brief Try to mute the audio via a peripheral.
@@ -363,3 +363,4 @@ private:
   mutable CCriticalSection m_critSectionMappings;
 };
 } // namespace PERIPHERALS
+
