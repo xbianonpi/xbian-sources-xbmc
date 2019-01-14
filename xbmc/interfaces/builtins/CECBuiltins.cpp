@@ -9,6 +9,7 @@
 #include "CECBuiltins.h"
 
 #include "messaging/ApplicationMessenger.h"
+#include "utils/log.h"
 
 using namespace KODI::MESSAGING;
 
@@ -17,7 +18,16 @@ using namespace KODI::MESSAGING;
  */
 static int ActivateSource(const std::vector<std::string>& params)
 {
-  CApplicationMessenger::GetInstance().PostMsg(TMSG_CECACTIVATESOURCE);
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGNOTICE, "CECActivateSource called without parameter, assuming 'unforced'");
+  CApplicationMessenger::GetInstance().PostMsg(TMSG_CECACTIVATESOURCE, forceType);
 
   return 1; // Don't wake up screensaver
 }
@@ -27,7 +37,16 @@ static int ActivateSource(const std::vector<std::string>& params)
  */
 static int Standby(const std::vector<std::string>& params)
 {
-  CApplicationMessenger::GetInstance().PostMsg(TMSG_CECSTANDBY);
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGNOTICE, "CECStandby called without parameter, assuming 'unforced'");
+  CApplicationMessenger::GetInstance().PostMsg(TMSG_CECSTANDBY, forceType);
 
   return 1; // Don't wake up screensaver
 }
@@ -38,7 +57,16 @@ static int Standby(const std::vector<std::string>& params)
 static int ToggleState(const std::vector<std::string>& params)
 {
   bool result;
-  CApplicationMessenger::GetInstance().SendMsg(TMSG_CECTOGGLESTATE, 0, 0, static_cast<void*>(&result));
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGNOTICE, "CECToggleState called without parameter, assuming 'unforced'");
+  CApplicationMessenger::GetInstance().SendMsg(TMSG_CECTOGGLESTATE, forceType, 0, static_cast<void*>(&result));
 
   return 1; // Don't wake up screensaver
 }
