@@ -774,7 +774,7 @@ bool CPeripherals::ToggleMute()
   return false;
 }
 
-bool CPeripherals::ToggleDeviceState(CecStateChange mode /*= STATE_SWITCH_TOGGLE */)
+bool CPeripherals::ToggleDeviceState(CecStateChange mode /*= STATE_SWITCH_TOGGLE */, bool forceType /*= false */)
 {
   bool ret(false);
   PeripheralVector peripherals;
@@ -785,7 +785,8 @@ bool CPeripherals::ToggleDeviceState(CecStateChange mode /*= STATE_SWITCH_TOGGLE
     {
       std::shared_ptr<CPeripheralCecAdapter> cecDevice =
           std::static_pointer_cast<CPeripheralCecAdapter>(peripheral);
-      ret |= cecDevice->ToggleDeviceState(mode);
+      //CLog::Log(LOGDEBUG, "{} {} {}", __FUNCTION__, mode, forceType ? "forced" : "unforced");
+      ret |= cecDevice->ToggleDeviceState(mode, forceType);
     }
   }
 
@@ -996,15 +997,15 @@ void CPeripherals::OnApplicationMessage(MESSAGING::ThreadMessage* pMsg)
   switch (pMsg->dwMessage)
   {
     case TMSG_CECTOGGLESTATE:
-      *static_cast<bool*>(pMsg->lpVoid) = ToggleDeviceState(STATE_SWITCH_TOGGLE);
+      *static_cast<bool*>(pMsg->lpVoid) = ToggleDeviceState(STATE_SWITCH_TOGGLE, pMsg->param1);
       break;
 
     case TMSG_CECACTIVATESOURCE:
-      ToggleDeviceState(STATE_ACTIVATE_SOURCE);
+      ToggleDeviceState(STATE_ACTIVATE_SOURCE, pMsg->param1);
       break;
 
     case TMSG_CECSTANDBY:
-      ToggleDeviceState(STATE_STANDBY);
+      ToggleDeviceState(STATE_STANDBY, pMsg->param1);
       break;
   }
 }
