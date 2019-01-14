@@ -388,6 +388,36 @@ static int SetStereoMode(const std::vector<std::string>& params)
   return 0;
 }
 
+/*! \brief Enable/Disable GUI smart redraw
+ *  \param params the parameters.
+ *  \details params[0] = value (optional).
+ */
+static int SetGuiSmartRedraw(const std::vector<std::string>& params)
+{
+  int cmd(-1);
+
+  if (params.size())
+  {
+    if (params[0] == "off" || params[0] == "disable" || params[0] == "0")
+      cmd = 0;
+    else if (params[0] == "on" || params[0] == "enable" ||params[0] == "1")
+      cmd = 1;
+  }
+   
+  switch (cmd)
+  {
+    case 0: // Disable
+    case 1: // Enable
+      CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw = cmd;
+      CLog::Log(LOGINFO, "GUI smart redraw is {} now", cmd == 0 ? "disabled" : "enabled" );
+      break;
+    default:   
+      CLog::Log(LOGINFO, "SetGuiSmartRedraw called with wrong parameter");
+  }
+
+  return 1; // Don't wake up screensaver
+}
+
 /*! \brief Toggle visualization of dirty regions.
  *  \param params Ignored.
  */
@@ -601,6 +631,7 @@ CBuiltins::CommandMap CGUIBuiltins::GetOperations() const
            {"setproperty",                    {"Sets a window property for the current focused window/dialog (key,value)", 2, SetProperty}},
            {"setstereomode",                  {"Changes the stereo mode of the GUI. Params can be: toggle, next, previous, select, tomono or any of the supported stereomodes (off, split_vertical, split_horizontal, row_interleaved, hardware_based, anaglyph_cyan_red, anaglyph_green_magenta, anaglyph_yellow_blue, monoscopic)", 1, SetStereoMode}},
            {"takescreenshot",                 {"Takes a Screenshot", 0, Screenshot}},
+           {"setguismartredraw",              {"Enable/Disable GUI smart redraw", 0, SetGuiSmartRedraw}},
            {"toggledirtyregionvisualization", {"Enables/disables dirty-region visualization", 0, ToggleDirty}}
          };
 }
