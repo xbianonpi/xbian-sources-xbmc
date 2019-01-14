@@ -1801,30 +1801,40 @@ void CPeripheralCecAdapter::ProcessActivateSource(void)
     m_cecAdapter->SetActiveSource();
 }
 
-void CPeripheralCecAdapter::StandbyDevices(void)
+void CPeripheralCecAdapter::StandbyDevices(bool standbyForce)
 {
   std::unique_lock<CCriticalSection> lock(m_critSection);
   m_bStandbyPending = true;
+  m_bStandbyForce = standbyForce;
 }
 
 void CPeripheralCecAdapter::ProcessStandbyDevices(void)
 {
   bool bStandby(false);
+  bool bStandbyForce(false);
 
   {
     std::unique_lock<CCriticalSection> lock(m_critSection);
     bStandby = m_bStandbyPending;
+    bStandbyForce = m_bStandbyForce;
     m_bStandbyPending = false;
+    m_bStandbyForce = false;
     if (bStandby)
       m_bGoingToStandby = true;
   }
 
   if (bStandby)
   {
-    if (!m_configuration.powerOffDevices.IsEmpty())
+    if (!m_configuration.powerOffDevices.IsEmpty() || bStandbyForce)
     {
       m_standbySent = CDateTime::GetCurrentDateTime();
+      CLog::Log(LOGDEBUG, "{} - sending {}standby commands", __FUNCTION__, bStandbyForce ? "(forced) " : "");
       m_cecAdapter->StandbyDevices(CECDEVICE_BROADCAST);
+      if (m_configuration.powerOffDevices.IsEmpty())
+      {
+        m_cecAdapter->StandbyDevices(CECDEVICE_TV);
+        //m_cecAdapter->SetInactiveView();
+      }
     }
     else if (m_bSendInactiveSource == 1)
     {
@@ -1842,8 +1852,8 @@ bool CPeripheralCecAdapter::ToggleDeviceState(CecStateChange mode /*= STATE_SWIT
   if (m_cecAdapter->IsLibCECActiveSource() &&
       (mode == STATE_SWITCH_TOGGLE || mode == STATE_STANDBY))
   {
-    CLog::Log(LOGDEBUG, "{} - putting CEC device on standby...", __FUNCTION__);
-    StandbyDevices();
+    CLog::Log(LOGDEBUG, "{} - putting {}CEC device on standby...", __FUNCTION__, forceType ? "(force) " : "");
+    StandbyDevices(forceType);
     return false;
   }
   else if (mode == STATE_SWITCH_TOGGLE || mode == STATE_ACTIVATE_SOURCE)
