@@ -10,13 +10,23 @@
 
 #include "ServiceBroker.h"
 #include "messaging/ApplicationMessenger.h"
+#include "utils/log.h"
 
 /*! \brief Wake up device through CEC.
  *  \param params (ignored)
  */
 static int ActivateSource(const std::vector<std::string>& params)
 {
-  CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECACTIVATESOURCE);
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGINFO, "CECActivateSource called without parameter, assuming 'unforced'");
+  CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECACTIVATESOURCE,forceType);
 
   return 1; // Don't wake up screensaver
 }
@@ -26,7 +36,16 @@ static int ActivateSource(const std::vector<std::string>& params)
  */
 static int Standby(const std::vector<std::string>& params)
 {
-  CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECSTANDBY);
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGINFO, "CECStandby called without parameter, assuming 'unforced'");
+  CServiceBroker::GetAppMessenger()->PostMsg(TMSG_CECSTANDBY, forceType);
 
   return 1; // Don't wake up screensaver
 }
@@ -37,7 +56,16 @@ static int Standby(const std::vector<std::string>& params)
 static int ToggleState(const std::vector<std::string>& params)
 {
   bool result;
-  CServiceBroker::GetAppMessenger()->SendMsg(TMSG_CECTOGGLESTATE, 0, 0,
+  bool forceType(false);
+
+  if (params.size())
+  {
+    if (params[0] == "force" || params[0] == "1")
+      forceType = true;
+  }
+  else
+    CLog::Log(LOGINFO, "CECToggleState called without parameter, assuming 'unforced'");
+  CServiceBroker::GetAppMessenger()->SendMsg(TMSG_CECTOGGLESTATE, forceType, 0,
                                              static_cast<void*>(&result));
 
   return 1; // Don't wake up screensaver
