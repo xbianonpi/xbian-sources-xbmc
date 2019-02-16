@@ -84,7 +84,7 @@ public:
   CDVDDemuxFFmpeg();
   ~CDVDDemuxFFmpeg() override;
 
-  bool Open(std::shared_ptr<CDVDInputStream> pInput, bool fileinfo);
+  virtual bool Open(std::shared_ptr<CDVDInputStream> pInput, bool fileinfo);
   void Dispose();
   bool Reset() override ;
   void Flush() override;
@@ -131,7 +131,7 @@ protected:
   void ResetVideoStreams();
   AVDictionary *GetFFMpegOptionsFromInput();
   double ConvertTimestamp(int64_t pts, int den, int num);
-  void UpdateCurrentPTS();
+  virtual void UpdateCurrentPTS();
   bool IsProgramChange();
   unsigned int HLSSelectProgram();
 

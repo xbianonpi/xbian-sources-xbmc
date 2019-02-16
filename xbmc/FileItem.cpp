@@ -845,9 +845,19 @@ bool CFileItem::IsEPG() const
   return HasEPGInfoTag();
 }
 
+bool CFileItem::IsEPGWithArchive() const
+{
+  return (HasEPGInfoTag() && CServiceBroker::GetPVRManager().ChannelGroups()->GetChannelForEpgTag(GetEPGInfoTag())->HasArchive()); //return (HasEPGInfoTag() && GetEPGInfoTag()->Channel()->HasArchive());
+}
+
 bool CFileItem::IsPVRChannel() const
 {
   return HasPVRChannelInfoTag();
+}
+
+bool CFileItem::IsPVRChannelWithArchive() const
+{
+  return (HasPVRChannelInfoTag() && GetPVRChannelInfoTag()->HasArchive());
 }
 
 bool CFileItem::IsPVRRecording() const
