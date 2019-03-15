@@ -702,29 +702,9 @@ bool CVideoPlayerVideo::ProcessDecoderOutput(double &frametime, double &pts)
     }
 
     // set stereo mode if not set by decoder
-    if (m_picture.stereoMode.empty())
+    if (m_picture.stereoMode.empty() && !m_hints.stereo_mode.empty() && m_hints.stereo_mode != "mono")
     {
-      std::string stereoMode;
-      switch(m_processInfo.GetVideoSettings().m_StereoMode)
-      {
-        case RENDER_STEREO_MODE_SPLIT_VERTICAL:
-          stereoMode = "left_right";
-          if (m_processInfo.GetVideoSettings().m_StereoInvert)
-            stereoMode = "right_left";
-          break;
-        case RENDER_STEREO_MODE_SPLIT_HORIZONTAL:
-          stereoMode = "top_bottom";
-          if (m_processInfo.GetVideoSettings().m_StereoInvert)
-            stereoMode = "bottom_top";
-          break;
-        default:
-          stereoMode = m_hints.stereo_mode;
-          break;
-      }
-      if (!stereoMode.empty())
-      {
-        m_picture.stereoMode = stereoMode;
-      }
+      m_picture.stereoMode = m_hints.stereo_mode;
     }
 
     // if frame has a pts (usually originating from demux packet), use that
