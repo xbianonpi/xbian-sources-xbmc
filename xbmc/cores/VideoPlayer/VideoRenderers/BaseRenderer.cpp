@@ -290,13 +290,37 @@ void CBaseRenderer::ManageRenderArea()
   m_sourceRect.x2 = (float)m_sourceWidth;
   m_sourceRect.y2 = (float)m_sourceHeight;
 
-  unsigned int stereo_mode  = CONF_FLAGS_STEREO_MODE_MASK(m_iFlags);
-  int          stereo_view  = CServiceBroker::GetWinSystem()->GetGfxContext().GetStereoView();
+  int stereo_view = CServiceBroker::GetWinSystem()->GetGfxContext().GetStereoView();
+
+  unsigned int stereo_mode;
+  switch (m_videoSettings.m_StereoMode)
+  {
+  case RENDER_STEREO_MODE_SPLIT_VERTICAL:
+    stereo_mode = CONF_FLAGS_STEREO_MODE_SBS;
+    break;
+  case RENDER_STEREO_MODE_SPLIT_HORIZONTAL:
+    stereo_mode = CONF_FLAGS_STEREO_MODE_TAB;
+    break;
+  default:
+    stereo_mode = CONF_FLAGS_STEREO_MODE_MASK(m_iFlags);
+    break;
+  }
 
   if(CONF_FLAGS_STEREO_CADENCE(m_iFlags) == CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT)
   {
-    if     (stereo_view == RENDER_STEREO_VIEW_LEFT)  stereo_view = RENDER_STEREO_VIEW_RIGHT;
-    else if(stereo_view == RENDER_STEREO_VIEW_RIGHT) stereo_view = RENDER_STEREO_VIEW_LEFT;
+    if (stereo_view == RENDER_STEREO_VIEW_LEFT)
+      stereo_view = RENDER_STEREO_VIEW_RIGHT;
+    else if (stereo_view == RENDER_STEREO_VIEW_RIGHT)
+      stereo_view = RENDER_STEREO_VIEW_LEFT;
+  }
+
+  // invert once again because setting wants
+  if (m_videoSettings.m_StereoInvert)
+  {
+    if (stereo_view == RENDER_STEREO_VIEW_LEFT)
+      stereo_view = RENDER_STEREO_VIEW_RIGHT;
+    else if (stereo_view == RENDER_STEREO_VIEW_RIGHT)
+      stereo_view = RENDER_STEREO_VIEW_LEFT;
   }
 
   switch(stereo_mode)
