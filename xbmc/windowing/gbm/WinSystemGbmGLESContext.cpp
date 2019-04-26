@@ -23,6 +23,7 @@
 #include "settings/SettingsComponent.h"
 #include "cores/VideoPlayer/DVDCodecs/Video/MMALFFmpeg.h"
 #include "cores/VideoPlayer/DVDCodecs/Video/MMALCodec.h"
+#include "cores/VideoPlayer/Process/rbpi/ProcessInfoPi.h"
 #endif
 #include "cores/VideoPlayer/VideoRenderers/LinuxRendererGLES.h"
 #include "cores/VideoPlayer/VideoRenderers/RenderFactory.h"
@@ -67,6 +68,9 @@ bool CWinSystemGbmGLESContext::InitWindowSystem()
 #endif
 
   CLinuxRendererGLES::Register();
+#ifdef HAVE_MMAL
+  CProcessInfoPi::Register();
+#endif
   RETRO::CRPProcessInfoGbm::Register();
   RETRO::CRPProcessInfoGbm::RegisterRendererFactory(new RETRO::CRendererFactoryOpenGLES);
 
