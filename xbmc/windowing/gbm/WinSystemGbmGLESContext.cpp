@@ -14,6 +14,9 @@
 #include "cores/RetroPlayer/rendering/VideoRenderers/RPRendererOpenGLES.h"
 #include "cores/VideoPlayer/DVDCodecs/DVDFactoryCodec.h"
 #include "cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecDRMPRIME.h"
+#ifdef HAVE_MMAL
+#include "cores/VideoPlayer/Process/rbpi/ProcessInfoPi.h"
+#endif
 #include "cores/VideoPlayer/Process/gbm/ProcessInfoGBM.h"
 #include "cores/VideoPlayer/VideoRenderers/HwDecRender/RendererDRMPRIME.h"
 #include "cores/VideoPlayer/VideoRenderers/HwDecRender/RendererDRMPRIMEGLES.h"
@@ -63,6 +66,9 @@ bool CWinSystemGbmGLESContext::InitWindowSystem()
 #endif
 
   CLinuxRendererGLES::Register();
+#ifdef HAVE_MMAL
+  CProcessInfoPi::Register();
+#endif
   RETRO::CRPProcessInfoGbm::Register();
   RETRO::CRPProcessInfoGbm::RegisterRendererFactory(new RETRO::CRendererFactoryOpenGLES);
 
