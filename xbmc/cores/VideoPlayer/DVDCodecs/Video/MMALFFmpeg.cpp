@@ -371,7 +371,11 @@ CDVDVideoCodec::VCReturn CDecoder::Check(AVCodecContext* avctx)
 
 unsigned CDecoder::GetAllowedReferences()
 {
+#if defined(HAVE_GBM)
+  return 7;
+#else
   return 6;
+#endif
 }
 
 IHardwareDecoder* CDecoder::Create(CDVDStreamInfo &hint, CProcessInfo &processInfo, AVPixelFormat fmt)
