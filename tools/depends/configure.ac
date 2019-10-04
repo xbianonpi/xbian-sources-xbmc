@@ -393,7 +393,25 @@ case $use_platform in
         AC_MSG_ERROR([$use_platform is only supported for arm and aarch64 architecture])
       fi
     fi
+    if test -d "${use_firmware}/opt/vc/include"; then
+      :
+    else
+      AC_MSG_ERROR([Raspberry Pi firmware not found])
+    fi
     target_platform=$use_platform
+    use_cpu=cortex-a7
+    ffmpeg_options_default="--cpu=${use_cpu}"
+    platform_cflags="-isystem /usr/include -isystem /opt/vc/include -fPIC -mcpu=${use_cpu} -mfloat-abi=hard -mfpu=neon-vfpv4 -mvectorize-with-neon-quad \
+     -pipe -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations"
+    platform_cxxflags="-isystem /usr/include -isystem /opt/vc/include -fPIC -mcpu=${use_cpu} -mfloat-abi=hard -mfpu=neon-vfpv4 -mvectorize-with-neon-quad \
+     -pipe -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations"
+    platform_ldflags="-lpthread"
+    use_arch="arm"
+    use_hardcoded_tables="yes"
+    ARCH="${use_arch}"
+    cross_compiling="yes"
+    use_host="arm-linux-gnueabihf"
+    deps_dir="$use_platform-$build_type"
     ;;
   raspberry-pi)
      target_platform=raspberry-pi
