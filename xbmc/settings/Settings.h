@@ -124,6 +124,7 @@ public:
       "videoplayer.usemediacodecsurface";
   static constexpr auto SETTING_VIDEOPLAYER_DISABLE_NON_HEVC = "videoplayer.disablenonhevc";
   static constexpr auto SETTING_VIDEOPLAYER_USEDECODERFILTER = "videoplayer.usedecoderfilter";
+  static constexpr auto SETTING_VIDEOPLAYER_ALLOWHWDEINTERLACE = "videoplayer.primeallowhwdeinterlace";
   static constexpr auto SETTING_VIDEOPLAYER_USEVDPAU = "videoplayer.usevdpau";
   static constexpr auto SETTING_VIDEOPLAYER_USEVDPAUMIXER = "videoplayer.usevdpaumixer";
   static constexpr auto SETTING_VIDEOPLAYER_USEVDPAUMPEG2 = "videoplayer.usevdpaumpeg2";
