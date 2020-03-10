@@ -57,6 +57,7 @@
 #define __stdcall
 #define __cdecl
 #define WINAPI      __stdcall
+#define _atoi64(x) atoll(x)
 #undef APIENTRY
 struct CXHandle; // forward declaration
 typedef CXHandle* HANDLE;
