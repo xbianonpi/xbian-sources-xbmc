@@ -21,6 +21,10 @@ find_path(DAV1D_INCLUDE_DIR NAMES dav1d/dav1d.h
 
 set(DAV1D_VERSION ${PC_DAV1D_VERSION})
 
+if (NOT DAV1D_LIBRARY AND NOT DAV1D_INCLUDE_DIR AND NOT DAV1D_VERSION AND ENABLE_INTERNAL_DAV1D)
+  message(STATUS "libdav1d not found, falling back to internal build")
+endif()
+
 if(ENABLE_INTERNAL_DAV1D)
   include(ExternalProject)
 
