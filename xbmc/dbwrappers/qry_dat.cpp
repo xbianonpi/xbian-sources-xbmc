@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "PlatformDefs.h" // for PRId64
+
 #ifndef __GNUC__
 #pragma warning (disable:4800)
 #pragma warning (disable:4715)
@@ -496,7 +498,7 @@ float field_value::get_asFloat() const {
 double field_value::get_asDouble() const {
     switch (field_type) {
     case ft_String: {
-      return atof(str_value.c_str());
+      return _atoi64(str_value.c_str());
     }
     case ft_Boolean:{
       return (double)bool_value;

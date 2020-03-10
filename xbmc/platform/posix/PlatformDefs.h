@@ -53,6 +53,7 @@
 
 #define _fdopen fdopen
 #define _vsnprintf vsnprintf
+#define _atoi64(x) atoll(x)
 
 #define __stdcall
 #define __cdecl
