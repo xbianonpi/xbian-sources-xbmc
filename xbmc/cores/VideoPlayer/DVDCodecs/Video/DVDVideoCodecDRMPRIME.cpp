@@ -303,6 +303,11 @@ bool CDVDVideoCodecDRMPRIME::Open(CDVDStreamInfo& hints, CDVDCodecOptions& optio
       return false;
     }
   }
+  // rpi-vid hevc decoder works best with 3 threads
+  if (pCodec->id == AV_CODEC_ID_HEVC) {
+    m_pCodecContext->thread_count = 3;
+    CLog::Log(LOGDEBUG, "CDVDVideoCodecDRMPRIME::{} - open frame threaded with {} threads", m_pCodecContext->thread_count);
+  }
 
   m_pCodecContext->pix_fmt = AV_PIX_FMT_DRM_PRIME;
   m_pCodecContext->opaque = static_cast<void*>(this);
