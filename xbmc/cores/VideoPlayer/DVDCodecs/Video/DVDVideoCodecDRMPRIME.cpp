@@ -37,6 +37,7 @@ namespace
 {
 
 constexpr const char* SETTING_VIDEOPLAYER_USEPRIMEDECODERFORHW{"videoplayer.useprimedecoderforhw"};
+constexpr const char* SETTING_VIDEOPLAYER_DISABLENONHEVC{"videoplayer.disablenonhevc"};
 
 static void ReleaseBuffer(void* opaque, uint8_t* data)
 {
@@ -124,6 +125,15 @@ void CDVDVideoCodecDRMPRIME::Register()
 
   setting->SetVisible(true);
 
+  setting = settings->GetSetting(SETTING_VIDEOPLAYER_DISABLENONHEVC);
+  if (!setting)
+  {
+    CLog::Log(LOGERROR, "Failed to load setting for: {}", SETTING_VIDEOPLAYER_DISABLENONHEVC);
+    return;
+  }
+
+  setting->SetVisible(true);
+
   CDVDFactoryCodec::RegisterHWVideoCodec("drm_prime", CDVDVideoCodecDRMPRIME::Create);
 }
 
@@ -145,6 +155,16 @@ static const AVCodecHWConfig* FindHWConfig(const AVCodec* codec)
   if (!CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
           SETTING_VIDEOPLAYER_USEPRIMEDECODERFORHW))
     return nullptr;
+
+#ifdef TARGET_RASPBERRY_PI4
+  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
+          SETTING_VIDEOPLAYER_DISABLENONHEVC) && codec->id != AV_CODEC_ID_HEVC && codec->id != AV_CODEC_ID_H264)
+  {
+    CLog::Log(LOGINFO, "CDVDVideoCodecDRMPRIME::{} - codec {} disallowed",
+              __FUNCTION__, codec->id);
+    return nullptr;
+  }
+#endif
 
   const AVCodecHWConfig* config = nullptr;
   for (int n = 0; (config = avcodec_get_hw_config(codec, n)); n++)

@@ -145,6 +145,7 @@ constexpr const char* CSettings::SETTING_VIDEOPLAYER_RENDERMETHOD;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_HQSCALERS;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMEDIACODEC;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMEDIACODECSURFACE;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAU;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUMIXER;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUMPEG2;
@@ -992,6 +993,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_LOCALE_CHARSET);
   GetSettingsManager()->RegisterCallback(&g_charsetConverter, settingSet);
 
+  settingSet.insert(CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC);
   settingSet.clear();
   settingSet.insert(CSettings::SETTING_LOCALE_AUDIOLANGUAGE);
   settingSet.insert(CSettings::SETTING_LOCALE_SUBTITLELANGUAGE);
