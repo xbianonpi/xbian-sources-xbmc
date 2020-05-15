@@ -59,7 +59,7 @@ if(ENABLE_INTERNAL_FMT)
 
 else()
 
-find_package(FMT 6.1.2 CONFIG REQUIRED QUIET)
+find_package(FMT 5.3.0 CONFIG REQUIRED QUIET)
 
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(PC_FMT libfmt QUIET)
