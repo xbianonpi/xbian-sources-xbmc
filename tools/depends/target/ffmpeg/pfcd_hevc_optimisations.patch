@@ -28248,10 +28248,10 @@ index 0000000000..1128a2c054
 +};
 diff --git a/libavcodec/rpi_hevcdec.c b/libavcodec/rpi_hevcdec.c
 new file mode 100644
-index 0000000000..bab4b2b3db
+index 0000000000..7e49f6a8bb
 --- /dev/null
 +++ b/libavcodec/rpi_hevcdec.c
-@@ -0,0 +1,6002 @@
+@@ -0,0 +1,6009 @@
 +/*
 + * HEVC video Decoder
 + *
@@ -34052,11 +34052,12 @@ index 0000000000..bab4b2b3db
 +    HEVCRpiContext *s0 = src->priv_data;
 +    int i, ret;
 +
-+    if (!s->context_initialized) {
-+        ret = hevc_init_context(dst);
-+        if (ret < 0)
-+            return ret;
-+    }
++    av_assert0(s->context_initialized);
++
++    // dst == src can happen according to the comments and in that case
++    // there is nothing to do here
++    if (dst == src)
++        return 0;
 +
 +    for (i = 0; i < FF_ARRAY_ELEMS(s->DPB); i++) {
 +        ff_hevc_rpi_unref_frame(s, &s->DPB[i], ~0);
@@ -34139,6 +34140,19 @@ index 0000000000..bab4b2b3db
 +    HEVCRpiContext *s = avctx->priv_data;
 +    int ret;
 +
++    if ((ret = hevc_init_context(avctx)) < 0)
++        return ret;
++
++    // If we are a child context then stop now
++    // Everything after this point is either 1st decode setup or global alloc
++    // that must not be repeated
++    // Global info will be copied into children in update_thread_context (we
++    // can't do it here as we have no way of finding the parent context)
++    if (avctx->internal->is_copy)
++        return 0;
++
++    // Job allocation requires VCSM alloc to work so ensure that we have it
++    // initialised by this point
 +    {
 +        HEVCRpiJobGlobal * const jbg = jbg_new(FFMAX(avctx->thread_count * 3, 5));
 +        if (jbg == NULL)
@@ -34154,16 +34168,9 @@ index 0000000000..bab4b2b3db
 +        }
 +    }
 +
-+    ret = hevc_init_context(avctx);
-+    if (ret < 0)
-+        return ret;
-+
 +    hevc_init_worker(s);
 +
-+    s->sei.picture_timing.picture_struct = 0;
 +    s->eos = 1;
-+
-+    atomic_init(&s->wpp_err, 0);
 +
 +    if (avctx->extradata_size > 0 && avctx->extradata) {
 +        ret = hevc_rpi_decode_extradata(s, avctx->extradata, avctx->extradata_size, 1);
@@ -34256,10 +34263,10 @@ index 0000000000..bab4b2b3db
 +
 diff --git a/libavcodec/rpi_hevcdec.h b/libavcodec/rpi_hevcdec.h
 new file mode 100644
-index 0000000000..d324aa273c
+index 0000000000..1a7ee76d3b
 --- /dev/null
 +++ b/libavcodec/rpi_hevcdec.h
-@@ -0,0 +1,1087 @@
+@@ -0,0 +1,1085 @@
 +/*
 + * HEVC video decoder
 + *
@@ -35026,8 +35033,6 @@ index 0000000000..d324aa273c
 +    /** used on BE to byteswap the lines for checksumming */
 +    uint8_t *checksum_buf;
 +    int      checksum_buf_size;
-+
-+    atomic_int wpp_err;
 +
 +    const uint8_t *data;
 +
