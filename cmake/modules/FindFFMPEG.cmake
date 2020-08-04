@@ -238,6 +238,7 @@ if(NOT FFMPEG_FOUND)
                      -DENABLE_VAAPI=${ENABLE_VAAPI}
                      -DENABLE_VDPAU=${ENABLE_VDPAU}
                      -DENABLE_DAV1D=${DAV1D_FOUND}
+                     -DENABLE_MMAL=${ENABLE_MMAL}
                      -DEXTRA_FLAGS=${FFMPEG_EXTRA_FLAGS})
 
   set(CROSS_ARGS -DDEPENDS_PATH=${DEPENDS_PATH}
@@ -248,6 +249,12 @@ if(NOT FFMPEG_FOUND)
                  -DCMAKE_AR=${CMAKE_AR})
   set(LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
   list(APPEND LINKER_FLAGS ${SYSTEM_LDFLAGS})
+
+  if(CORE_PLATFORM_NAME STREQUAL rbpi)
+    set (FFMPEG_HEVC_PATCH pfcd_hevc_optimisations.patch)
+  else()
+    set (FFMPEG_HEVC_PATCH 0001-rpi-Add-hevc-acceleration.patch)
+  endif()
 
   externalproject_add(ffmpeg
                       URL ${FFMPEG_URL}
@@ -275,7 +282,13 @@ if(NOT FFMPEG_FOUND)
                                     <SOURCE_DIR> &&
                                     ${CMAKE_COMMAND} -E copy
                                     ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/FindGnuTls.cmake
-                                    <SOURCE_DIR>)
+                                    <SOURCE_DIR> &&
+                                    patch -p1 < ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch &&
+                                    patch -p1 < ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-ffmpeg-Call-get_format-to-fix-an-issue-with-MMAL-ren.patch &&
+                                    patch -p1 < ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches.patch &&
+                                    patch -p1 < ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/${FFMPEG_HEVC_PATCH} &&
+                                    echo "############################## patched ffmpeg with ${FFMPEG_HEVC_PATCH} ##############################"
+                     )
 
   if (ENABLE_INTERNAL_DAV1D)
     add_dependencies(ffmpeg dav1d)
