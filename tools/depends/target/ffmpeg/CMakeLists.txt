@@ -18,6 +18,30 @@ if(CROSSCOMPILING)
   message(STATUS "CROSS: ${ffmpeg_conf}")
 endif()
 
+message(STATUS "************** PLATFORM: ${PLATFORM}")
+if(CORE_PLATFORM_NAME STREQUAL rbpi)
+  string(CONCAT CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux")
+  list(APPEND ffmpeg_conf --enable-rpi --disable-ffmpeg --enable-mmal)
+elseif(PLATFORM MATCHES "gbm")
+  list(APPEND ffmpeg_conf --enable-sand --enable-v4l2_m2m --enable-v4l2-request --enable-libdrm --enable-libudev --disable-hwaccel=h264_v4l2request --disable-hwaccel=mpeg2_v4l2request --disable-hwaccel=vp8_v4l2request --disable-hwaccel=vp9_v4l2request)
+  #get_cmake_property(_variableNames VARIABLES)
+  #list (SORT _variableNames)
+  #foreach (_variableName ${_variableNames})
+  #  message(STATUS "${_variableName}=${${_variableName}}")
+  #endforeach()
+  if(ENABLE_MMAL)
+    message(STATUS "************** FFMPEG with MMAL")
+    string(CONCAT CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux")
+    string(CONCAT CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -L/opt/vc/lib")
+    string(CONCAT CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS} " -L/opt/vc/lib")
+    list(APPEND ffmpeg_conf --enable-rpi --enable-mmal --disable-ffmpeg)
+  else()
+    list(APPEND ffmpeg_conf --disable-rpi --disable-mmal --disable-ffmpeg)
+  endif()   
+else()
+  list(APPEND ffmpeg_conf --enable-libdrm --enable-v4l2_m2m --enable-hwaccels --disable-rpi --disable-ffmpeg --disable-mmal --disable-devices)
+endif()
+
 if(CMAKE_C_FLAGS)
   list(APPEND ffmpeg_conf --extra-cflags=${CMAKE_C_FLAGS})
 endif()
@@ -115,10 +139,8 @@ externalproject_add(ffmpeg
                     CONFIGURE_COMMAND ${pkgconf} ${pkgconf_path} <SOURCE_DIR>/configure
                       --prefix=${CMAKE_INSTALL_PREFIX}
                       --extra-version="kodi-${FFMPEG_VER}"
-                      --disable-devices
                       --disable-doc
                       --disable-ffplay
-                      --disable-ffmpeg
                       --disable-ffprobe
                       --enable-gpl
                       --enable-runtime-cpudetect
