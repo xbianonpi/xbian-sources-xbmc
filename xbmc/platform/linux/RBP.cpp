@@ -172,6 +172,7 @@ static void vsync_callback_static(DISPMANX_UPDATE_HANDLE_T u, void *arg)
 
 DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
 {
+  DISPMANX_DISPLAY_HANDLE_T last_display = m_display;
   CSingleLock lock(m_critSection);
   if (m_display == DISPMANX_NO_HANDLE)
   {
@@ -179,12 +180,14 @@ DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
     int s = vc_dispmanx_vsync_callback(m_display, vsync_callback_static, (void *)this);
     assert(s == 0);
   }
+  CLog::Log(LOGDEBUG, "CRBP::{} device:{} m_display:{:x} ({:x})", __FUNCTION__, device, m_display, last_display);
   return m_display;
 }
 
 void CRBP::CloseDisplay(DISPMANX_DISPLAY_HANDLE_T display)
 {
   CSingleLock lock(m_critSection);
+  CLog::Log(LOGDEBUG, "CRBP::{} display:{:x} m_display:{:x}", __FUNCTION__, display, m_display);
   assert(display == m_display);
   int s = vc_dispmanx_vsync_callback(m_display, NULL, NULL);
   assert(s == 0);
@@ -256,7 +259,6 @@ void CRBP::VSyncCallback()
 uint32_t CRBP::WaitVsync(uint32_t target)
 {
   CSingleLock vlock(m_vsync_lock);
-  DISPMANX_DISPLAY_HANDLE_T display = m_display;
   XbmcThreads::EndTime delay(50);
   if (target == ~0U)
     target = m_vsync_count+1;
@@ -268,7 +270,7 @@ uint32_t CRBP::WaitVsync(uint32_t target)
       break;
   }
   if ((signed)(m_vsync_count - target) < 0)
-    CLog::Log(LOGDEBUG, "CRBP::{} no  vsync {}/{} display:{:x}({:x}) delay:{}", __FUNCTION__, m_vsync_count, target, m_display, display, delay.MillisLeft());
+    CLog::Log(LOGDEBUG, "CRBP::{} no  vsync {}/{} display:{:x} delay:{}", __FUNCTION__, m_vsync_count, target, m_display, delay.MillisLeft());
 
   return m_vsync_count;
 }
