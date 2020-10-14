@@ -9,6 +9,9 @@
 #pragma once
 
 #include "DRMUtils.h"
+#ifdef HAVE_MMAL
+#include "platform/linux/RBP.h"
+#endif
 
 #include <cstdint>
 #include <deque>
@@ -39,6 +42,9 @@ public:
 private:
   void DrmAtomicCommit(int fb_id, int flags, bool rendered, bool videoLayer);
 
+#ifdef HAVE_MMAL
+  DISPMANX_ELEMENT_HANDLE_T m_dispman_display = 0;
+#endif
   bool SetScalingFilter(CDRMObject* object, const char* name, const char* type);
 
   bool m_need_modeset;
