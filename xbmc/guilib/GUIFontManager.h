@@ -23,7 +23,7 @@
 
 // Forward
 class CGUIFont;
-class CGUIFontTTF;
+class CGUIFontTTFBase;
 class CXBMCTinyXML;
 class TiXmlNode;
 class CSetting;
@@ -64,7 +64,7 @@ public:
   CGUIFont* GetDefaultFont(bool border = false);
 
   void Clear();
-  void FreeFontFile(CGUIFontTTF* pFont);
+  void FreeFontFile(CGUIFontTTFBase *pFont);
 
   static void SettingOptionsFontsFiller(const std::shared_ptr<const CSetting>& setting,
                                         std::vector<StringSettingOption>& list,
@@ -75,11 +75,11 @@ protected:
   void ReloadTTFFonts();
   static void RescaleFontSizeAndAspect(float *size, float *aspect, const RESOLUTION_INFO &sourceRes, bool preserveAspect);
   void LoadFonts(const TiXmlNode* fontNode);
-  CGUIFontTTF* GetFontFile(const std::string& strFontFile);
+  CGUIFontTTFBase* GetFontFile(const std::string& strFontFile);
   static void GetStyle(const TiXmlNode *fontNode, int &iStyle);
 
   std::vector<CGUIFont*> m_vecFonts;
-  std::vector<CGUIFontTTF*> m_vecFontFiles;
+  std::vector<CGUIFontTTFBase*> m_vecFontFiles;
   std::vector<OrigFontInfo> m_vecFontInfo;
   RESOLUTION_INFO m_skinResolution;
   bool m_canReload;

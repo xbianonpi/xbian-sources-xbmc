@@ -36,7 +36,7 @@ public:
 
   bool          m_use_cache; ///< Whether or not to use any caching with this image
   std::string    m_path; ///< path of image to load
-  CTexture* m_texture; ///< Texture object to load the image into \sa CTexture.
+  CBaseTexture *m_texture; ///< Texture object to load the image into \sa CBaseTexture.
 };
 
 /*!
@@ -113,7 +113,7 @@ private:
     void AddRef();
     bool DecrRef(bool deleteImmediately);
     bool DeleteIfRequired(bool deleteImmediately = false);
-    void SetTexture(CTexture* texture);
+    void SetTexture(CBaseTexture* texture);
 
     const std::string &GetPath() const { return m_path; };
     const CTextureArray &GetTexture() const { return m_texture; };

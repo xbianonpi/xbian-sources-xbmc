@@ -15,6 +15,11 @@
 struct COLOR {unsigned char b,g,r,x;};	// Windows GDI expects 4bytes per color
 #pragma pack()
 
+class CTexture;
+class CGLTexture;
+class CPiTexture;
+class CDXTexture;
+
 enum class TEXTURE_SCALING
 {
   LINEAR,
@@ -25,16 +30,13 @@ enum class TEXTURE_SCALING
 \ingroup textures
 \brief Base texture class, subclasses of which depend on the render spec (DX, GL etc.)
 */
-class CTexture
+class CBaseTexture
 {
 
 public:
-  CTexture(unsigned int width = 0, unsigned int height = 0, unsigned int format = XB_FMT_A8R8G8B8);
-  virtual ~CTexture();
+  CBaseTexture(unsigned int width = 0, unsigned int height = 0, unsigned int format = XB_FMT_A8R8G8B8);
 
-  static CTexture* CreateTexture(unsigned int width = 0,
-                                 unsigned int height = 0,
-                                 unsigned int format = XB_FMT_A8R8G8B8);
+  virtual ~CBaseTexture();
 
   /*! \brief Load a texture from a file
    Loads a texture from a file, restricting in size if needed based on maxHeight and maxWidth.
@@ -43,13 +45,10 @@ public:
    \param idealWidth the ideal width of the texture (defaults to 0, no ideal width).
    \param idealHeight the ideal height of the texture (defaults to 0, no ideal height).
    \param strMimeType mimetype of the given texture if available (defaults to empty)
-   \return a CTexture pointer to the created texture - NULL if the texture failed to load.
+   \return a CBaseTexture pointer to the created texture - NULL if the texture failed to load.
    */
-  static CTexture* LoadFromFile(const std::string& texturePath,
-                                unsigned int idealWidth = 0,
-                                unsigned int idealHeight = 0,
-                                bool requirePixels = false,
-                                const std::string& strMimeType = "");
+  static CBaseTexture *LoadFromFile(const std::string& texturePath, unsigned int idealWidth = 0, unsigned int idealHeight = 0,
+                                    bool requirePixels = false, const std::string& strMimeType = "");
 
   /*! \brief Load a texture from a file in memory
    Loads a texture from a file in memory, restricting in size if needed based on maxHeight and maxWidth.
@@ -59,13 +58,10 @@ public:
    \param mimeType the mime type of the file in buffer.
    \param idealWidth the ideal width of the texture (defaults to 0, no ideal width).
    \param idealHeight the ideal height of the texture (defaults to 0, no ideal height).
-   \return a CTexture pointer to the created texture - NULL if the texture failed to load.
+   \return a CBaseTexture pointer to the created texture - NULL if the texture failed to load.
    */
-  static CTexture* LoadFromFileInMemory(unsigned char* buffer,
-                                        size_t bufferSize,
-                                        const std::string& mimeType,
-                                        unsigned int idealWidth = 0,
-                                        unsigned int idealHeight = 0);
+  static CBaseTexture *LoadFromFileInMemory(unsigned char* buffer, size_t bufferSize, const std::string& mimeType,
+                                            unsigned int idealWidth = 0, unsigned int idealHeight = 0);
 
   bool LoadFromMemory(unsigned int width, unsigned int height, unsigned int pitch, unsigned int format, bool hasAlpha, const unsigned char* pixels);
   bool LoadPaletted(unsigned int width, unsigned int height, unsigned int pitch, unsigned int format, const unsigned char *pixels, const COLOR *palette);
@@ -108,7 +104,7 @@ public:
 
 private:
   // no copy constructor
-  CTexture(const CTexture& copy) = delete;
+  CBaseTexture(const CBaseTexture &copy) = delete;
 
 protected:
   bool LoadFromFileInMem(unsigned char* buffer, size_t size, const std::string& mimeType,
@@ -136,3 +132,11 @@ protected:
   TEXTURE_SCALING m_scalingMethod = TEXTURE_SCALING::LINEAR;
   bool m_bCacheMemory = false;
 };
+
+#if defined(HAS_GL) || defined(HAS_GLES)
+#include "TextureGL.h"
+#define CTexture CGLTexture
+#elif defined(HAS_DX)
+#include "TextureDX.h"
+#define CTexture CDXTexture
+#endif

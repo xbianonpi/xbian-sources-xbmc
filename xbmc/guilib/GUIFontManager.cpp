@@ -134,10 +134,10 @@ CGUIFont* GUIFontManager::LoadTTF(const std::string& strFontName, const std::str
   // check if we already have this font file loaded (font object could differ only by color or style)
   std::string TTFfontName = StringUtils::Format("%s_%f_%f%s", strFilename.c_str(), newSize, aspect, border ? "_border" : "");
 
-  CGUIFontTTF* pFontFile = GetFontFile(TTFfontName);
+  CGUIFontTTFBase* pFontFile = GetFontFile(TTFfontName);
   if (!pFontFile)
   {
-    pFontFile = CGUIFontTTF::CreateGUIFontTTF(TTFfontName);
+    pFontFile = new CGUIFontTTF(TTFfontName);
     bool bFontLoaded = pFontFile->Load(strPath, newSize, aspect, 1.0f, border);
 
     if (!bFontLoaded)
@@ -226,10 +226,10 @@ void GUIFontManager::ReloadTTFFonts(void)
     RescaleFontSizeAndAspect(&newSize, &aspect, fontInfo.sourceRes, fontInfo.preserveAspect);
 
     std::string TTFfontName = StringUtils::Format("%s_%f_%f%s", strFilename.c_str(), newSize, aspect, fontInfo.border ? "_border" : "");
-    CGUIFontTTF* pFontFile = GetFontFile(TTFfontName);
+    CGUIFontTTFBase* pFontFile = GetFontFile(TTFfontName);
     if (!pFontFile)
     {
-      pFontFile = CGUIFontTTF::CreateGUIFontTTF(TTFfontName);
+      pFontFile = new CGUIFontTTF(TTFfontName);
       if (!pFontFile || !pFontFile->Load(strPath, newSize, aspect, 1.0f, fontInfo.border))
       {
         delete pFontFile;
@@ -258,10 +258,9 @@ void GUIFontManager::Unload(const std::string& strFontName)
   }
 }
 
-void GUIFontManager::FreeFontFile(CGUIFontTTF* pFont)
+void GUIFontManager::FreeFontFile(CGUIFontTTFBase *pFont)
 {
-  for (std::vector<CGUIFontTTF*>::iterator it = m_vecFontFiles.begin(); it != m_vecFontFiles.end();
-       ++it)
+  for (std::vector<CGUIFontTTFBase*>::iterator it = m_vecFontFiles.begin(); it != m_vecFontFiles.end(); ++it)
   {
     if (pFont == *it)
     {
@@ -272,11 +271,11 @@ void GUIFontManager::FreeFontFile(CGUIFontTTF* pFont)
   }
 }
 
-CGUIFontTTF* GUIFontManager::GetFontFile(const std::string& strFileName)
+CGUIFontTTFBase* GUIFontManager::GetFontFile(const std::string& strFileName)
 {
   for (int i = 0; i < (int)m_vecFontFiles.size(); ++i)
   {
-    CGUIFontTTF* pFont = m_vecFontFiles[i];
+    CGUIFontTTFBase* pFont = m_vecFontFiles[i];
     if (StringUtils::EqualsNoCase(pFont->GetFileName(), strFileName))
       return pFont;
   }
