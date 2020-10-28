@@ -245,6 +245,15 @@ int CDVDVideoCodecDRMPRIME::GetBuffer(struct AVCodecContext* avctx, AVFrame* fra
 
 bool CDVDVideoCodecDRMPRIME::Open(CDVDStreamInfo& hints, CDVDCodecOptions& options)
 {
+#ifdef TARGET_RASPBERRY_PI4
+  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC) && hints.codec != AV_CODEC_ID_HEVC && hints.codec != AV_CODEC_ID_H264)
+  {
+    CLog::Log(LOGINFO, "CDVDVideoCodecDRMPRIME::{} - codec {} disallowed",
+              __FUNCTION__, hints.codec);
+    return false;
+  }
+#endif
+
   const AVCodec* pCodec = FindDecoder(hints);
   if (!pCodec)
   {

@@ -107,6 +107,7 @@ public:
   static constexpr auto SETTING_VIDEOPLAYER_USEDISPLAYASCLOCK = "videoplayer.usedisplayasclock";
   static constexpr auto SETTING_VIDEOPLAYER_ERRORINASPECT = "videoplayer.errorinaspect";
   static constexpr auto SETTING_VIDEOPLAYER_STRETCH43 = "videoplayer.stretch43";
+  static const std::string SETTING_VIDEOPLAYER_DISABLE_NON_HEVC;
   static constexpr auto SETTING_VIDEOPLAYER_TELETEXTENABLED = "videoplayer.teletextenabled";
   static constexpr auto SETTING_VIDEOPLAYER_TELETEXTSCALE = "videoplayer.teletextscale";
   static constexpr auto SETTING_VIDEOPLAYER_STEREOSCOPICPLAYBACKMODE =

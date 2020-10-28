@@ -149,6 +149,7 @@ constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUMPEG2;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUMPEG4;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUVC1;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEDXVA2;
+const std::string CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC = "videoplayer.disablenonhevc";
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEOMXPLAYER;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVTB;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
@@ -992,6 +993,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_TESTPATTERN);
   settingSet.insert(CSettings::SETTING_VIDEOPLAYER_USEMEDIACODEC);
   settingSet.insert(CSettings::SETTING_VIDEOPLAYER_USEMEDIACODECSURFACE);
+  settingSet.insert(CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC);
   settingSet.insert(CSettings::SETTING_AUDIOOUTPUT_VOLUMESTEPS);
   settingSet.insert(CSettings::SETTING_SOURCE_VIDEOS);
   settingSet.insert(CSettings::SETTING_SOURCE_MUSIC);
