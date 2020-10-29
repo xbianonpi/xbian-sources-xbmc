@@ -30,7 +30,6 @@ public:
   bool m_platformDirectories = true;
   bool m_testmode = false;
   bool m_standAlone = false;
-  std::string m_windowing;
 
 private:
   void ParseArg(const std::string &arg);

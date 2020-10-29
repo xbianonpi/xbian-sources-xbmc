@@ -30,6 +30,5 @@ public:
   static const char* GetCopyrightYears();
   static std::string GetBuildDate();
   static const char* GetVersionCode();
-  static std::vector<std::string> GetAvailableWindowSystems();
   static std::vector<ADDON::RepoInfo> LoadOfficialRepoInfos();
 };
