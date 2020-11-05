@@ -38,6 +38,7 @@
 #include "utils/XTimeUtils.h"
 #include "utils/log.h"
 #include "windowing/WindowSystemFactory.h"
+#include "windowing/gbm/drm/ScreenshotSurfaceDRM.h"
 
 #include <gbm.h>
 
@@ -101,6 +102,7 @@ bool CWinSystemGbmGLESContext::InitWindowSystem()
 #endif
 
   CScreenshotSurfaceGLES::Register();
+  CScreenshotSurfaceDRM::Register();
 
   CBufferObjectFactory::ClearBufferObjects();
   CDumbBufferObject::Register();
