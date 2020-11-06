@@ -22,6 +22,9 @@
 #endif
 #if defined(HAVE_GBM)
 #include "windowing/gbm/WinSystemGbmGLESContext.h"
+#ifdef HAVE_MMAL
+#include "cores/AudioEngine/Sinks/AESinkPi.h"
+#endif
 #endif
 #endif
 
@@ -79,6 +82,13 @@ bool CPlatformLinux::Init()
   CLinuxPowerSyscall::Register();
 
   std::string envSink;
+
+#if defined(HAVE_GBM)
+#ifdef HAVE_MMAL
+  CAESinkPi::Register();
+#endif
+#endif
+
   if (getenv("KODI_AE_SINK"))
     envSink = getenv("KODI_AE_SINK");
 
