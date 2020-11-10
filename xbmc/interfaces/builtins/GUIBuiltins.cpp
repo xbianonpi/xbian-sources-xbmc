@@ -282,14 +282,17 @@ static int Notification(const std::vector<std::string>& params)
 {
   if (params.size() < 2)
     return -1;
-  if (params.size() == 4)
+  int ret = 0;
+  if (params.size() > 4 && StringUtils::EqualsNoCase(params[4], "keep"))
+    ret = 1;
+  if (params.size() >= 4)
     CGUIDialogKaiToast::QueueNotification(params[3],params[0],params[1],atoi(params[2].c_str()));
   else if (params.size() == 3)
     CGUIDialogKaiToast::QueueNotification("",params[0],params[1],atoi(params[2].c_str()));
   else
     CGUIDialogKaiToast::QueueNotification(params[0],params[1]);
 
-  return 0;
+  return ret;
 }
 
 /*! \brief Refresh RSS feed.
