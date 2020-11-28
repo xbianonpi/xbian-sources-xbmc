@@ -25,7 +25,7 @@ if(DBUS_FOUND)
                       DBusUtil.h)
 endif()
 
-if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+if(PLATFORM MATCHES "raspberry" OR ENABLE_MMAL)   
   list(APPEND SOURCES RBP.cpp
                       OMXClock.cpp
                       OMXCore.cpp
