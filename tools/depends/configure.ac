@@ -567,6 +567,18 @@ case $use_platform in
     use_host="aarch64-linux-gnu"
     deps_dir="$use_platform-$build_type"
     ;;
+  cubox-i)
+    target_platform=gbm
+    use_cpu=cortex-a9
+    ffmpeg_options_default="--cpu=${use_cpu}"
+    platform_cflags="-isystem /usr/include -fPIC -mcpu=${use_cpu} -mtune=${use_cpu} -mfpu=neon-vfpv3 -mfloat-abi=hard -fstack-protector-strong -fno-plt\
+     -pipe -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations"
+    platform_cxxflags="$platform_cflags"
+    use_arch="arm"
+    ARCH="${use_arch}"
+    use_host="arm-linux-gnueabihf"
+    deps_dir="$use_platform-$build_type"
+    ;;
   ios|tvos|macos)
     ;;
   webos)
