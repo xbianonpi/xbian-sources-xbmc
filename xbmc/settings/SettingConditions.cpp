@@ -411,6 +411,9 @@ void CSettingConditions::Initialize()
 #ifdef TARGET_RASPBERRY_PI
   m_simpleConditions.insert("has_omxplayer");
 #endif
+#ifdef HAVE_MMAL
+m_simpleConditions.insert("has_mmal");
+#endif
 #ifdef HAVE_LIBVA
   m_simpleConditions.emplace("have_libva");
 #endif
