@@ -161,6 +161,12 @@
           <default>true</default>
           <control type="toggle" />
         </setting>
+        <setting id="videoplayer.usemmal" type="boolean" label="39434" help="39435">
+          <requirement>HAS_MMAL</requirement>
+          <level>2</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
         <setting id="videoplayer.useprimedecoder" type="boolean" label="13430" help="36172">
           <requirement>HAS_GLES</requirement>
           <visible>false</visible>
