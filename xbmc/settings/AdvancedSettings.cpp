@@ -389,15 +389,16 @@ void CAdvancedSettings::Initialize()
 #ifdef TARGET_RASPBERRY_PI
   // want default to be memory dependent, but interface to gpu not available yet, so set in RBP.cpp
   m_cacheMemSize = ~0;
+  m_libAssCache = ~0;
 #else
   m_cacheMemSize = 1024 * 1024 * 20; // 20 MiB
+  m_libAssCache = 0;
 #endif
   m_cacheBufferMode = CACHE_BUFFER_MODE_REMOTE; // Default (buffer all remote filesystems)
   m_cacheChunkSize = 128 * 1024; // 128 KiB
 
   // the following setting determines the readRate of a player data
   // as multiply of the default data read rate
-  m_libAssCache = 0;
 
   m_cacheReadFactor = 4.0f;
 
