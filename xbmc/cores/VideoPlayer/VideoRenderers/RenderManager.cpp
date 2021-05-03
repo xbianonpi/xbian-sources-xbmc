@@ -20,6 +20,7 @@
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
 #include "threads/SingleLock.h"
+#include "utils/CPUInfo.h"
 #include "utils/MathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/XTimeUtils.h"
@@ -748,6 +749,8 @@ void CRenderManager::Render(bool clear, DWORD flags, DWORD alpha, bool gui)
           info.vsync += StringUtils::Format("VSync: refresh:{:.3f} missed:{} speed:{:.3f}%",
                                             refreshrate, missedvblanks, clockspeed * 100);
         }
+
+        info.cpu = CServiceBroker::GetCPUInfo()->GetCPUCount();
 
         m_debugRenderer.SetInfo(info);
       }
