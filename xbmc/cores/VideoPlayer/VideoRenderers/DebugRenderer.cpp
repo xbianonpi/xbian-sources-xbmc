@@ -69,8 +69,16 @@ void CDebugRenderer::SetInfo(DEBUG_INFO_PLAYER& info)
     m_overlay[3] = new CDVDOverlayText();
     m_overlay[3]->AddElement(new CDVDOverlayText::CElementText(m_strDebug[3]));
   }
+  if (info.cpu != m_strDebug[4])
+  {
+    m_strDebug[4] = info.cpu;
+    if (m_overlay[4])
+      m_overlay[4]->Release();
+    m_overlay[4] = new CDVDOverlayText();
+    m_overlay[4]->AddElement(new CDVDOverlayText::CElementText(m_strDebug[4]));
+  }
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 5; i++)
     m_overlayRenderer.AddOverlay(m_overlay[i], 0, 0);
 }
 
