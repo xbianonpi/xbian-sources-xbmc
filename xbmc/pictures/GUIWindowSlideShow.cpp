@@ -97,7 +97,7 @@ void CBackgroundPicLoader::Process()
       if (m_pCallback)
       {
         auto start = std::chrono::steady_clock::now();
-        CTexture* texture = CTexture::LoadFromFile(m_strFileName, m_maxWidth, m_maxHeight);
+        CBaseTexture* texture = CTexture::LoadFromFile(m_strFileName, m_maxWidth, m_maxHeight);
 
         auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -1148,8 +1148,7 @@ CSlideShowPic::DISPLAY_EFFECT CGUIWindowSlideShow::GetDisplayEffect(int iSlideNu
     return CSlideShowPic::EFFECT_NO_TIMEOUT;
 }
 
-void CGUIWindowSlideShow::OnLoadPic(
-    int iPic, int iSlideNumber, const std::string& strFileName, CTexture* pTexture, bool bFullSize)
+void CGUIWindowSlideShow::OnLoadPic(int iPic, int iSlideNumber, const std::string &strFileName, CBaseTexture* pTexture, bool bFullSize)
 {
   if (pTexture)
   {

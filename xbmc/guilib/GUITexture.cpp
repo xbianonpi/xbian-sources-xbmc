@@ -27,9 +27,8 @@ CTextureInfo::CTextureInfo(const std::string &file):
   useLarge = false;
 }
 
-CGUITexture::CGUITexture(
-    float posX, float posY, float width, float height, const CTextureInfo& texture)
-  : m_height(height), m_info(texture)
+CGUITextureBase::CGUITextureBase(float posX, float posY, float width, float height, const CTextureInfo& texture) :
+  m_height(height), m_info(texture)
 {
   m_posX = posX;
   m_posY = posY;
@@ -61,19 +60,22 @@ CGUITexture::CGUITexture(
   m_use_cache = true;
 }
 
-CGUITexture::CGUITexture(const CGUITexture& right)
-  : m_visible(right.m_visible),
-    m_diffuseColor(right.m_diffuseColor),
-    m_posX(right.m_posX),
-    m_posY(right.m_posY),
-    m_width(right.m_width),
-    m_height(right.m_height),
-    m_use_cache(right.m_use_cache),
-    m_alpha(right.m_alpha),
-    m_allocateDynamically(right.m_allocateDynamically),
-    m_info(right.m_info),
-    m_aspect(right.m_aspect)
+CGUITextureBase::CGUITextureBase(const CGUITextureBase &right) :
+  m_height(right.m_height),
+  m_alpha(right.m_alpha),
+  m_info(right.m_info),
+  m_aspect(right.m_aspect)
 {
+  m_posX = right.m_posX;
+  m_posY = right.m_posY;
+  m_width = right.m_width;
+
+  m_visible = right.m_visible;
+  m_diffuseColor = right.m_diffuseColor;
+
+  m_allocateDynamically = right.m_allocateDynamically;
+  m_use_cache = right.m_use_cache;
+
   // defaults
   m_vertex.SetRect(m_posX, m_posY, m_posX + m_width, m_posY + m_height);
 
@@ -93,7 +95,9 @@ CGUITexture::CGUITexture(const CGUITexture& right)
   m_invalid = true;
 }
 
-bool CGUITexture::AllocateOnDemand()
+CGUITextureBase::~CGUITextureBase(void) = default;
+
+bool CGUITextureBase::AllocateOnDemand()
 {
   if (m_visible)
   { // visible, so make sure we're allocated
@@ -111,7 +115,7 @@ bool CGUITexture::AllocateOnDemand()
   return false;
 }
 
-bool CGUITexture::Process(unsigned int currentTime)
+bool CGUITextureBase::Process(unsigned int currentTime)
 {
   bool changed = false;
   // check if we need to allocate our resources
@@ -129,7 +133,7 @@ bool CGUITexture::Process(unsigned int currentTime)
   return changed;
 }
 
-void CGUITexture::Render()
+void CGUITextureBase::Render()
 {
   if (!m_visible || !m_texture.size())
     return;
@@ -209,16 +213,7 @@ void CGUITexture::Render()
     CServiceBroker::GetWinSystem()->GetGfxContext().RestoreClipRegion();
 }
 
-void CGUITexture::Render(float left,
-                         float top,
-                         float right,
-                         float bottom,
-                         float u1,
-                         float v1,
-                         float u2,
-                         float v2,
-                         float u3,
-                         float v3)
+void CGUITextureBase::Render(float left, float top, float right, float bottom, float u1, float v1, float u2, float v2, float u3, float v3)
 {
   CRect diffuse(u1, v1, u2, v2);
   CRect texture(u1, v1, u2, v2);
@@ -266,7 +261,7 @@ void CGUITexture::Render(float left,
   Draw(x, y, z, texture, diffuse, orientation);
 }
 
-bool CGUITexture::AllocResources()
+bool CGUITextureBase::AllocResources()
 {
   if (m_info.filename.empty())
     return false;
@@ -339,7 +334,7 @@ bool CGUITexture::AllocResources()
   return changed;
 }
 
-bool CGUITexture::CalculateSize()
+bool CGUITextureBase::CalculateSize()
 {
   if (m_currentFrame >= m_texture.size())
     return false;
@@ -434,7 +429,7 @@ bool CGUITexture::CalculateSize()
   return true;
 }
 
-void CGUITexture::FreeResources(bool immediately /* = false */)
+void CGUITextureBase::FreeResources(bool immediately /* = false */)
 {
   if (m_isAllocated == LARGE || m_isAllocated == LARGE_FAILED)
     CServiceBroker::GetGUI()->GetLargeTextureManager().ReleaseImage(m_info.filename, immediately || (m_isAllocated == LARGE_FAILED));
@@ -458,17 +453,17 @@ void CGUITexture::FreeResources(bool immediately /* = false */)
   m_isAllocated = NO;
 }
 
-void CGUITexture::DynamicResourceAlloc(bool allocateDynamically)
+void CGUITextureBase::DynamicResourceAlloc(bool allocateDynamically)
 {
   m_allocateDynamically = allocateDynamically;
 }
 
-void CGUITexture::SetInvalid()
+void CGUITextureBase::SetInvalid()
 {
   m_invalid = true;
 }
 
-bool CGUITexture::UpdateAnimFrame(unsigned int currentTime)
+bool CGUITextureBase::UpdateAnimFrame(unsigned int currentTime)
 {
   bool changed = false;
   unsigned int delay = m_texture.m_delays[m_currentFrame];
@@ -513,21 +508,21 @@ bool CGUITexture::UpdateAnimFrame(unsigned int currentTime)
   return changed;
 }
 
-bool CGUITexture::SetVisible(bool visible)
+bool CGUITextureBase::SetVisible(bool visible)
 {
   bool changed = m_visible != visible;
   m_visible = visible;
   return changed;
 }
 
-bool CGUITexture::SetAlpha(unsigned char alpha)
+bool CGUITextureBase::SetAlpha(unsigned char alpha)
 {
   bool changed = m_alpha != alpha;
   m_alpha = alpha;
   return changed;
 }
 
-bool CGUITexture::SetDiffuseColor(UTILS::Color color)
+bool CGUITextureBase::SetDiffuseColor(UTILS::Color color)
 {
   bool changed = m_diffuseColor != color;
   m_diffuseColor = color;
@@ -535,12 +530,12 @@ bool CGUITexture::SetDiffuseColor(UTILS::Color color)
   return changed;
 }
 
-bool CGUITexture::ReadyToRender() const
+bool CGUITextureBase::ReadyToRender() const
 {
   return m_texture.size() > 0;
 }
 
-void CGUITexture::OrientateTexture(CRect& rect, float width, float height, int orientation)
+void CGUITextureBase::OrientateTexture(CRect &rect, float width, float height, int orientation)
 {
   switch (orientation & 3)
   {
@@ -577,14 +572,14 @@ void CGUITexture::OrientateTexture(CRect& rect, float width, float height, int o
   }
 }
 
-void CGUITexture::ResetAnimState()
+void CGUITextureBase::ResetAnimState()
 {
   m_lasttime = 0;
   m_currentFrame = 0;
   m_currentLoop = 0;
 }
 
-bool CGUITexture::SetWidth(float width)
+bool CGUITextureBase::SetWidth(float width)
 {
   if (width < m_info.border.x1 + m_info.border.x2)
     width = m_info.border.x1 + m_info.border.x2;
@@ -598,7 +593,7 @@ bool CGUITexture::SetWidth(float width)
     return false;
 }
 
-bool CGUITexture::SetHeight(float height)
+bool CGUITextureBase::SetHeight(float height)
 {
   if (height < m_info.border.y1 + m_info.border.y2)
     height = m_info.border.y1 + m_info.border.y2;
@@ -612,7 +607,7 @@ bool CGUITexture::SetHeight(float height)
     return false;
 }
 
-bool CGUITexture::SetPosition(float posX, float posY)
+bool CGUITextureBase::SetPosition(float posX, float posY)
 {
   if (m_posX != posX || m_posY != posY)
   {
@@ -625,7 +620,7 @@ bool CGUITexture::SetPosition(float posX, float posY)
     return false;
 }
 
-bool CGUITexture::SetAspectRatio(const CAspectRatio& aspect)
+bool CGUITextureBase::SetAspectRatio(const CAspectRatio &aspect)
 {
   if (m_aspect != aspect)
   {
@@ -637,7 +632,7 @@ bool CGUITexture::SetAspectRatio(const CAspectRatio& aspect)
     return false;
 }
 
-bool CGUITexture::SetFileName(const std::string& filename)
+bool CGUITextureBase::SetFileName(const std::string& filename)
 {
   if (m_info.filename == filename) return false;
   // Don't completely free resources here - we may be just changing
@@ -656,12 +651,12 @@ bool CGUITexture::SetFileName(const std::string& filename)
   return true;
 }
 
-void CGUITexture::SetUseCache(const bool useCache)
+void CGUITextureBase::SetUseCache(const bool useCache)
 {
   m_use_cache = useCache;
 }
 
-int CGUITexture::GetOrientation() const
+int CGUITextureBase::GetOrientation() const
 {
   // multiply our orientations
   static char orient_table[] = { 0, 1, 2, 3, 4, 5, 6, 7,

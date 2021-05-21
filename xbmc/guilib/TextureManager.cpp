@@ -33,11 +33,6 @@
 #include "ServiceBroker.h"
 #include "windowing/tvos/WinSystemTVOS.h" // for g_Windowing in CGUITextureManager::FreeUnusedTextures
 #endif
-
-#if defined(HAS_GL) || defined(HAS_GLES)
-#include "system_gl.h"
-#endif
-
 #include "FFmpegImage.h"
 
 #include <inttypes.h>
@@ -82,7 +77,7 @@ void CTextureArray::Reset()
   m_texCoordsArePixels = false;
 }
 
-void CTextureArray::Add(CTexture* texture, int delay)
+void CTextureArray::Add(CBaseTexture *texture, int delay)
 {
   if (!texture)
     return;
@@ -95,7 +90,7 @@ void CTextureArray::Add(CTexture* texture, int delay)
   m_texCoordsArePixels = false;
 }
 
-void CTextureArray::Set(CTexture* texture, int width, int height)
+void CTextureArray::Set(CBaseTexture *texture, int width, int height)
 {
   assert(!m_textures.size()); // don't try and set a texture if we already have one!
   m_width = width;
@@ -209,7 +204,7 @@ bool CTextureMap::IsEmpty() const
   return m_texture.m_textures.empty();
 }
 
-void CTextureMap::Add(CTexture* texture, int delay)
+void CTextureMap::Add(CBaseTexture* texture, int delay)
 {
   m_texture.Add(texture, delay);
 
@@ -346,7 +341,7 @@ const CTextureArray& CGUITextureManager::Load(const std::string& strTextureName,
   if (bundle >= 0 && StringUtils::EndsWithNoCase(strPath, ".gif"))
   {
     CTextureMap* pMap = nullptr;
-    CTexture** pTextures = nullptr;
+    CBaseTexture **pTextures = nullptr;
     int nLoops = 0, width = 0, height = 0;
     int* Delay = nullptr;
     int nImages = m_TexBundle[bundle].LoadAnim(strTextureName, &pTextures, width, height, nLoops, &Delay);
@@ -406,7 +401,7 @@ const CTextureArray& CGUITextureManager::Load(const std::string& strTextureName,
     auto frame = anim.ReadFrame();
     while (frame)
     {
-      CTexture* glTexture = CTexture::CreateTexture();
+      CTexture *glTexture = new CTexture();
       if (glTexture)
       {
         glTexture->LoadFromMemory(anim.Width(), anim.Height(), frame->GetPitch(), XB_FMT_A8R8G8B8, true, frame->m_pImage);
@@ -437,7 +432,7 @@ const CTextureArray& CGUITextureManager::Load(const std::string& strTextureName,
     return pMap->GetTexture();
   }
 
-  CTexture* pTexture = NULL;
+  CBaseTexture *pTexture = NULL;
   int width = 0, height = 0;
   if (bundle >= 0)
   {
@@ -449,7 +444,7 @@ const CTextureArray& CGUITextureManager::Load(const std::string& strTextureName,
   }
   else
   {
-    pTexture = CTexture::LoadFromFile(strPath);
+    pTexture = CBaseTexture::LoadFromFile(strPath);
     if (!pTexture)
       return emptyTexture;
     width = pTexture->GetWidth();

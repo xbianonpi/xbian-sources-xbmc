@@ -304,13 +304,13 @@ void ConvertDXT4(const void *src, unsigned int width, unsigned int height, void 
   }
 }
 
-void GetTextureFromData(D3DTexture* pTex, void* texData, CTexture** ppTexture)
+void GetTextureFromData(D3DTexture *pTex, void *texData, CBaseTexture **ppTexture)
 {
   XB_D3DFORMAT fmt;
   DWORD width, height, pitch, offset;
   ParseTextureHeader(pTex, fmt, width, height, pitch, offset);
 
-  *ppTexture = CTexture::CreateTexture(width, height, XB_FMT_A8R8G8B8);
+  *ppTexture = new CTexture(width, height, XB_FMT_A8R8G8B8);
 
   if (*ppTexture)
   {

@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-class CTexture;
+class CBaseTexture;
 
 /*!
  \ingroup textures
@@ -65,7 +65,7 @@ public:
    \param url location of the image
    \return a hash string for this image
    */
-  bool CacheTexture(CTexture** texture = NULL);
+  bool CacheTexture(CBaseTexture **texture = NULL);
 
   static bool ResizeTexture(const std::string &url, uint8_t* &result, size_t &result_size);
 
@@ -108,13 +108,9 @@ private:
    \param width the desired maximum width.
    \param height the desired maximum height.
    \param additional_info extra info for loading, such as whether to flip horizontally.
-   \return a pointer to a CTexture object, NULL if failed.
+   \return a pointer to a CBaseTexture object, NULL if failed.
    */
-  static CTexture* LoadImage(const std::string& image,
-                             unsigned int width,
-                             unsigned int height,
-                             const std::string& additional_info,
-                             bool requirePixels = false);
+  static CBaseTexture *LoadImage(const std::string &image, unsigned int width, unsigned int height, const std::string &additional_info, bool requirePixels = false);
 
   std::string    m_cachePath;
 };
