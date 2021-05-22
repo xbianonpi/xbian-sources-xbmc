@@ -186,9 +186,11 @@ std::unique_ptr<CDVDAudioCodec> CDVDFactoryCodec::CreateAudioCodec(
   // platform specifig audio decoders
   for (auto &codec : m_hwAudioCodecs)
   {
+    CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec loop");
     pCodec = CreateAudioCodecHW(codec.first, processInfo);
     if (pCodec && pCodec->Open(hint, options))
     {
+      CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec loop return");
       return pCodec;
     }
   }
@@ -196,16 +198,20 @@ std::unique_ptr<CDVDAudioCodec> CDVDFactoryCodec::CreateAudioCodec(
   // we don't use passthrough if "sync playback to display" is enabled
   if (allowpassthrough && ptStreamType != CAEStreamInfo::STREAM_TYPE_NULL)
   {
+    CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec allowpassthrough");
     pCodec = std::make_unique<CDVDAudioCodecPassthrough>(processInfo, ptStreamType);
     if (pCodec->Open(hint, options))
     {
+      CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec allowpassthrough done");
       return pCodec;
     }
   }
 
+  CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec ffmpeg");
   pCodec = std::make_unique<CDVDAudioCodecFFmpeg>(processInfo);
   if (pCodec->Open(hint, options))
   {
+    CLog::Log(LOGDEBUG, "CDVDFactoryCodec::CreateAudioCodec ffmpeg done");
     return pCodec;
   }
 

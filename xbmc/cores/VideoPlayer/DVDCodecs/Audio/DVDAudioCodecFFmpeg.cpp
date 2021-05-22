@@ -40,6 +40,8 @@ CDVDAudioCodecFFmpeg::~CDVDAudioCodecFFmpeg()
 
 bool CDVDAudioCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
 {
+  CLog::Log(LOGDEBUG, "CDVDAudioCodecFFmpeg::Open() Open {}", hints.codec);
+
   if (hints.cryptoSession)
   {
     CLog::Log(LOGERROR,"CDVDAudioCodecFFmpeg::Open() CryptoSessions unsupported!");
@@ -68,7 +70,10 @@ bool CDVDAudioCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
 
   m_pCodecContext = avcodec_alloc_context3(pCodec);
   if (!m_pCodecContext)
+  {
+    CLog::Log(LOGDEBUG, "CDVDAudioCodecFFmpeg::Open() Unable to allocate m_pCodecContext");
     return false;
+  }
 
   m_pCodecContext->debug = 0;
   m_pCodecContext->workaround_bugs = 1;
@@ -136,6 +141,7 @@ bool CDVDAudioCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
   m_pFrame = av_frame_alloc();
   if (!m_pFrame)
   {
+    CLog::Log(LOGDEBUG,"CDVDAudioCodecFFmpeg::Open() Unable to alloc frame");
     Dispose();
     return false;
   }
