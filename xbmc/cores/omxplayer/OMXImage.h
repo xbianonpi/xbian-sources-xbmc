@@ -17,6 +17,12 @@
 #include <EGL/eglext.h>
 #include <IL/OMX_Video.h>
 
+#include "OMXClock.h"
+#if defined(STANDALONE)
+#define XB_FMT_A8R8G8B8 1
+#include "File.h"
+#endif
+
 #include "system_gl.h"
 
 class COMXImageFile;
