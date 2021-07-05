@@ -49,7 +49,45 @@ bool CRenderCaptureBase::UseOcclusionQuery()
     return true;
 }
 
-#if defined(HAS_GL) || defined(HAS_GLES)
+#if defined(TARGET_RASPBERRY_PI)
+
+CRenderCaptureDispmanX::CRenderCaptureDispmanX()
+{
+  m_pixels = nullptr;
+}
+
+CRenderCaptureDispmanX::~CRenderCaptureDispmanX()
+{
+  delete[] m_pixels;
+}
+
+int CRenderCaptureDispmanX::GetCaptureFormat()
+{
+  return CAPTUREFORMAT_BGRA;
+}
+
+void CRenderCaptureDispmanX::BeginRender()
+{
+}
+
+void CRenderCaptureDispmanX::EndRender()
+{
+  delete[] m_pixels;
+  m_pixels = g_RBP.CaptureDisplay(m_width, m_height, NULL, true);
+
+  SetState(CAPTURESTATE_DONE);
+}
+
+void* CRenderCaptureDispmanX::GetRenderBuffer()
+{
+  return m_pixels;
+}
+
+void CRenderCaptureDispmanX::ReadOut()
+{
+}
+
+#elif defined(HAS_GL) || defined(HAS_GLES)
 
 CRenderCaptureGL::CRenderCaptureGL()
 {

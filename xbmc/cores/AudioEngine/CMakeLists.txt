@@ -94,6 +94,13 @@ if(CORE_SYSTEM_NAME MATCHES windows)
   endif()
 endif()
 
+if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+  list(APPEND SOURCES Engines/ActiveAE/ActiveAEResamplePi.cpp
+                      Sinks/AESinkPi.cpp)
+  list(APPEND HEADERS Engines/ActiveAE/ActiveAEResamplePi.h
+                      Sinks/AESinkPi.h)
+endif()
+
 if(CORE_SYSTEM_NAME STREQUAL osx)
   list(APPEND SOURCES Sinks/AESinkDARWINOSX.cpp
                       Sinks/darwin/CoreAudioHelpers.cpp
