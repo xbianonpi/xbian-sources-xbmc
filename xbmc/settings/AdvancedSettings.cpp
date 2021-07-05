@@ -36,6 +36,10 @@
 #include <string>
 #include <vector>
 
+#if defined(TARGET_RASPBERRY_PI)
+#include "platform/linux/RBP.h"
+#endif
+
 using namespace ADDON;
 using namespace XFILE;
 
@@ -379,7 +383,12 @@ void CAdvancedSettings::Initialize()
   m_PVRDefaultSortOrder.sortBy = SortByDate;
   m_PVRDefaultSortOrder.sortOrder = SortOrderDescending;
 
+#ifdef TARGET_RASPBERRY_PI
+  // want default to be memory dependent, but interface to gpu not available yet, so set in RBP.cpp
+  m_cacheMemSize = ~0;
+#else
   m_cacheMemSize = 1024 * 1024 * 20; // 20 MiB
+#endif
   m_cacheBufferMode = CACHE_BUFFER_MODE_NETWORK; // Default (buffer all network filesystems)
   m_cacheChunkSize = 128 * 1024; // 128 KiB
 
@@ -431,6 +440,9 @@ void CAdvancedSettings::Initialize()
   m_nfsTimeout = 5;
   m_nfsRetries = -1;
 
+#ifdef TARGET_RASPBERRY_PI
+  g_RBP.InitializeSettings();
+#endif
   m_initialized = true;
 }
 
