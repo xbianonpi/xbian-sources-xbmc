@@ -28,6 +28,7 @@
 // stuff for freetype
 #include <ft2build.h>
 #include <harfbuzz/hb-ft.h>
+#include <harfbuzz/hb.h>
 #if defined(HAS_GL) || defined(HAS_GLES)
 #include "system_gl.h"
 #endif
@@ -372,7 +373,7 @@ void CGUIFontTTF::DrawTextInternal(float x,
   }
 
   Begin();
-  std::vector<Glyph> glyphs = GetHarfBuzzShapedGlyphs(text);
+  std::vector<hb_glyph_info_t> glyphInfos = GetHarfbuzzShapedGlyphs(text);
   uint32_t rawAlignment = alignment;
   bool dirtyCache(false);
   bool hardwareClipping = m_renderSystem->ScissorsCanEffectClipping();
@@ -411,7 +412,7 @@ void CGUIFontTTF::DrawTextInternal(float x,
     // Check if we will really need to truncate or justify the text
     if ( alignment & XBFONT_TRUNCATED )
     {
-      if (maxPixelWidth <= 0.0f || GetTextWidthInternal(text, glyphs) <= maxPixelWidth)
+      if (maxPixelWidth <= 0.0f || GetTextWidthInternal(text, glyphInfos) <= maxPixelWidth)
         alignment &= ~XBFONT_TRUNCATED;
     }
     else if ( alignment & XBFONT_JUSTIFIED )
@@ -427,7 +428,7 @@ void CGUIFontTTF::DrawTextInternal(float x,
     if ( alignment & (XBFONT_RIGHT | XBFONT_CENTER_X) )
     {
       // Get the extent of this line
-      float w = GetTextWidthInternal(text, glyphs);
+      float w = GetTextWidthInternal(text, glyphInfos);
 
       if ( alignment & XBFONT_TRUNCATED && w > maxPixelWidth + 0.5f ) // + 0.5f due to rounding issues
         w = maxPixelWidth;
@@ -444,12 +445,12 @@ void CGUIFontTTF::DrawTextInternal(float x,
       // first compute the size of the text to render in both characters and pixels
       unsigned int numSpaces = 0;
       float linePixels = 0;
-      for (const auto& glyph : glyphs)
+      for (const auto& glyphInfo : glyphInfos)
       {
-        Character* ch = GetCharacter(text[glyph.glyphInfo.cluster], glyph.glyphInfo.codepoint);
+        Character* ch = GetCharacter(text[glyphInfo.cluster], glyphInfo.codepoint);
         if (ch)
         {
-          if ((text[glyph.glyphInfo.cluster] & 0xffff) == L' ')
+          if ((text[glyphInfo.cluster] & 0xffff) == L' ')
             numSpaces +=  1;
           linePixels += ch->advance;
         }
@@ -459,8 +460,6 @@ void CGUIFontTTF::DrawTextInternal(float x,
     }
 
     float cursorX = 0; // current position along the line
-    float offsetX = 0;
-    float offsetY = 0;
 
     // Collect all the Character info in a first pass, in case any of them
     // are not currently cached and cause the texture to be enlarged, which
@@ -468,9 +467,9 @@ void CGUIFontTTF::DrawTextInternal(float x,
     std::queue<Character> characters;
     if (alignment & XBFONT_TRUNCATED)
       GetCharacter(L'.', 0);
-    for (const auto& glyph : glyphs)
+    for (const auto& glyphInfo : glyphInfos)
     {
-      Character* ch = GetCharacter(text[glyph.glyphInfo.cluster], glyph.glyphInfo.codepoint);
+      Character* ch = GetCharacter(text[glyphInfo.cluster], glyphInfo.codepoint);
       if (!ch)
       {
         Character null = {};
@@ -485,11 +484,11 @@ void CGUIFontTTF::DrawTextInternal(float x,
       cursorX += ch->advance;
     }
     cursorX = 0;
-    for (const auto& glyph : glyphs)
+    for (const auto& glyphInfo : glyphInfos)
     {
       // If starting text on a new line, determine justification effects
       // Get the current letter in the CStdString
-      UTILS::Color color = (text[glyph.glyphInfo.cluster] & 0xff0000) >> 16;
+      UTILS::Color color = (text[glyphInfo.cluster] & 0xff0000) >> 16;
       if (color >= colors.size())
         color = 0;
       color = colors[color];
@@ -524,15 +523,10 @@ void CGUIFontTTF::DrawTextInternal(float x,
       else if (maxPixelWidth > 0 && cursorX > maxPixelWidth)
         break;  // exceeded max allowed width - stop rendering
 
-      offsetX = static_cast<float>(
-          MathUtils::round_int(static_cast<double>(glyph.glyphPosition.x_offset) / 64));
-      offsetY = static_cast<float>(
-          MathUtils::round_int(static_cast<double>(glyph.glyphPosition.y_offset) / 64));
-      RenderCharacter(startX + cursorX + offsetX, startY - offsetY, ch, color, !scrolling,
-                      *tempVertices);
+      RenderCharacter(startX + cursorX, startY, ch, color, !scrolling, *tempVertices);
       if ( alignment & XBFONT_JUSTIFIED )
       {
-        if ((text[glyph.glyphInfo.cluster] & 0xffff) == L' ')
+        if ((text[glyphInfo.cluster] & 0xffff) == L' ')
           cursorX += ch->advance + spacePerSpaceCharacter;
         else
           cursorX += ch->advance;
@@ -582,23 +576,24 @@ void CGUIFontTTF::DrawTextInternal(float x,
 
 float CGUIFontTTF::GetTextWidthInternal(const vecText& text)
 {
-  std::vector<Glyph> glyphs = GetHarfBuzzShapedGlyphs(text);
-  return GetTextWidthInternal(text, glyphs);
+  std::vector<hb_glyph_info_t> glyphInfos = GetHarfbuzzShapedGlyphs(text);
+  return GetTextWidthInternal(text, glyphInfos);
 }
 
 // this routine assumes a single line (i.e. it was called from GUITextLayout)
-float CGUIFontTTF::GetTextWidthInternal(const vecText& text, std::vector<Glyph>& glyphs)
+float CGUIFontTTF::GetTextWidthInternal(const vecText& text,
+                                        std::vector<hb_glyph_info_t>& glyphInfos)
 {
   float width = 0;
-  for (auto it = glyphs.begin(); it != glyphs.end(); it++)
+  for (auto it = glyphInfos.begin(); it != glyphInfos.end(); it++)
   {
-    Character* c = GetCharacter(text[(*it).glyphInfo.cluster], (*it).glyphInfo.codepoint);
+    Character* c = GetCharacter(text[(*it).cluster], (*it).codepoint);
     if (c)
     {
       // If last character in line, we want to add render width
       // and not advance distance - this makes sure that italic text isn't
       // choped on the end (as render width is larger than advance then).
-      if (it == glyphs.end())
+      if (it == glyphInfos.end())
         width += std::max(c->right - c->left + c->offsetX, c->advance);
       else
         width += c->advance;
@@ -633,12 +628,12 @@ unsigned int CGUIFontTTF::GetTextureLineHeight() const
   return m_cellHeight + spacing_between_characters_in_texture;
 }
 
-std::vector<CGUIFontTTF::Glyph> CGUIFontTTF::GetHarfBuzzShapedGlyphs(const vecText& text)
+std::vector<hb_glyph_info_t> CGUIFontTTF::GetHarfbuzzShapedGlyphs(const vecText& text)
 {
-  std::vector<Glyph> glyphs;
+  std::vector<hb_glyph_info_t> glyphInfos;
   if (text.empty())
   {
-    return glyphs;
+    return glyphInfos;
   }
   std::vector<hb_script_t> scripts;
   std::vector<RunInfo> runs;
@@ -675,7 +670,6 @@ std::vector<CGUIFontTTF::Glyph> CGUIFontTTF::GetHarfBuzzShapedGlyphs(const vecTe
 
   lastScript = scripts[0];
   int lastRunStart = 0;
-
   for (unsigned int i = 0; i <= scripts.size(); i++)
   {
     if (i == scripts.size() || scripts[i] != lastScript)
@@ -685,7 +679,6 @@ std::vector<CGUIFontTTF::Glyph> CGUIFontTTF::GetHarfBuzzShapedGlyphs(const vecTe
       run.endOffset = i;
       run.script = lastScript;
       runs.emplace_back(run);
-
       if (i < scripts.size())
       {
         lastScript = scripts[i];
@@ -703,26 +696,21 @@ std::vector<CGUIFontTTF::Glyph> CGUIFontTTF::GetHarfBuzzShapedGlyphs(const vecTe
     run.buffer = hb_buffer_create();
     hb_buffer_set_direction(run.buffer, static_cast<hb_direction_t>(HB_DIRECTION_LTR));
     hb_buffer_set_script(run.buffer, run.script);
-
     for (int j = run.startOffset; j < run.endOffset; j++)
     {
       hb_buffer_add(run.buffer, static_cast<wchar_t>(0xffff & text[j]), j);
     }
-
     hb_buffer_set_content_type(run.buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_shape(m_hbFont, run.buffer, nullptr, 0);
-    unsigned int glyphCount;
-    run.glyphInfos = hb_buffer_get_glyph_infos(run.buffer, &glyphCount);
-    run.glyphPositions = hb_buffer_get_glyph_positions(run.buffer, &glyphCount);
-
+    run.glyphInfos = hb_buffer_get_glyph_infos(run.buffer, nullptr);
+    unsigned int glyphCount = hb_buffer_get_length(run.buffer);
     for (size_t k = 0; k < glyphCount; k++)
     {
-      glyphs.emplace_back(run.glyphInfos[k], run.glyphPositions[k]);
+      glyphInfos.emplace_back(run.glyphInfos[k]);
     }
-
     hb_buffer_destroy(run.buffer);
   }
-  return glyphs;
+  return glyphInfos;
 }
 
 CGUIFontTTF::Character* CGUIFontTTF::GetCharacter(character_t chr, FT_UInt glyphIndex)

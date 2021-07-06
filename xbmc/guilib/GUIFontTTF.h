@@ -92,21 +92,6 @@ public:
 protected:
   explicit CGUIFontTTF(const std::string& strFileName);
 
-
-  struct Glyph
-  {
-    hb_glyph_info_t glyphInfo;
-    hb_glyph_position_t glyphPosition;
-
-    // converter for harfbuzz library
-    Glyph(hb_glyph_info_t gInfo, hb_glyph_position_t gPos)
-    {
-      glyphInfo = gInfo;
-      glyphPosition = gPos;
-    }
-    Glyph() {}
-  };
-
   struct Character
   {
     short offsetX, offsetY;
@@ -116,7 +101,6 @@ protected:
     character_t glyphAndStyle;
     wchar_t letter;
   };
-
   struct RunInfo
   {
     int startOffset;
@@ -124,16 +108,15 @@ protected:
     hb_buffer_t* buffer;
     hb_script_t script;
     hb_glyph_info_t* glyphInfos;
-    hb_glyph_position_t* glyphPositions;
   };
 
   void AddReference();
   void RemoveReference();
 
-  std::vector<Glyph> GetHarfBuzzShapedGlyphs(const vecText& text);
+  std::vector<hb_glyph_info_t> GetHarfbuzzShapedGlyphs(const vecText& text);
 
   float GetTextWidthInternal(const vecText& text);
-  float GetTextWidthInternal(const vecText& text, std::vector<Glyph>& glyph);
+  float GetTextWidthInternal(const vecText& text, std::vector<hb_glyph_info_t>& glyphInfos);
   float GetCharWidthInternal(character_t ch);
   float GetTextHeight(float lineSpacing, int numLines) const;
   float GetTextBaseLine() const { return (float)m_cellBaseLine; }
