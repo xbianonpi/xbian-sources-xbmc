@@ -131,7 +131,6 @@ set(required_deps ASS
                   FreeType
                   FriBidi
                   fstrcmp
-                  HarfBuzz
                   Iconv
                   LibDvd
                   Lzo2

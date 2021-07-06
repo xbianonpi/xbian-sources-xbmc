@@ -8,17 +8,13 @@
 
 #pragma once
 
-#include "utils/Color.h"
-#include "utils/Geometry.h"
-#include "utils/auto_buffer.h"
-
-#include <stdint.h>
 #include <string>
+#include <stdint.h>
 #include <vector>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include <harfbuzz/hb.h>
+#include "utils/auto_buffer.h"
+#include "utils/Color.h"
+#include "utils/Geometry.h"
 
 #ifdef HAS_DX
 #include <DirectXMath.h>
@@ -97,26 +93,12 @@ protected:
     short offsetX, offsetY;
     float left, top, right, bottom;
     float advance;
-    FT_UInt glyphIndex;
-    character_t glyphAndStyle;
-    wchar_t letter;
+    character_t letterAndStyle;
   };
-  struct RunInfo
-  {
-    int startOffset;
-    int endOffset;
-    hb_buffer_t* buffer;
-    hb_script_t script;
-    hb_glyph_info_t* glyphInfos;
-  };
-
   void AddReference();
   void RemoveReference();
 
-  std::vector<hb_glyph_info_t> GetHarfbuzzShapedGlyphs(const vecText& text);
-
-  float GetTextWidthInternal(const vecText& text);
-  float GetTextWidthInternal(const vecText& text, std::vector<hb_glyph_info_t>& glyphInfos);
+  float GetTextWidthInternal(vecText::const_iterator start, vecText::const_iterator end);
   float GetCharWidthInternal(character_t ch);
   float GetTextHeight(float lineSpacing, int numLines) const;
   float GetTextBaseLine() const { return (float)m_cellBaseLine; }
@@ -130,8 +112,8 @@ protected:
   std::string m_strFilename;
 
   // Stuff for pre-rendering for speed
-  Character* GetCharacter(character_t letter, FT_UInt glyphIndex);
-  bool CacheCharacter(wchar_t letter, uint32_t style, Character* ch, FT_UInt glyphIndex);
+  inline Character *GetCharacter(character_t letter);
+  bool CacheCharacter(wchar_t letter, uint32_t style, Character *ch);
   void RenderCharacter(float posX, float posY, const Character *ch, UTILS::Color color, bool roundX, std::vector<SVertex> &vertices);
   void ClearCharacterCache();
 
@@ -173,8 +155,6 @@ protected:
   // freetype stuff
   FT_Face    m_face;
   FT_Stroker m_stroker;
-
-  hb_font_t* m_hbFont = nullptr;
 
   float m_originX;
   float m_originY;
