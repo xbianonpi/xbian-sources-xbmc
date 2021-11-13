@@ -22,6 +22,9 @@
 #endif
 #if defined(HAVE_GBM)
 #include "windowing/gbm/WinSystemGbmGLESContext.h"
+#ifdef HAVE_MMAL
+#include "cores/AudioEngine/Sinks/AESinkPi.h"
+#endif
 #endif
 #endif
 
@@ -79,6 +82,7 @@ bool CPlatformLinux::Init()
   CLinuxPowerSyscall::Register();
 
   std::string envSink;
+
   if (getenv("KODI_AE_SINK"))
     envSink = getenv("KODI_AE_SINK");
 
@@ -108,6 +112,12 @@ bool CPlatformLinux::Init()
         OPTIONALS::SndioRegister();
       }
     }
+#if defined(HAVE_GBM) && defined(HAVE_MMAL)
+    if (StringUtils::EqualsNoCase(envSink, "PI"))
+    {
+      CAESinkPi::Register();
+    }
+#endif
   }
 
   m_lirc.reset(OPTIONALS::LircRegister());
