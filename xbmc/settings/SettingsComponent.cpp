@@ -224,6 +224,12 @@ bool InitDirectoriesOSX(UserDirectoriesLocation)
                                   appName);
     CSpecialProtocol::SetMasterProfilePath(userHome + "/" + CDarwinEmbedUtils::GetAppRootFolder() +
                                            "/" + appName + "/userdata");
+  if (!XFILE::CDirectory::Exists(userHome))
+  {
+    fprintf(stderr, "Notice: Folder %s does not exist\n", userHome.c_str());
+    setenv("KODI_FIRSTRUN", "1", 0);
+  }
+
 #else
     std::string appName = CCompileInfo::GetAppName();
     CSpecialProtocol::SetHomePath(userHome + "/Library/Application Support/" + appName);
