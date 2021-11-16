@@ -224,6 +224,12 @@ bool CSettingsComponent::InitDirectoriesLinux(bool bPlatformDirectories)
   setenv(envAppBinHome, appBinPath.c_str(), 0);
   setenv(envAppHome, appPath.c_str(), 0);
 
+  if (!XFILE::CDirectory::Exists(userHome))
+  {
+    fprintf(stderr, "Notice: Folder %s does not exist\n", userHome.c_str());
+    setenv("KODI_FIRSTRUN", "1", 0);
+  }
+
   if (bPlatformDirectories)
   {
     // map our special drives
