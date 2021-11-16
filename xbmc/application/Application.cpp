@@ -3153,6 +3153,11 @@ void CApplication::ConfigureAndEnableAddons()
 
       if (isConfigureAddonsAtStartupEnabled)
       {
+        if (getenv("KODI_FIRSTRUN"))
+        {
+          addonMgr.UpdateDisabledReason(addon->ID(), ADDON::AddonDisabledReason::USER);
+          continue;
+        }
         if (HELPERS::ShowYesNoDialogLines(CVariant{24039}, // Disabled add-ons
                                           CVariant{24059}, // Would you like to enable this add-on?
                                           CVariant{addon->Name()}) == DialogResponse::CHOICE_YES)
