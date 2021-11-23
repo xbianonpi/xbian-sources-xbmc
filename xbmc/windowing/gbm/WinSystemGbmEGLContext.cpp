@@ -9,6 +9,7 @@
 #include "WinSystemGbmEGLContext.h"
 
 #include "OptionalsReg.h"
+#include "VNCServer.h"
 #include "cores/VideoPlayer/DVDCodecs/DVDFactoryCodec.h"
 #include "cores/VideoPlayer/VideoRenderers/RenderFactory.h"
 #include "utils/log.h"
@@ -102,6 +103,8 @@ bool CWinSystemGbmEGLContext::CreateNewWindow(const std::string& name,
   m_nHeight = res.iHeight;
   m_fRefreshRate = res.fRefreshRate;
 
+  m_vnc = std::make_unique<CVNCServer>(res.iWidth, res.iHeight);
+
   CLog::Log(LOGDEBUG, "CWinSystemGbmEGLContext::{} - initialized GBM", __FUNCTION__);
   return true;
 }
@@ -111,6 +114,13 @@ bool CWinSystemGbmEGLContext::DestroyWindow()
   m_eglContext.DestroySurface();
 
   CLog::Log(LOGDEBUG, "CWinSystemGbmEGLContext::{} - deinitialized GBM", __FUNCTION__);
+
+  if (m_vnc)
+  {
+    m_vnc->m_vncstop = true;
+    KODI::TIME::Sleep(150);
+  }
+
   return true;
 }
 
