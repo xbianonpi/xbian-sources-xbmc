@@ -3798,3 +3798,16 @@ void CApplication::CloseNetworkShares()
   for (const auto& vfsAddon : CServiceBroker::GetVFSAddonCache().GetAddonInstances())
     vfsAddon->DisconnectAll();
 }
+
+bool CApplication::ScreenSaverDisablesAutoScrolling()
+{
+  const auto& components = CServiceBroker::GetAppComponents();
+  const auto appPlayer = components.GetComponent<CApplicationPlayer>();
+  const auto appPower = components.GetComponent<CApplicationPowerHandling>();
+  bool onBlackDimScreenSaver = appPower->IsInScreenSaver() &&
+    (appPower->ScreensaverIdInUse() == "screensaver.xbmc.builtin.dim" ||
+    appPower->ScreensaverIdInUse() == "screensaver.xbmc.builtin.black");
+  bool openingStreams = appPlayer && appPlayer->IsPlaying() && CServiceBroker::GetGUI()->GetWindowManager().IsWindowActive(WINDOW_DIALOG_BUSY);
+
+  return onBlackDimScreenSaver || openingStreams;
+}
