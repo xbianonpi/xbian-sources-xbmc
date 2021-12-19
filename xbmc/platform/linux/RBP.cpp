@@ -13,6 +13,7 @@
 #include "rpi/rpi_user_vcsm.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
+#include "settings/AdvancedSettings.h"
 #include "utils/TimeUtils.h"
 #include "utils/log.h"
 
@@ -85,6 +86,12 @@ CRBP::~CRBP()
   delete m_DllBcmHost;
 }
 
+void CRBP::InitializeSettings()
+{
+  if (m_initialized && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize == ~0U)
+    CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize = m_arm_mem < 256 ? 1024 * 1024 * 2 : 1024 * 1024 * 20;
+}
+
 bool CRBP::Initialize()
 {
   std::unique_lock<CCriticalSection> lock(m_critSection);
@@ -124,6 +131,8 @@ bool CRBP::Initialize()
   if (!m_gui_resolution_limit)
     m_gui_resolution_limit = m_gpu_mem < 128 ? 720:1080;
 
+  InitializeSettings();
+
   g_OMXImage.Initialize();
   m_omx_image_init = true;
   return true;
@@ -137,6 +146,7 @@ void CRBP::LogFirmwareVersion()
   CLog::Log(LOGINFO, "Raspberry PI firmware version: {}", response);
   CLog::Log(LOGINFO, "ARM mem: {}MB GPU mem: {}MB MPG2:{} WVC1:{}", m_arm_mem, m_gpu_mem,
             m_codec_mpg2_enabled, m_codec_wvc1_enabled);
+  CLog::Log(LOGINFO, "cache.memorysize: {}MB", CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize >> 20);
   m_DllBcmHost->vc_gencmd(response, sizeof response, "get_config int");
   response[sizeof(response) - 1] = '\0';
   CLog::Log(LOGINFO, "Config:\n{}", response);
