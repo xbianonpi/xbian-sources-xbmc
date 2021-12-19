@@ -9,6 +9,7 @@
 #include "GUIFont.h"
 
 #include "GUIFontTTF.h"
+#include "application/Application.h"
 #include "utils/CharsetConverter.h"
 #include "utils/MathUtils.h"
 #include "utils/TimeUtils.h"
@@ -141,6 +142,9 @@ bool CGUIFont::UpdateScrollInfo(const vecText& text, CScrollInfo& scrollInfo)
   //   If the string is smaller than the viewport, then it may be plotted even
   //   more times than that.
   //
+  if (g_application.ScreenSaverDisablesAutoScrolling())
+    return false;
+
   if (scrollInfo.m_waitTime)
   {
     scrollInfo.m_waitTime--;
