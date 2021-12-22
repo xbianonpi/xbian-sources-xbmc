@@ -92,6 +92,8 @@ void CRBP::InitializeSettings()
 {
   if (m_initialized && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize == ~0U)
     CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize = m_arm_mem < 256 ? 1024 * 1024 * 2 : 1024 * 1024 * 20;
+  if (m_initialized && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_libAssCache == ~0U)
+    CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_libAssCache = m_arm_mem < 256 ? 21 : m_arm_mem < 512 ? 42 : 96;
 }
 
 bool CRBP::Initialize()
@@ -149,6 +151,7 @@ void CRBP::LogFirmwareVersion()
   CLog::Log(LOGINFO, "ARM mem: {}MB GPU mem: {}MB MPG2:{} WVC1:{}", m_arm_mem, m_gpu_mem,
             m_codec_mpg2_enabled, m_codec_wvc1_enabled);
   CLog::Log(LOGINFO, "cache.memorysize: {}MB", CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize >> 20);
+  CLog::Log(LOGINFO, "cache.memorysize: {}MB libass.cache: {}MB", CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_cacheMemSize >> 20, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_libAssCache);
   m_DllBcmHost->vc_gencmd(response, sizeof response, "get_config int");
   response[sizeof(response) - 1] = '\0';
   CLog::Log(LOGINFO, "Config:\n{}", response);
