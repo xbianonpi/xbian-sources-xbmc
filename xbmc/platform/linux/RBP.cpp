@@ -9,7 +9,9 @@
 #include "RBP.h"
 
 #include "ServiceBroker.h"
+#ifdef TARGET_RASPBERRY_PI
 #include "cores/omxplayer/OMXImage.h"
+#endif
 #include "rpi/rpi_user_vcsm.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
@@ -83,7 +85,9 @@ CRBP::CRBP()
 CRBP::~CRBP()
 {
   Deinitialize();
+#ifdef TARGET_RASPBERRY_PI
   delete m_OMX;
+#endif
   delete m_DllBcmHost;
 }
 
@@ -126,8 +130,10 @@ bool CRBP::Initialize()
   if (!m_gui_resolution_limit)
     m_gui_resolution_limit = m_gpu_mem < 128 ? 720:1080;
 
+#ifdef TARGET_RASPBERRY_PI
   g_OMXImage.Initialize();
   m_omx_image_init = true;
+#endif
   return true;
 }
 
@@ -279,8 +285,10 @@ uint32_t CRBP::LastVsync()
 
 void CRBP::Deinitialize()
 {
+#ifdef TARGET_RASPBERRY_PI
   if (m_omx_image_init)
     g_OMXImage.Deinitialize();
+#endif
 
   if(m_omx_initialized)
     m_OMX->Deinitialize();
@@ -290,7 +298,9 @@ void CRBP::Deinitialize()
   if(m_initialized)
     m_DllBcmHost->Unload();
 
+#ifdef TARGET_RASPBERRY_PI
   m_omx_image_init  = false;
+#endif
   m_initialized     = false;
   m_omx_initialized = false;
   if (m_mb)
