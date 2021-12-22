@@ -38,7 +38,7 @@ if(ADDONS_CONFIGURE_AT_STARTUP)
   add_compile_definitions(ADDONS_CONFIGURE_AT_STARTUP)
 endif()
 
-if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+if(PLATFORM MATCHES "raspberry" OR ENABLE_MMAL)   
   list(APPEND SOURCES RBP.cpp
                       OMXClock.cpp
                       OMXCore.cpp
