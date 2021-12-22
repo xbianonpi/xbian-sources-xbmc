@@ -352,6 +352,8 @@ class CAdvancedSettings : public ISettingCallback, public ISettingsHandler
     unsigned int m_cacheChunkSize;
     float m_cacheReadFactor;
 
+    unsigned int m_libAssCache;
+
     bool m_jsonOutputCompact;
     unsigned int m_jsonTcpPort;
 

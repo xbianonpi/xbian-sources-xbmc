@@ -419,6 +419,7 @@ void CAdvancedSettings::Initialize()
 #else
   m_cacheMemSize = 1024 * 1024 * 20; // 20 MiB
 #endif
+  m_libAssCache = 0;
   m_cacheBufferMode = CACHE_BUFFER_MODE_NETWORK; // Default (buffer all network filesystems)
   m_cacheChunkSize = 128 * 1024; // 128 KiB
 
@@ -1109,6 +1110,10 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
 
   XMLUtils::GetUInt(pRootElement, "fanartres", m_fanartRes, 0, 9999);
   XMLUtils::GetUInt(pRootElement, "imageres", m_imageRes, 0, 9999);
+
+  XMLUtils::GetUInt(pRootElement, "libasscache", m_libAssCache, 0, 1024);
+
+
   if (XMLUtils::GetString(pRootElement, "imagescalingalgorithm", tmp))
     m_imageScalingAlgorithm = CPictureScalingAlgorithm::FromString(tmp);
   XMLUtils::GetUInt(pRootElement, "imagequalityjpeg", m_imageQualityJpeg, 0, 21);
