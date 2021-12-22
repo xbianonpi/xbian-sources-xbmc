@@ -1,4 +1,16 @@
 list(APPEND PLATFORM_REQUIRED_DEPS GBM LibDRM LibInput Xkbcommon UDEV)
+
+option(ENABLE_MMAL "Enable MMAL support?" ON)
+if(PLATFORM MATCHES "raspberry" OR ENABLE_MMAL)
+  list(APPEND PLATFORM_REQUIRED_DEPS MMAL)
+  message(STATUS "### Building with MMAL ###")
+endif()
+
+if(USE_PLATFORM STREQUAL "raspberry-pi4")
+  list(APPEND ARCH_DEFINES -DTARGET_RASPBERRY_PI4)
+  message(STATUS "### Building for Raspberry Pi4 ###")
+endif()
+
 list(APPEND PLATFORM_OPTIONAL_DEPS VAAPI)
 
 if(APP_RENDER_SYSTEM STREQUAL "gl")
