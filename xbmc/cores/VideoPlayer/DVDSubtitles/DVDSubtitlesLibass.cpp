@@ -14,6 +14,7 @@
 #include "filesystem/Directory.h"
 #include "filesystem/File.h"
 #include "filesystem/SpecialProtocol.h"
+#include "xbmc/settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
 #include "settings/SubtitlesSettings.h"
@@ -67,6 +68,8 @@ CDVDSubtitlesLibass::CDVDSubtitlesLibass()
 
   if (!m_renderer)
     throw std::runtime_error("Libass render failed to initialize");
+
+  ass_set_cache_limits(m_renderer, 0, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_libAssCache);
 }
 
 CDVDSubtitlesLibass::~CDVDSubtitlesLibass()
