@@ -12,7 +12,7 @@
 #   JsonSchemaBuilder::JsonSchemaBuilder   - The JsonSchemaBuilder executable
 
 if(NOT TARGET JsonSchemaBuilder::JsonSchemaBuilder)
-  if(KODI_DEPENDSBUILD)
+  if(CMAKE_CROSSCOMPILING)
     get_filename_component(_jsbpath "${NATIVEPREFIX}/bin" ABSOLUTE)
     find_program(JSONSCHEMABUILDER_EXECUTABLE NAMES "${APP_NAME_LC}-JsonSchemaBuilder" JsonSchemaBuilder
                                    HINTS ${_jsbpath})
