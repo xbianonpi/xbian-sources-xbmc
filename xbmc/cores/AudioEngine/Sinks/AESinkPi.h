@@ -13,6 +13,7 @@
 #include "utils/XTimeUtils.h"
 
 #include "platform/linux/OMXCore.h"
+#include "cores/omxplayer/OMXAudio.h"
 
 class CAESinkPi : public IAESink
 {

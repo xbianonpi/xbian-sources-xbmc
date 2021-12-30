@@ -137,6 +137,8 @@ void CAdvancedSettings::Initialize()
 
   m_seekSteps = { 10, 30, 60, 180, 300, 600, 1800 };
 
+  m_omxDecodeStartWithValidFrame = true;
+
   m_audioDefaultPlayer = "paplayer";
   m_audioPlayCountMinimumPercent = 90.0f;
 
@@ -594,6 +596,12 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
     XMLUtils::GetFloat(pElement, "limiterrelease", m_limiterRelease, 0.001f, 100.0f);
     XMLUtils::GetUInt(pElement, "maxpassthroughoffsyncduration", m_maxPassthroughOffSyncDuration,
                       10, 100);
+  }
+
+  pElement = pRootElement->FirstChildElement("omx");
+  if (pElement)
+  {
+    XMLUtils::GetBoolean(pElement, "omxdecodestartwithvalidframe", m_omxDecodeStartWithValidFrame);
   }
 
   pElement = pRootElement->FirstChildElement("x11");
