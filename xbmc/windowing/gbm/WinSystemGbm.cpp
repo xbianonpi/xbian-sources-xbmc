@@ -62,10 +62,8 @@ using namespace KODI::WINDOWING::GBM;
 
 using namespace std::chrono_literals;
 
-CWinSystemGbm::CWinSystemGbm() :
-  m_DRM(nullptr),
-  m_GBM(new CGBMUtils),
-  m_libinput(new CLibInputHandler)
+CWinSystemGbm::CWinSystemGbm()
+  : m_DRM(nullptr), m_GBM(new CGBMUtils), m_libinput(new CLibInputHandler), m_vnc(nullptr)
 {
   m_dpms = std::make_shared<CGBMDPMSSupport>();
   m_libinput->Start();
@@ -253,11 +251,13 @@ void CWinSystemGbm::FlipPage(bool rendered, bool videoLayer)
     m_videoLayerBridge->Disable();
   }
 
+  CGBMUtils::CGBMDevice::CGBMSurface::CGBMSurfaceBuffer* buffer{nullptr};
   struct gbm_bo *bo = nullptr;
 
   if (rendered)
   {
-    bo = m_GBM->GetDevice()->GetSurface()->LockFrontBuffer()->Get();
+    buffer = m_GBM->GetDevice()->GetSurface()->LockFrontBuffer();
+    bo = buffer->Get();
   }
 
   m_DRM->FlipPage(bo, rendered, videoLayer);
@@ -267,6 +267,9 @@ void CWinSystemGbm::FlipPage(bool rendered, bool videoLayer)
     // delete video layer bridge when video layer no longer is active
     m_videoLayerBridge.reset();
   }
+
+  if (rendered && buffer)
+    m_vnc->UpdateFrameBuffer(reinterpret_cast<char*>(buffer->GetMemory()));
 }
 
 bool CWinSystemGbm::UseLimitedColor()
