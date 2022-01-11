@@ -114,15 +114,15 @@ PYTHON_SITE_PKG=@prefix@/@deps_dir@/lib/python${PYTHON_VERSION}/site-packages
 ifeq ($(CPU), arm64)
   export GASPP_FIX_XCODE5=1
 endif
-export AUTOM4TE=@prefix@/@tool_dir@/bin/autom4te
-export AUTOMAKE=@prefix@/@tool_dir@/bin/automake
-export AUTOCONF=@prefix@/@tool_dir@/bin/autoconf
-export ACLOCAL=@prefix@/@tool_dir@/bin/aclocal
-export ACLOCAL_PATH=@prefix@/@deps_dir@/share/aclocal:@prefix@/@tool_dir@/share/aclocal
-export AUTOPOINT=@prefix@/@tool_dir@/bin/autopoint
-export AUTOHEADER=@prefix@/@tool_dir@/bin/autoheader
-export LIBTOOL=@prefix@/@tool_dir@/bin/libtool
-export LIBTOOLIZE=@prefix@/@tool_dir@/bin/libtoolize
+export AUTOM4TE=autom4te
+export AUTOMAKE=automake
+export AUTOCONF=autoconf
+export ACLOCAL=aclocal
+export ACLOCAL_PATH=/usr/share/aclocal
+export AUTOPOINT=autopoint
+export AUTOHEADER=autoheader
+export LIBTOOL=libtool
+export LIBTOOLIZE=libtoolize
 
-export AUTORECONF=@prefix@/@tool_dir@/bin/autoreconf
+export AUTORECONF=autoreconf
 export JSON_BUILDER=$(NATIVEPREFIX)/bin/JsonSchemaBuilder
