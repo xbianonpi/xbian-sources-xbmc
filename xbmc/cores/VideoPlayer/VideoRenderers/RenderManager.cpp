@@ -1136,9 +1136,6 @@ void CRenderManager::PrepareNextRender()
     return;
   }
 
-  if (!m_showVideo && !m_forceNext)
-    return;
-
   double frameOnScreen = m_dvdClock.GetClock();
   double frametime = 1.0 /
                      static_cast<double>(CServiceBroker::GetWinSystem()->GetGfxContext().GetFPS()) *
