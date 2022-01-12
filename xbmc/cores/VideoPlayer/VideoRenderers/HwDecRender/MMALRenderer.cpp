@@ -53,10 +53,12 @@ CMMALBuffer::~CMMALBuffer()
   {
     CLog::Log(LOGDEBUG, "{}::{} {:p}", CLASSNAME, __func__, static_cast<void*>(this));
     }
+  assert(!m_firmware_owned);
 }
 
 void CMMALBuffer::Unref()
 {
+  assert(!m_firmware_owned);
   if (mmal_buffer)
   {
     mmal_buffer_header_release(mmal_buffer);
@@ -357,6 +359,7 @@ CMMALBuffer *CMMALPool::GetBuffer(uint32_t timeout)
     if (omvb)
     {
       omvb->Acquire(GetPtr());
+      assert(!omvb->m_firmware_owned);
       omvb->m_rendered = false;
       omvb->m_state = m_state;
       buffer->user_data = omvb;
@@ -404,6 +407,8 @@ void CMMALPool::Prime()
           static_cast<void*>(m_mmal_pool), port->name, omvb->mmal_buffer->length,
           omvb->mmal_buffer->cmd, omvb->mmal_buffer->flags, static_cast<void*>(omvb->Pool().get()));
     }
+    assert(omvb && !omvb->m_firmware_owned);
+    omvb->m_firmware_owned = true;
     MMAL_STATUS_T status = mmal_port_send_buffer(port, omvb->mmal_buffer);
     if (status != MMAL_SUCCESS)
     {
@@ -454,6 +459,9 @@ void CMMALRenderer::vout_input_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *
               static_cast<void*>(buffer), buffer->dts * 1e-6, buffer->pts * 1e-6, buffer->length,
               buffer->cmd, buffer->flags);
   }
+  CMMALBuffer *omvb = (CMMALBuffer *)buffer->user_data;
+  assert(omvb && omvb->m_firmware_owned);
+  omvb->m_firmware_owned = false;
   buffer->length = 0;
   mmal_queue_put(m_queue_process, buffer);
 }
@@ -685,6 +693,8 @@ void CMMALRenderer::Process()
         CMMALBuffer *omvb = (CMMALBuffer *)buffer->user_data;
         assert(buffer == omvb->mmal_buffer);
         CheckConfigurationVout(omvb->Width(), omvb->Height(), omvb->AlignedWidth(), omvb->AlignedHeight(), omvb->Encoding());
+        assert(omvb && !omvb->m_firmware_owned);
+        omvb->m_firmware_owned = true;
         MMAL_STATUS_T status = mmal_port_send_buffer(m_vout_input, buffer);
         if (status != MMAL_SUCCESS)
         {
@@ -797,6 +807,8 @@ void CMMALRenderer::Run()
 
         if (m_deint_input)
         {
+          assert(omvb && !omvb->m_firmware_owned);
+          omvb->m_firmware_owned = true;
           MMAL_STATUS_T status = mmal_port_send_buffer(m_deint_input, omvb->mmal_buffer);
           if (status != MMAL_SUCCESS)
           {
@@ -818,6 +830,8 @@ void CMMALRenderer::Run()
           CheckConfigurationVout(omvb->Width(), omvb->Height(), omvb->AlignedWidth(), omvb->AlignedHeight(), omvb->Encoding());
           if (m_vout_input)
           {
+            assert(omvb && !omvb->m_firmware_owned);
+            omvb->m_firmware_owned = true;
             MMAL_STATUS_T status = mmal_port_send_buffer(m_vout_input, omvb->mmal_buffer);
             if (status != MMAL_SUCCESS)
             {
@@ -851,6 +865,8 @@ void CMMALRenderer::Run()
           CheckConfigurationVout(omvb->Width(), omvb->Height(), omvb->AlignedWidth(), omvb->AlignedHeight(), omvb->Encoding());
           if (m_vout_input)
           {
+            assert(omvb && !omvb->m_firmware_owned);
+            omvb->m_firmware_owned = true;
             if (VERBOSE && CServiceBroker::GetLogging().CanLogComponent(LOGVIDEO))
             {
               CLog::Log(LOGDEBUG, "{}::{} send {:p} to m_vout_input", CLASSNAME, __func__, static_cast<void*>(omvb));
@@ -1068,6 +1084,7 @@ void CMMALRenderer::RenderUpdate(int index, int index2, bool clear, unsigned int
     omvb->Acquire();
     omvb->m_rendered = true;
     assert(omvb->mmal_buffer->user_data == omvb);
+    assert(!omvb->m_firmware_owned);
     mmal_queue_put(m_queue_process, omvb->mmal_buffer);
   }
   else
@@ -1338,6 +1355,9 @@ void CMMALRenderer::deint_input_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T 
               static_cast<void*>(buffer), buffer->dts * 1e-6, buffer->pts * 1e-6, buffer->length,
               buffer->cmd, buffer->flags);
   }
+  CMMALBuffer *omvb = (CMMALBuffer *)buffer->user_data;
+  assert(omvb && omvb->m_firmware_owned);
+  omvb->m_firmware_owned = false;
   mmal_queue_put(m_queue_process, buffer);
 }
 
@@ -1356,6 +1376,9 @@ void CMMALRenderer::deint_output_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T
               static_cast<void*>(buffer), buffer->dts * 1e-6, buffer->pts * 1e-6, buffer->length,
               buffer->cmd, buffer->flags);
   }
+  CMMALBuffer *omvb = (CMMALBuffer *)buffer->user_data;
+  assert(omvb && omvb->m_firmware_owned);
+  omvb->m_firmware_owned = false;
   mmal_queue_put(m_queue_process, buffer);
 }
 
