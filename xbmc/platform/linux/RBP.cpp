@@ -161,6 +161,7 @@ static void vsync_callback_static(DISPMANX_UPDATE_HANDLE_T u, void *arg)
 
 DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
 {
+  DISPMANX_DISPLAY_HANDLE_T last_display = m_display;
   std::unique_lock<CCriticalSection> lock(m_critSection);
   if (m_display == DISPMANX_NO_HANDLE)
   {
@@ -171,12 +172,14 @@ DISPMANX_DISPLAY_HANDLE_T CRBP::OpenDisplay(uint32_t device)
     assert(s == 0);
 #pragma GCC diagnostic pop
   }
+  CLog::Log(LOGDEBUG, "CRBP::{} device:{} m_display:{:x} ({:x})", __FUNCTION__, device, m_display, last_display);
   return m_display;
 }
 
 void CRBP::CloseDisplay(DISPMANX_DISPLAY_HANDLE_T display)
 {
   std::unique_lock<CCriticalSection> lock(m_critSection);
+  CLog::Log(LOGDEBUG, "CRBP::{} display:{:x} m_display:{:x}", __FUNCTION__, display, m_display);
   assert(display == m_display);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -251,7 +254,6 @@ void CRBP::VSyncCallback()
 uint32_t CRBP::WaitVsync(uint32_t target)
 {
   std::unique_lock<CCriticalSection> vlock(m_vsync_lock);
-  DISPMANX_DISPLAY_HANDLE_T display = m_display;
   XbmcThreads::EndTime<> delay(50ms);
   if (target == ~0U)
     target = m_vsync_count+1;
