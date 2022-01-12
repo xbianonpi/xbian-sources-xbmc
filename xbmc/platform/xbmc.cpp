@@ -9,7 +9,7 @@
 #include "application/Application.h"
 #include "platform/MessagePrinter.h"
 
-#ifdef TARGET_RASPBERRY_PI
+#ifdef HAVE_MMAL
 #include "platform/linux/RBP.h"
 #endif
 
@@ -33,7 +33,7 @@ extern "C" int XBMC_Run(bool renderGUI)
     return status;
   }
 
-#ifdef TARGET_RASPBERRY_PI
+#ifdef HAVE_MMAL
   if(!g_RBP.Initialize())
     return false;
   g_RBP.LogFirmwareVersion();
