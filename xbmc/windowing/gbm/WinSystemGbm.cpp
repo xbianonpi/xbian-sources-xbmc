@@ -25,6 +25,7 @@
 #include "utils/DisplayInfo.h"
 #include "utils/Map.h"
 #include "utils/StringUtils.h"
+#include "utils/XTimeUtils.h"
 #include "utils/log.h"
 #include "windowing/GraphicContext.h"
 
@@ -108,6 +109,16 @@ bool CWinSystemGbm::InitWindowSystem()
   }
 
   m_DRM = std::make_shared<CDRMAtomic>();
+
+  #define EVENT_FILE "/run/lock/splash"
+  int fd = open(EVENT_FILE, O_RDONLY);
+  if (fd >= 0)
+  {
+    close(fd);
+    for(int i = 0; access(EVENT_FILE, F_OK) == 0 && i < 2000; i++)
+      KODI::TIME::Sleep(1ms);
+    CLog::Log(LOGDEBUG, "CWinSystemGbm::{} - splash stopped", __FUNCTION__);
+  }
 
   if (!m_DRM->InitDrm())
   {
