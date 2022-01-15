@@ -529,6 +529,47 @@ case $use_platform in
      platform_cxxflags="-fPIC -mcpu=cortex-a53 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mvectorize-with-neon-quad"
      platform_ldflags="-lpthread"
      ;;
+  raspberry-pi4)
+    if test -d "${use_firmware}/opt/vc/include"; then
+      :
+    else
+      AC_MSG_ERROR([Raspberry Pi firmware not found])
+    fi
+    target_platform=gbm
+    use_cpu=cortex-a72
+    ffmpeg_options_default="--cpu=${use_cpu}"
+    platform_cflags="-isystem /usr/include -isystem /opt/vc/include -fPIC -mcpu=${use_cpu} -mfpu=neon-fp-armv8 -mfloat-abi=hard -fstack-protector-strong -fno-plt\
+     -pipe -mabi=aapcs-linux -Wno-psabi -Wa,-mno-warn-deprecated -Wno-deprecated-declarations"
+    platform_cxxflags="$platform_cflags"
+    platform_ldflags="-L${use_firmware}/opt/vc/lib -lvcsm"
+    use_arch="arm"
+    #use_hardcoded_tables="yes"
+    ARCH="${use_arch}"
+    #cross_compiling="yes"
+    use_host="arm-linux-gnueabihf"
+    deps_dir="$use_platform-$build_type"
+    ;;
+  raspberry-pi5)
+    #if test -d "${use_firmware}/opt/vc/include"; then
+    #  :
+    #else
+    #  AC_MSG_ERROR([Raspberry Pi firmware not found])
+    #fi
+    target_platform=gbm
+    use_cpu=aarch64
+    #ffmpeg_options_default="--cpu=${use_cpu}"
+    #platform_cflags="-isystem /usr/include -isystem /opt/vc/include -fPIC -mtune=cortex-a72 -fstack-protector-strong -fno-plt\
+    # -pipe -Wno-deprecated-declarations"
+    platform_cflags="-isystem /usr/include -fPIC -mtune=cortex-a72 -pipe -Wno-deprecated-declarations"
+    platform_cxxflags="$platform_cflags"
+    #platform_ldflags="-L${use_firmware}/opt/vc/lib -lvcsm"
+    use_arch="aarch64"
+    #use_hardcoded_tables="yes"
+    #ARCH="${use_arch}"
+    #cross_compiling="yes"
+    use_host="aarch64-linux-gnu"
+    deps_dir="$use_platform-$build_type"
+    ;;
   ios|tvos|macos)
     ;;
   webos)
@@ -744,6 +785,7 @@ AC_SUBST(deps_dir)
 AC_SUBST(tool_dir)
 AC_SUBST(use_buildcpu)
 AC_SUBST(use_cpu)
+AC_SUBST(use_platform)
 AC_SUBST(use_toolchain)
 AC_SUBST(use_build_toolchain)
 AC_SUBST(use_tarballs)
