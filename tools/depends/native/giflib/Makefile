@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS = ../../Makefile.include Makefile 01-static-lib.patch ../../download-files.include
+DEPS = ../../Makefile.include Makefile 01-static-lib.patch ../../download-files.include 01-reallocarray.patch
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
 
@@ -23,6 +23,7 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	-rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../01-static-lib.patch
+	cd $(PLATFORM); patch -p1 -i ../01-reallocarray.patch
 
 $(LIBDYLIB): $(PLATFORM)
 	$(MAKE) -C $(PLATFORM) libgif.a CFLAGS="$(NATIVE_CFLAGS)" LDFLAGS="$(NATIVE_LDFLAGS)"
