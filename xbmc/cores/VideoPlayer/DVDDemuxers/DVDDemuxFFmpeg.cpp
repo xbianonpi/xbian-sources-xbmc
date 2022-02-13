@@ -1701,7 +1701,9 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
           st->bPTSInvalid = true;
 
         AVRational r_frame_rate = pStream->r_frame_rate;
-
+        AVCodecContext *c = (AVCodecContext *)(((uint32_t *)pStream->internal)[3]); /* Eek! */
+        st->workaround_bugs = c->workaround_bugs;
+        
         //average fps is more accurate for mkv files
         if (m_bMatroska && pStream->avg_frame_rate.den && pStream->avg_frame_rate.num)
         {
