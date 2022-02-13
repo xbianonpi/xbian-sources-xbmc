@@ -22,6 +22,8 @@ ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../001-darwinembed_DiskArbitration-revert.patch
 endif
 ifeq ($(TARGET_PLATFORM),appletvos)
+	cd $(PLATFORM); patch -p1 < ../libbluray-01-bump_to_Nevcairiel_vL20170904.patch
+	cd $(PLATFORM); patch -p1 < ../libbluray-02-install-extra-MVC-headers.patch
 	cd $(PLATFORM); patch -p1 -i ../tvos.patch
 endif
 	cd $(PLATFORM); ./bootstrap
