@@ -26,7 +26,7 @@ if(CROSSCOMPILING)
   message(STATUS "CROSS: ${ffmpeg_conf}")
 endif()
 
-set(CONFIGARCH --arch=${CPU})
+set(CONFIGARCH --cpu=${CPU} --arch=${CMAKE_SYSTEM_ARCH})
 
 list(APPEND ffmpeg_conf --disable-doc
                         --disable-devices
