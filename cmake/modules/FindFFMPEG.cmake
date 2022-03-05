@@ -45,6 +45,28 @@ macro(buildFFMPEG)
     set(FFMPEG_URL_PROVIDED TRUE)
   endif()
 
+  if(CORE_PLATFORM_NAME STREQUAL rbpi OR USE_PLATFORM MATCHES "raspberry")
+    set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch)
+    set (FFMPEG_PATCH_2 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-ffmpeg-Call-get_format-to-fix-an-issue-with-MMAL-ren.patch)
+    set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches.patch)
+    if(CORE_PLATFORM_NAME STREQUAL rbpi)
+      execute_process(COMMAND sed -i "s/VERSION=.*/VERSION=4.3.2-Matrix-19.2/g" FFMPEG-VERSION
+                    COMMAND sed -i "s/SHA512=.*/SHA512=09f937e5a5615c4576e16299775d3b3019e1ef463e9f56a05e629d4ee1963d73863c153138d36b14d5757b87c99f8a7f376b633044ef3940e9bfbcc1b129f325/g" FFMPEG-VERSION
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/depends/target/${MODULE_LC})
+      set (FFMPEG_PATCH_0 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/pfcd_hevc_optimisations.patch)
+      set (FFMPEG_HEVC_MSG pfcd_hevc_optimisations.patch)
+    else()
+      set (FFMPEG_PATCH_0 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-rpi-Add-hevc-acceleration.patch)
+      set (FFMPEG_HEVC_MSG ffmpeg/0001-rpi-Add-hevc-acceleration.patch)
+    endif()
+  else()
+    set (FFMPEG_PATCH_0 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches.patch)
+    set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-libreelec.patch)
+    set (FFMPEG_PATCH_2 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-v4l2-drmprime.patch)
+    set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-v4l2-request.patch)
+    set (FFMPEG_HEVC_MSG None)
+  endif()
+
   SETUP_BUILD_VARS()
 
   if(NOT FFMPEG_URL_PROVIDED)
@@ -61,6 +83,7 @@ macro(buildFFMPEG)
                      -DENABLE_VAAPI=${ENABLE_VAAPI}
                      -DENABLE_VDPAU=${ENABLE_VDPAU}
                      -DENABLE_DAV1D=${DAV1D_FOUND}
+                     -DENABLE_MMAL=${ENABLE_MMAL}
                      -DEXTRA_FLAGS=${FFMPEG_EXTRA_FLAGS})
 
   #if(KODI_DEPENDSBUILD)
@@ -94,9 +117,15 @@ macro(buildFFMPEG)
                  ${CROSS_ARGS}
                  ${FFMPEG_OPTIONS}
                  -DPKG_CONFIG_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/pkgconfig)
+
   set(PATCH_COMMAND ${CMAKE_COMMAND} -E copy
                     ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/CMakeLists.txt
-                    <SOURCE_DIR>)
+                    <SOURCE_DIR> &&
+                    patch -p1 -F3 < ${FFMPEG_PATCH_1} &&
+                    patch -p1 -F3 < ${FFMPEG_PATCH_2} &&
+                    patch -p1 -F3 < ${FFMPEG_PATCH_3} &&
+                    patch -p1 < ${FFMPEG_PATCH_0} &&
+                    echo "###################### ffmpeg HEVC patch applied: ${FFMPEG_HEVC_MSG} ######################")
 
   if(CMAKE_GENERATOR STREQUAL Xcode)
     set(FFMPEG_GENERATOR CMAKE_GENERATOR "Unix Makefiles")
