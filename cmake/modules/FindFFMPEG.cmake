@@ -48,13 +48,13 @@ macro(buildFFMPEG)
                              -DENABLE_VDPAU=${ENABLE_VDPAU}
                              -DEXTRA_FLAGS=${FFMPEG_EXTRA_FLAGS})
 
-  if(KODI_DEPENDSBUILD)
+  #if(KODI_DEPENDSBUILD)
     set(CROSS_ARGS -DDEPENDS_PATH=${DEPENDS_PATH}
                    -DPKG_CONFIG_EXECUTABLE=${PKG_CONFIG_EXECUTABLE}
                    -DCROSSCOMPILING=${CMAKE_CROSSCOMPILING}
                    -DOS=${OS}
                    -DCMAKE_AR=${CMAKE_AR})
-  endif()
+  #endif()
   set(LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
   list(APPEND LINKER_FLAGS ${SYSTEM_LDFLAGS})
 
