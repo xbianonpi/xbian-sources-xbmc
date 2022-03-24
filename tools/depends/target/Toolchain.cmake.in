@@ -8,6 +8,22 @@ set(CMAKE_SYSTEM_PROCESSOR @host_cpu@)
 set(CPU "@use_cpu@")
 set(PLATFORM "@target_platform@")
 
+set(USE_PLATFORM "@use_platform@")
+set(CMAKE_SYSTEM_PROCESSOR "@use_cpu@")
+if(CPU STREQUAL "cortex-a7" OR CPU STREQUAL "cortex-a9")
+  set(CMAKE_SYSTEM_ARCH "armv7-a")
+elseif(CPU STREQUAL "cortex-a53")
+  set(CMAKE_SYSTEM_ARCH "armv8")
+elseif(CPU STREQUAL "cortex-a72")
+  set(CMAKE_SYSTEM_ARCH "armv8-a+crc+simd")
+elseif(CPU STREQUAL "aarch64")
+  set(CMAKE_SYSTEM_ARCH "aarch64")
+else()
+  set(CMAKE_SYSTEM_ARCH ${CPU})
+endif()
+
+set(CORE_COMPILE_OPTIONS -Werror=missing-field-initializers -Werror=sign-compare)
+
 # set CORE_SYSTEM_NAME and CMAKE_SYSTEM_NAME (sets CMAKE_CROSSCOMPILING)
 if(OS STREQUAL linux)
   set(CMAKE_SYSTEM_NAME Linux)
@@ -131,12 +147,6 @@ set(ENV{CFLAGS} ${CMAKE_C_FLAGS})
 set(ENV{CXXFLAGS} ${CMAKE_CXX_FLAGS})
 set(ENV{CPPFLAGS} ${CMAKE_CPP_FLAGS})
 set(ENV{LDFLAGS} ${CMAKE_EXE_LINKER_FLAGS})
-# search for programs in the build host directories
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-# for libraries and headers in the target directories
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_FRAMEWORK LAST)
 set(ENV{PKG_CONFIG_LIBDIR} @prefix@/@deps_dir@/lib/pkgconfig:@prefix@/@deps_dir@/share/pkgconfig)
 
 # Binary Addons
@@ -163,7 +173,7 @@ set(CFLAGS_FOR_BUILD "@host_includes@ -I@prefix@/@tool_dir@/include")
 set(LDFLAGS_FOR_BUILD "@host_includes@ -L@prefix@/@tool_dir@/lib")
 
 # other build tools
-find_program(NASM nasm HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+###find_program(NASM nasm HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 
 # common autoconf build tools
 find_program(AUTOCONF autoconf HINTS "${NATIVEPREFIX}/bin" REQUIRED)
@@ -173,14 +183,14 @@ find_program(AUTOMAKE automake HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 find_program(AUTOM4TE autom4te HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 find_program(AUTOPOINT autopoint HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 find_program(AUTORECONF autoreconf HINTS "${NATIVEPREFIX}/bin" REQUIRED)
-find_program(LIBTOOL libtool HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+###find_program(LIBTOOL libtool HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 find_program(LIBTOOLIZE libtoolize HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 
 set(ENV{ACLOCAL_PATH} "${DEPENDS_PATH}/share/aclocal:${NATIVEPREFIX}/share/aclocal")
 set(ENVPATH "${NATIVEPREFIX}/bin:$ENV{PATH}")
 
 # Dependency build tool config files
-find_file(MESON-CROSS "cross-file.meson" PATHS "${DEPENDS_PATH}/share" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+###find_file(MESON-CROSS "cross-file.meson" PATHS "${DEPENDS_PATH}/share" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
 # autoconf config.site
 find_file(CONFIG_SITE "config.site" PATHS "${DEPENDS_PATH}/share" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
 
@@ -230,6 +240,4 @@ set(PROJECT_BUILDENV CC_FOR_BUILD=${CC_FOR_BUILD}
 
 # variable to easily set host/target env for non cmake internal dep builds
 set(DEP_BUILDENV ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV} ${PROJECT_BUILDENV})
-
-set(KODI_DEPENDSBUILD 1)
 
