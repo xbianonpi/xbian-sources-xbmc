@@ -641,7 +641,11 @@ std::string CSysInfo::GetKernelVersionFull(void)
 #elif defined(TARGET_POSIX)
   struct utsname un;
   if (uname(&un) == 0)
+  {
     kernelVersionFull.assign(un.release);
+    if (strcmp(un.machine, "aarch64") == 0)
+      kernelVersionFull += " aarch64";
+  }
 #endif // defined(TARGET_POSIX)
 
   if (kernelVersionFull.empty())
