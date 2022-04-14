@@ -11,19 +11,15 @@
 #include "GUITexture.h"
 #include "utils/Color.h"
 
-#include <array>
-
 #include "system_gl.h"
 
 class CRenderSystemGL;
 
-class CGUITextureGL : public CGUITexture
+class CGUITextureGL : public CGUITextureBase
 {
 public:
   CGUITextureGL(float posX, float posY, float width, float height, const CTextureInfo& texture);
-  ~CGUITextureGL() override = default;
-
-  CGUITextureGL* Clone() const override;
+  static void DrawQuad(const CRect &coords, UTILS::Color color, CBaseTexture *texture = NULL, const CRect *texCoords = NULL);
 
 protected:
   void Begin(UTILS::Color color) override;
@@ -31,9 +27,7 @@ protected:
   void End() override;
 
 private:
-  CGUITextureGL(const CGUITextureGL& texture) = default;
-
-  std::array<GLubyte, 4> m_col;
+  GLubyte m_col[4];
 
   struct PackedVertex
   {

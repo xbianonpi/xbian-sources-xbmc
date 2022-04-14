@@ -24,7 +24,7 @@
 typedef uint32_t character_t;
 typedef std::vector<character_t> vecText;
 
-class CGUIFontTTF;
+class CGUIFontTTFBase;
 
 ///
 /// \defgroup kodi_gui_font_alignment Font alignment flags
@@ -104,13 +104,8 @@ private:
 class CGUIFont
 {
 public:
-  CGUIFont(const std::string& strFontName,
-           uint32_t style,
-           UTILS::Color textColor,
-           UTILS::Color shadowColor,
-           float lineSpacing,
-           float origHeight,
-           CGUIFontTTF* font);
+  CGUIFont(const std::string& strFontName, uint32_t style, UTILS::Color textColor,
+	   UTILS::Color shadowColor, float lineSpacing, float origHeight, CGUIFontTTFBase *font);
   virtual ~CGUIFont();
 
   std::string& GetFontName();
@@ -147,9 +142,12 @@ public:
 
   static wchar_t RemapGlyph(wchar_t letter);
 
-  CGUIFontTTF* GetFont() const { return m_font; }
+  CGUIFontTTFBase* GetFont() const
+  {
+    return m_font;
+  }
 
-  void SetFont(CGUIFontTTF* font);
+  void SetFont(CGUIFontTTFBase* font);
 
 protected:
   std::string m_strFontName;
@@ -158,7 +156,7 @@ protected:
   UTILS::Color m_textColor;
   float m_lineSpacing;
   float m_origHeight;
-  CGUIFontTTF* m_font; // the font object has the size information
+  CGUIFontTTFBase *m_font; // the font object has the size information
 
 private:
   bool ClippedRegionIsEmpty(float x, float y, float width, uint32_t alignment) const;

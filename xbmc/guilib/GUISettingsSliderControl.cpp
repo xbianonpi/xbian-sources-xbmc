@@ -20,13 +20,7 @@ CGUISettingsSliderControl::CGUISettingsSliderControl(int parentID, int controlID
   m_active = false;
 }
 
-CGUISettingsSliderControl::CGUISettingsSliderControl(const CGUISettingsSliderControl& control)
-  : CGUISliderControl(control),
-    m_buttonControl(control.m_buttonControl),
-    m_label(control.m_label),
-    m_active(control.m_active)
-{
-}
+CGUISettingsSliderControl::~CGUISettingsSliderControl(void) = default;
 
 void CGUISettingsSliderControl::Process(unsigned int currentTime, CDirtyRegionList &dirtyregions)
 {

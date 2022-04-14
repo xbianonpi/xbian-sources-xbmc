@@ -32,9 +32,7 @@ public:
                     const CTextureInfo& textureFocus, const CTextureInfo& textureNoFocus,
                     const CLabelInfo &label, bool wrapMultiline = false);
 
-  CGUIButtonControl(const CGUIButtonControl& control);
-
-  ~CGUIButtonControl() override = default;
+  ~CGUIButtonControl(void) override;
   CGUIButtonControl *Clone() const override { return new CGUIButtonControl(*this); };
 
   void Process(unsigned int currentTime, CDirtyRegionList &dirtyregions) override;
@@ -85,8 +83,8 @@ protected:
    */
   void SetMaxWidth(float labelMaxWidth) { m_labelMaxWidth = labelMaxWidth; }
 
-  std::unique_ptr<CGUITexture> m_imgFocus;
-  std::unique_ptr<CGUITexture> m_imgNoFocus;
+  CGUITexture m_imgFocus;
+  CGUITexture m_imgNoFocus;
   unsigned int  m_focusCounter;
   unsigned char m_alpha;
 

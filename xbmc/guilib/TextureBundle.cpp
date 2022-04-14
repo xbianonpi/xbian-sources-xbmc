@@ -44,10 +44,8 @@ void CTextureBundle::GetTexturesFromPath(const std::string &path, std::vector<st
   }
 }
 
-bool CTextureBundle::LoadTexture(const std::string& Filename,
-                                 CTexture** ppTexture,
-                                 int& width,
-                                 int& height)
+bool CTextureBundle::LoadTexture(const std::string& Filename, CBaseTexture** ppTexture,
+                                     int &width, int &height)
 {
   if (m_useXBT)
   {
@@ -57,12 +55,8 @@ bool CTextureBundle::LoadTexture(const std::string& Filename,
   return false;
 }
 
-int CTextureBundle::LoadAnim(const std::string& Filename,
-                             CTexture*** ppTextures,
-                             int& width,
-                             int& height,
-                             int& nLoops,
-                             int** ppDelays)
+int CTextureBundle::LoadAnim(const std::string& Filename, CBaseTexture*** ppTextures,
+                              int &width, int &height, int& nLoops, int** ppDelays)
 {
   if (m_useXBT)
   {

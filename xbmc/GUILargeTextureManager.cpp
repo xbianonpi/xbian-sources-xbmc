@@ -49,9 +49,7 @@ bool CImageLoader::DoWork()
   {
     // direct route - load the image
     unsigned int start = XbmcThreads::SystemClockMillis();
-    m_texture =
-        CTexture::LoadFromFile(loadPath, CServiceBroker::GetWinSystem()->GetGfxContext().GetWidth(),
-                               CServiceBroker::GetWinSystem()->GetGfxContext().GetHeight());
+    m_texture = CBaseTexture::LoadFromFile(loadPath, CServiceBroker::GetWinSystem()->GetGfxContext().GetWidth(), CServiceBroker::GetWinSystem()->GetGfxContext().GetHeight());
 
     if (XbmcThreads::SystemClockMillis() - start > 100)
       CLog::Log(LOGDEBUG, "%s - took %u ms to load %s", __FUNCTION__, XbmcThreads::SystemClockMillis() - start, loadPath.c_str());
@@ -119,7 +117,7 @@ bool CGUILargeTextureManager::CLargeTexture::DeleteIfRequired(bool deleteImmedia
   return false;
 }
 
-void CGUILargeTextureManager::CLargeTexture::SetTexture(CTexture* texture)
+void CGUILargeTextureManager::CLargeTexture::SetTexture(CBaseTexture* texture)
 {
   assert(!m_texture.size());
   if (texture)

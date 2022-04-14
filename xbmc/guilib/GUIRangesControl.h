@@ -32,8 +32,6 @@ class CGUIRangesControl : public CGUIControl
               const CTextureInfo& lowerTextureInfo, const CTextureInfo& fillTextureInfo,
               const CTextureInfo& upperTextureInfo, const std::pair<float, float>& percentages);
 
-    CGUIRange(const CGUIRange& range);
-
     void AllocResources();
     void FreeResources(bool bImmediately);
     void DynamicResourceAlloc(bool bOnOff);
@@ -45,9 +43,9 @@ class CGUIRangesControl : public CGUIControl
     bool UpdateLayout(float fBackgroundTextureHeight, float fPosX, float fPosY, float fWidth, float fScaleX, float fScaleY);
 
   private:
-    std::unique_ptr<CGUITexture> m_guiLowerTexture;
-    std::unique_ptr<CGUITexture> m_guiFillTexture;
-    std::unique_ptr<CGUITexture> m_guiUpperTexture;
+    CGUITexture m_guiLowerTexture;
+    CGUITexture m_guiFillTexture;
+    CGUITexture m_guiUpperTexture;
     std::pair<float,float> m_percentValues;
   };
 
@@ -57,7 +55,7 @@ public:
                     const CTextureInfo& leftTexture, const CTextureInfo& midTexture,
                     const CTextureInfo& rightTexture, const CTextureInfo& overlayTexture,
                     int iInfo);
-  ~CGUIRangesControl() override = default;
+  ~CGUIRangesControl() override;
   CGUIRangesControl* Clone() const override { return new CGUIRangesControl(*this); };
 
   void Process(unsigned int iCurrentTime, CDirtyRegionList& dirtyregions) override;
@@ -77,15 +75,12 @@ protected:
   bool UpdateColors() override;
   bool UpdateLayout();
 
-  std::unique_ptr<CGUITexture> m_guiBackground;
-  std::unique_ptr<CGUITexture> m_guiOverlay;
+  CGUITexture m_guiBackground;
+  CGUITexture m_guiOverlay;
   const CTextureInfo m_guiLowerTextureInfo;
   const CTextureInfo m_guiFillTextureInfo;
   const CTextureInfo m_guiUpperTextureInfo;
   std::vector<CGUIRange> m_ranges;
   int m_iInfoCode = 0;
   std::string m_prevRanges;
-
-private:
-  CGUIRangesControl(const CGUIRangesControl& control);
 };

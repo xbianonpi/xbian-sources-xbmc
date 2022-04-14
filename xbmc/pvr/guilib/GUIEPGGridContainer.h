@@ -246,7 +246,7 @@ namespace PVR
     float m_blockSize; //! a block's width in pixels
     float m_analogScrollCount;
 
-    std::unique_ptr<CGUITexture> m_guiProgressIndicatorTexture;
+    CGUITexture m_guiProgressIndicatorTexture;
 
     std::shared_ptr<CFileItem> m_lastItem;
     std::shared_ptr<CFileItem> m_lastChannel;

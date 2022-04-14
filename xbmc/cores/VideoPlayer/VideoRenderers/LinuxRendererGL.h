@@ -31,7 +31,7 @@ extern "C" {
 class CRenderCapture;
 class CRenderSystemGL;
 
-class CTexture;
+class CBaseTexture;
 namespace Shaders { class BaseYUV2RGBGLSLShader; }
 namespace Shaders { class BaseVideoFilterShader; }
 

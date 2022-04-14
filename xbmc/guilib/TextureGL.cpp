@@ -6,9 +6,8 @@
  *  See LICENSES/README.md for more information.
  */
 
-#include "TextureGL.h"
-
 #include "ServiceBroker.h"
+#include "Texture.h"
 #include "guilib/TextureManager.h"
 #include "rendering/RenderSystem.h"
 #include "settings/AdvancedSettings.h"
@@ -16,13 +15,11 @@
 #include "utils/MemUtils.h"
 #include "utils/log.h"
 
-CTexture* CTexture::CreateTexture(unsigned int width, unsigned int height, unsigned int format)
-{
-  return new CGLTexture(width, height, format);
-}
-
+/************************************************************************/
+/*    CGLTexture                                                       */
+/************************************************************************/
 CGLTexture::CGLTexture(unsigned int width, unsigned int height, unsigned int format)
-  : CTexture(width, height, format)
+: CBaseTexture(width, height, format)
 {
   unsigned int major, minor;
   CServiceBroker::GetRenderSystem()->GetRenderVersion(major, minor);

@@ -14,14 +14,9 @@
 
 #if defined(HAS_DX)
 #include "guilib/GUIShaderDX.h"
-#include "guilib/TextureDX.h"
 
 #include <DirectXMath.h>
 using namespace DirectX;
-#endif
-
-#if defined(HAS_GL) || defined(HAS_GLES)
-#include "system_gl.h"
 #endif
 
 #include <cstddef>
@@ -129,7 +124,7 @@ void CRPRendererGuiTexture::RenderInternal(bool clear, uint8_t alpha)
     pGUIShader->Begin(SHADER_METHOD_RENDER_TEXTURE_BLEND);
 
     // Set state to render the image
-    auto dxTexture = static_cast<CDXTexture*>(renderBuffer->GetTexture());
+    CTexture* dxTexture = renderBuffer->GetTexture();
     ID3D11ShaderResourceView* shaderRes = dxTexture->GetShaderResource();
     pGUIShader->SetShaderViews(1, &shaderRes);
     pGUIShader->DrawQuad(vertex[0], vertex[1], vertex[2], vertex[3]);

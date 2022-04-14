@@ -8,16 +8,20 @@
 
 #pragma once
 
+/*!
+\file GUITextureD3D.h
+\brief
+*/
+
 #include "GUITexture.h"
 #include "utils/Color.h"
 
-class CGUITextureD3D : public CGUITexture
+class CGUITextureD3D : public CGUITextureBase
 {
 public:
   CGUITextureD3D(float posX, float posY, float width, float height, const CTextureInfo& texture);
-  ~CGUITextureD3D() override = default;
-
-  CGUITextureD3D* Clone() const override;
+  ~CGUITextureD3D();
+  static void DrawQuad(const CRect &coords, UTILS::Color color, CBaseTexture *texture = NULL, const CRect *texCoords = NULL);
 
 protected:
   void Begin(UTILS::Color color);
@@ -25,8 +29,6 @@ protected:
   void End();
 
 private:
-  CGUITextureD3D(const CGUITextureD3D& texture) = default;
-
   UTILS::Color       m_col;
 };
 

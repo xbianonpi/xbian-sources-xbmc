@@ -8,6 +8,11 @@
 
 #pragma once
 
+/*!
+\file GUITexture.h
+\brief
+*/
+
 #include "TextureManager.h"
 #include "utils/Color.h"
 #include "utils/Geometry.h"
@@ -60,18 +65,12 @@ public:
   std::string filename;        // main texture file
 };
 
-class CGUITexture
+class CGUITextureBase
 {
 public:
-  virtual ~CGUITexture() = default;
-  static CGUITexture* CreateTexture(
-      float posX, float posY, float width, float height, const CTextureInfo& texture);
-  virtual CGUITexture* Clone() const = 0;
-
-  static void DrawQuad(const CRect& coords,
-                       UTILS::Color color,
-                       CTexture* texture = nullptr,
-                       const CRect* texCoords = nullptr);
+  CGUITextureBase(float posX, float posY, float width, float height, const CTextureInfo& texture);
+  CGUITextureBase(const CGUITextureBase &left);
+  virtual ~CGUITextureBase(void);
 
   bool Process(unsigned int currentTime);
   void Render();
@@ -106,11 +105,7 @@ public:
   bool IsAllocated() const { return m_isAllocated != NO; };
   bool FailedToAlloc() const { return m_isAllocated == NORMAL_FAILED || m_isAllocated == LARGE_FAILED; };
   bool ReadyToRender() const;
-
 protected:
-  CGUITexture(float posX, float posY, float width, float height, const CTextureInfo& texture);
-  CGUITexture(const CGUITexture& left);
-
   bool CalculateSize();
   void LoadDiffuseImage();
   bool AllocateOnDemand();
@@ -131,14 +126,9 @@ protected:
   // functions that our implementation classes handle
   virtual void Allocate() {}; ///< called after our textures have been allocated
   virtual void Free() {};     ///< called after our textures have been freed
-  virtual void Begin(UTILS::Color color) = 0;
-  virtual void Draw(float* x,
-                    float* y,
-                    float* z,
-                    const CRect& texture,
-                    const CRect& diffuse,
-                    int orientation) = 0;
-  virtual void End() = 0;
+  virtual void Begin(UTILS::Color color) {};
+  virtual void Draw(float *x, float *y, float *z, const CRect &texture, const CRect &diffuse, int orientation)=0;
+  virtual void End() {};
 
   bool m_visible;
   UTILS::Color m_diffuseColor;
@@ -175,3 +165,16 @@ protected:
   CTextureArray m_diffuse;
   CTextureArray m_texture;
 };
+
+
+#if defined(HAS_GL)
+#include "GUITextureGL.h"
+#define CGUITexture CGUITextureGL
+#elif defined(HAS_GLES)
+#include "GUITextureGLES.h"
+#define CGUITexture CGUITextureGLES
+#elif defined(HAS_DX)
+#include "GUITextureD3D.h"
+#define CGUITexture CGUITextureD3D
+#endif
+
