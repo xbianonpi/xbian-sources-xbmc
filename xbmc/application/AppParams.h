@@ -25,6 +25,9 @@ public:
   int GetLogLevel() const { return m_logLevel; }
   void SetLogLevel(int logLevel) { m_logLevel = logLevel; }
 
+  int GetLogType() const { return m_logType; }
+  void SetLogType(int logType) { m_logType = logType; }
+
   bool IsStartFullScreen() const { return m_startFullScreen; }
   void SetStartFullScreen(bool startFullScreen) { m_startFullScreen = startFullScreen; }
 
@@ -72,6 +75,7 @@ public:
 
 private:
   int m_logLevel{LOG_LEVEL_NORMAL};
+  int m_logType{1};
 
   bool m_startFullScreen{false};
   bool m_standAlone{false};
