@@ -38,6 +38,9 @@ Arguments:
                         enables network settings.
   -p or --portable      {1} will look for configurations in install folder instead of ~/.{0}
   --debug               Enable debug logging
+  --logtype=<type>      Set <type> of logging. type is either none|0, local|1, syslog|2 or both|3
+                        For example --logtype=2 enables logging via syslog
+  --syslog              Equivalent to --logtype=syslog
   --version             Print version information
   --test                Enable test mode. [FILE] required.
   --settings=<filename> Loads specified file after advancedsettings.xml replacing any settings specified
@@ -90,6 +93,8 @@ void CAppParamParser::DisplayHelp()
 
 void CAppParamParser::ParseArg(const std::string &arg)
 {
+  if (const char *p = getenv("KODI_LOGTYPE"))
+    m_params->SetLogType(atoi(p));
   if (arg == "-fs" || arg == "--fullscreen")
     m_params->SetStartFullScreen(true);
   else if (arg == "-h" || arg == "--help")
@@ -107,6 +112,19 @@ void CAppParamParser::ParseArg(const std::string &arg)
     m_params->SetLogLevel(LOG_LEVEL_DEBUG);
   else if (arg == "--test")
     m_params->SetTestMode(true);
+  else if (arg.substr(0, 10) == "--logtype=")
+    if (arg.substr(10) == "local")
+      m_params->SetLogType(1);
+    else if (arg.substr(10) == "syslog")
+      m_params->SetLogType(2);
+    else if (arg.substr(10) == "both")
+      m_params->SetLogType(3);
+    else if (arg.substr(10) == "none")
+      m_params->SetLogType(0);
+    else
+      m_params->SetLogType(atoi(arg.substr(10).c_str()));
+  else if (arg == "--syslog")
+      m_params->SetLogType(2);
   else if (arg.substr(0, 11) == "--settings=")
     m_params->SetSettingsFile(arg.substr(11));
   else if (arg.length() != 0 && arg[0] != '-')
@@ -116,3 +134,4 @@ void CAppParamParser::ParseArg(const std::string &arg)
     m_params->GetPlaylist().Add(item);
   }
 }
+
