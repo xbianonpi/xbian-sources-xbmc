@@ -89,7 +89,7 @@ option(ENABLE_UPNP        "Enable UPnP support?" ON)
 option(ENABLE_AIRTUNES    "Enable AirTunes support?" ON)
 option(ENABLE_OPTICAL     "Enable optical support?" ON)
 option(ENABLE_PYTHON      "Enable python support?" ON)
-option(ENABLE_TESTING     "Enable testing support?" ON)
+option(ENABLE_TESTING     "Enable testing support?" OFF)
 
 # Internal Depends - supported on all platforms
 
