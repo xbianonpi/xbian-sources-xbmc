@@ -32,12 +32,15 @@
 #include <set>
 
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/syslog_sink.h>
 #include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/dup_filter_sink.h>
 
 static constexpr unsigned char Utf8Bom[3] = {0xEF, 0xBB, 0xBF};
 static const std::string LogFileExtension = ".log";
 static const std::string LogPattern = "%Y-%m-%d %T.%e T:%-5t %7l <%n>: %v";
+
+static std::string syslogID;
 
 CLog::CLog()
   : m_platform(IPlatformLog::CreatePlatformLog()),
@@ -113,6 +116,7 @@ void CLog::Initialize(const std::string& path)
   XFILE::CFile::Delete(oldFilePath);
   XFILE::CFile::Rename(filePath, oldFilePath);
 
+  if (m_logType & 1) {
   // write UTF-8 BOM
   {
     XFILE::CFile file;
@@ -131,11 +135,22 @@ void CLog::Initialize(const std::string& path)
 
   // add it to the existing sinks
   m_sinks->add_sink(m_fileSink);
+  }
+
+  if (m_logType & 2) {
+    syslogID = appName;
+    m_syslogSink = std::make_shared<spdlog::sinks::syslog_sink_mt>(
+        syslogID, 0, LOG_PID, true);
+    m_syslogSink->set_pattern(LogPattern);
+
+    // add it to the existing sinks
+    m_sinks->add_sink(m_syslogSink);
+  }
 }
 
 void CLog::Uninitialize()
 {
-  if (m_fileSink == nullptr)
+  if (m_fileSink == nullptr && m_syslogSink == nullptr)
     return;
 
   // unregister setting callbacks
@@ -149,11 +164,22 @@ void CLog::Uninitialize()
   spdlog::apply_all([](const std::shared_ptr<spdlog::logger>& logger) { logger->flush(); });
 
   // flush the file sink
+  if (m_fileSink != nullptr) {
   m_fileSink->flush();
 
   // remove and destroy the file sink
   m_sinks->remove_sink(m_fileSink);
   m_fileSink.reset();
+  }
+
+  if (m_syslogSink != nullptr) {
+    // flush the file sink
+    m_syslogSink->flush();
+
+    // remove and destroy the file sink
+    m_sinks->remove_sink(m_syslogSink);
+    m_syslogSink.reset();
+  }
 }
 
 void CLog::SetLogLevel(int level)
@@ -185,6 +211,11 @@ bool CLog::IsLogLevelLogged(int loglevel)
     return false;
 
   return (loglevel & LOGMASK) >= LOGINFO;
+}
+
+void CLog::SetLogType(int logtype)
+{
+  m_logType = logtype;
 }
 
 bool CLog::CanLogComponent(uint32_t component) const
