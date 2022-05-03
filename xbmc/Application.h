@@ -317,6 +317,7 @@ public:
   bool IsEnableTestMode() { return m_bTestMode; }
 
   bool IsAppFocused() const { return m_AppFocused; }
+  bool IsHeadless() const { return m_windowing == "headless"; }
 
   void Minimize();
   bool ToggleDPMS(bool manual);

@@ -540,7 +540,8 @@ bool CApplication::Create(const CAppParamParser &params)
   }
 
   m_pActiveAE.reset(new ActiveAE::CActiveAE());
-  m_pActiveAE->Start();
+  if (m_windowing != "headless")
+    m_pActiveAE->Start();
   CServiceBroker::RegisterAE(m_pActiveAE.get());
 
   // restore AE's previous volume state
@@ -587,7 +588,7 @@ bool CApplication::CreateGUI()
 {
   m_frameMoveGuard.lock();
 
-  m_renderGUI = true;
+  m_renderGUI = m_windowing != "headless";
 
 #if defined(TARGET_RASPBERRY_PI)
   m_pWinSystem = CWinSystemBase::CreateWinSystem();
@@ -788,7 +789,7 @@ bool CApplication::Initialize()
 
   bool uiInitializationFinished = false;
 
-  if (CServiceBroker::GetGUI()->GetWindowManager().Initialized())
+  if (m_windowing != "headless" && CServiceBroker::GetGUI()->GetWindowManager().Initialized())
   {
     const std::shared_ptr<CSettings> settings = CServiceBroker::GetSettingsComponent()->GetSettings();
 
@@ -923,9 +924,12 @@ bool CApplication::Initialize()
 
   CLog::Log(LOGINFO, "initialize done");
 
-  CheckOSScreenSaverInhibitionSetting();
-  // reset our screensaver (starts timers etc.)
-  ResetScreenSaver();
+  if (m_windowing != "headless")
+  {
+    CheckOSScreenSaverInhibitionSetting();
+    // reset our screensaver (starts timers etc.)
+    ResetScreenSaver();
+  }
 
   // if the user interfaces has been fully initialized let everyone know
   if (uiInitializationFinished)

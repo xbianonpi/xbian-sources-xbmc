@@ -8,6 +8,7 @@
 
 #include "AddonDatabase.h"
 
+#include "Application.h"
 #include "XBDateTime.h"
 #include "addons/AddonBuilder.h"
 #include "addons/AddonManager.h"
@@ -416,7 +417,7 @@ void CAddonDatabase::SyncInstalled(const std::set<std::string>& ids,
     BeginTransaction();
     for (const auto& id : added)
     {
-      int enable = 0;
+      int enable = g_application.IsHeadless() ? 1 : 0;
 
       if (system.find(id) != system.end() || optional.find(id) != optional.end())
         enable = 1;

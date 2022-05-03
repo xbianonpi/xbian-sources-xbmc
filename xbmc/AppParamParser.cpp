@@ -80,6 +80,7 @@ void CAppParamParser::DisplayHelp()
   printf("  \t\t\t\tAvailable window systems are:");
   for (const auto& windowSystem : availableWindowSystems)
     printf(" %s", windowSystem.c_str());
+  printf(" %s", "headless");
   printf("\n");
 #endif
   exit(0);
@@ -123,6 +124,8 @@ void CAppParamParser::ParseArg(const std::string &arg)
   {
     if (std::find(availableWindowSystems.begin(), availableWindowSystems.end(), arg.substr(12)) !=
         availableWindowSystems.end())
+      m_windowing = arg.substr(12);
+    else if (arg.substr(12) == "headless")
       m_windowing = arg.substr(12);
     else
     {
