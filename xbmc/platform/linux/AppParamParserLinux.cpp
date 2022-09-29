@@ -38,7 +38,7 @@ constexpr const char* helpText =
     R"""(
 Linux Specific Arguments:
   --windowing=<system>  Select which windowing method to use.
-                          Available window systems are: {}
+                          Available window systems are: {}, headless
   --logging=<target>    Select which log target to use (log file will always be used in conjunction).
                           Available log targets are: {}
 )""";
@@ -60,6 +60,8 @@ void CAppParamParserLinux::ParseArg(const std::string& arg)
   {
     if (std::find(availableWindowSystems.begin(), availableWindowSystems.end(), arg.substr(12)) !=
         availableWindowSystems.end())
+      GetAppParams()->SetWindowing(arg.substr(12));
+    else if (arg.substr(12) == "headless")
       GetAppParams()->SetWindowing(arg.substr(12));
     else
     {
