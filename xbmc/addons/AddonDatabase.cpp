@@ -8,6 +8,8 @@
 
 #include "AddonDatabase.h"
 
+#include "application/AppParams.h"
+#include "ServiceBroker.h"
 #include "XBDateTime.h"
 #include "addons/AddonBuilder.h"
 #include "addons/addoninfo/AddonInfo.h"
@@ -417,7 +419,7 @@ void CAddonDatabase::SyncInstalled(const std::set<std::string>& ids,
     BeginTransaction();
     for (const auto& id : added)
     {
-      int enable = 0;
+      int enable = CServiceBroker::GetAppParams()->GetWindowing() != "headless" ? 0 : 1;
 
       if (system.find(id) != system.end() || optional.find(id) != optional.end())
         enable = 1;
