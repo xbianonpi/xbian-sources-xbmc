@@ -404,7 +404,7 @@ bool CApplication::CreateGUI()
   m_frameMoveGuard.lock();
 
   const auto appPower = GetComponent<CApplicationPowerHandling>();
-  appPower->SetRenderGUI(true);
+  appPower->SetRenderGUI(CServiceBroker::GetAppParams()->GetWindowing() != "headless");
 
 #if defined(TARGET_RASPBERRY_PI)
   m_pWinSystem = CWinSystemBase::CreateWinSystem();
@@ -552,7 +552,8 @@ bool CApplication::InitWindow(RESOLUTION res)
 
 bool CApplication::Initialize()
 {
-  m_pActiveAE->Start();
+  if (CServiceBroker::GetAppParams()->GetWindowing() != "headless")
+    m_pActiveAE->Start();
   // restore AE's previous volume state
 
   const auto appVolume = GetComponent<CApplicationVolumeHandling>();
@@ -636,7 +637,7 @@ bool CApplication::Initialize()
 
   bool uiInitializationFinished = false;
 
-  if (CServiceBroker::GetGUI()->GetWindowManager().Initialized())
+  if (CServiceBroker::GetAppParams()->GetWindowing() != "headless" && CServiceBroker::GetGUI()->GetWindowManager().Initialized())
   {
     const auto settings = CServiceBroker::GetSettingsComponent()->GetSettings();
 
@@ -779,10 +780,13 @@ bool CApplication::Initialize()
 
   CLog::Log(LOGINFO, "initialize done");
 
-  const auto appPower = GetComponent<CApplicationPowerHandling>();
-  appPower->CheckOSScreenSaverInhibitionSetting();
-  // reset our screensaver (starts timers etc.)
-  appPower->ResetScreenSaver();
+  if (CServiceBroker::GetAppParams()->GetWindowing() != "headless")
+  {
+    const auto appPower = GetComponent<CApplicationPowerHandling>();
+    appPower->CheckOSScreenSaverInhibitionSetting();
+    // reset our screensaver (starts timers etc.)
+    appPower->ResetScreenSaver();
+  }
 
   // if the user interfaces has been fully initialized let everyone know
   if (uiInitializationFinished)
