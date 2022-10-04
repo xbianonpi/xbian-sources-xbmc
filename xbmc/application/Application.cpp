@@ -1073,13 +1073,14 @@ bool CApplication::OnAction(const CAction &action)
   // built in functions : execute the built-in
   if (action.GetID() == ACTION_BUILT_IN_FUNCTION)
   {
+    bool ret(true);
     if (!CBuiltins::GetInstance().IsSystemPowerdownCommand(action.GetName()) ||
         CServiceBroker::GetPVRManager().Get<PVR::GUI::PowerManagement>().CanSystemPowerdown())
     {
-      CBuiltins::GetInstance().Execute(action.GetName());
+      ret = CBuiltins::GetInstance().Execute(action.GetName()) == 0 ? true : false;
       GetComponent<CApplicationPowerHandling>()->ResetNavigationTimer();
     }
-    return true;
+    return ret;
   }
 
   // reload keymaps
