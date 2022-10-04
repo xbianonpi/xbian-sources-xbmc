@@ -288,6 +288,8 @@ bool CEventServer::ExecuteNextAction()
   CEventAction actionEvent;
   auto iter = m_clients.begin();
 
+  bool ret(true);
+
   while (iter != m_clients.end())
   {
     if (iter->second->GetNextAction(actionEvent))
@@ -297,7 +299,7 @@ bool CEventServer::ExecuteNextAction()
       switch(actionEvent.actionType)
       {
       case AT_EXEC_BUILTIN:
-        CBuiltins::GetInstance().Execute(actionEvent.actionName);
+        ret = CBuiltins::GetInstance().Execute(actionEvent.actionName) == 0 ? true : false;
         break;
 
       case AT_BUTTON:
@@ -309,11 +311,11 @@ bool CEventServer::ExecuteNextAction()
           if (gui)
             gui->GetAudioManager().PlayActionSound(action);
 
-          g_application.OnAction(action);
+          ret = g_application.OnAction(action);
         }
         break;
       }
-      return true;
+      return ret;
     }
     ++iter;
   }
