@@ -9,6 +9,10 @@
 #include "application/Application.h"
 #include "platform/MessagePrinter.h"
 
+#ifdef TARGET_RASPBERRY_PI
+#include "platform/linux/RBP.h"
+#endif
+
 #ifdef TARGET_WINDOWS_DESKTOP
 #include "platform/win32/IMMNotificationClient.h"
 #include <mmdeviceapi.h>
@@ -29,7 +33,11 @@ extern "C" int XBMC_Run(bool renderGUI)
     return status;
   }
 
-#if defined(TARGET_ANDROID)
+#ifdef TARGET_RASPBERRY_PI
+  if(!g_RBP.Initialize())
+    return false;
+  g_RBP.LogFirmwareVersion();
+#elif defined(TARGET_ANDROID)
   CXBMCApp::Get().Initialize();
 #endif
 
@@ -71,7 +79,9 @@ extern "C" int XBMC_Run(bool renderGUI)
   }
 #endif
 
-#if defined(TARGET_ANDROID)
+#ifdef TARGET_RASPBERRY_PI
+  g_RBP.Deinitialize();
+#elif defined(TARGET_ANDROID)
   CXBMCApp::Get().Deinitialize();
 #endif
 

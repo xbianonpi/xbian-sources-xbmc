@@ -47,6 +47,10 @@
 #endif
 // clang-format on
 
+#if defined(TARGET_RASPBERRY_PI)
+#include "cores/AudioEngine/Sinks/AESinkPi.h"
+#endif
+
 #include <cstdlib>
 
 CPlatform* CPlatform::CreateInstance()
@@ -112,8 +116,17 @@ bool CPlatformLinux::InitStageOne()
     OPTIONALS::ALSARegister();
     OPTIONALS::PulseAudioRegister();
   }
+#if defined(TARGET_RASPBERRY_PI)
+  else if (StringUtils::EqualsNoCase(envSink, "PI"))
+  {
+    CAESinkPi::Register();
+  }
+#endif
   else
   {
+#if defined(TARGET_RASPBERRY_PI)
+    CAESinkPi::Register();
+#endif
     if (!OPTIONALS::PulseAudioRegister())
     {
       if (!OPTIONALS::PipewireRegister())

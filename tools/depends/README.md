@@ -20,25 +20,25 @@ Paths below are examples. If you want to build Kodi, follow our **[build guides]
 ### All platforms
 `./bootstrap`
 ### Darwin
-**macOS (x86_64)**
+**macOS (x86_64)**  
 `./configure --host=x86_64-apple-darwin`
 
-**iOS (arm64)**
+**iOS (arm64)**  
 `./configure --host=aarch64-apple-darwin`
 
-**tvOS**
+**tvOS**  
 `./configure --host=aarch64-apple-darwin --with-platform=tvos`
 
 **NOTE:** You can target the same `--prefix=` path. Each setup will be done in an isolated directory. The last configure/make you do is the one used for Kodi/Xcode.
-
+ 
 ### Android
-**arm**
+**arm**  
 `./configure --with-tarballs=$HOME/android-tools/xbmc-tarballs --host=arm-linux-androideabi --with-sdk-path=$HOME/android-tools/android-sdk-linux --with-ndk-path=$HOME/android-tools/android-ndk-r20 --prefix=$HOME/android-tools/xbmc-depends`
 
-**aarch64**
+**aarch64**  
 `./configure --with-tarballs=$HOME/android-tools/xbmc-tarballs --host=aarch64-linux-android --with-sdk-path=$HOME/android-tools/android-sdk-linux --with-ndk-path=$HOME/android-tools/android-ndk-r20 --prefix=$HOME/android-tools/xbmc-depends`
 
-**x86**
+**x86**  
 `./configure --with-tarballs=$HOME/android-tools/xbmc-tarballs --host=i686-linux-android --with-sdk-path=$HOME/android-tools/android-sdk-linux --with-ndk-path=$HOME/android-tools/android-ndk-r20 --prefix=$HOME/android-tools/xbmc-depends`
 
 **x86_64**
@@ -49,6 +49,9 @@ Paths below are examples. If you want to build Kodi, follow our **[build guides]
 ### Linux
 **ARM (codesourcery/lenaro/etc)**
 `./configure --with-toolchain=/opt/toolchains/my-example-toolchain/ --prefix=/opt/xbmc-deps --host=arm-linux-gnueabi --with-rendersystem=gles`
+
+**Raspberry Pi**  
+`./configure --with-platform=raspberry-pi --host=arm-linux-gnueabihf --prefix=/opt/xbmc-deps --with-tarballs=/opt/xbmc-tarballs --with-toolchain=/opt/rbp-dev/tools/arm-bcm
 
 **Native**
 `./configure --with-toolchain=/usr --prefix=/opt/xbmc-deps --host=x86_64-linux-gnu --with-rendersystem=gl`
