@@ -35,6 +35,9 @@
 #if defined(TARGET_DARWIN_EMBEDDED)
 #include "SettingAddon.h"
 #endif
+#if defined(TARGET_RASPBERRY_PI)
+#include "platform/linux/RBP.h"
+#endif
 #include "DiscSettings.h"
 #include "SeekHandler.h"
 #include "ServiceBroker.h"
@@ -149,6 +152,7 @@ constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUMPEG4;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVDPAUVC1;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEDXVA2;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEVTB;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEPRIMEDECODER;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USESTAGEFRIGHT;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_LIMITGUIUPDATE;
@@ -657,6 +661,11 @@ bool CSettings::InitializeDefinitions()
 #elif defined(TARGET_ANDROID)
   if (CFile::Exists(SETTINGS_XML_FOLDER "android.xml") && !Initialize(SETTINGS_XML_FOLDER "android.xml"))
     CLog::Log(LOGFATAL, "Unable to load android-specific settings definitions");
+#elif defined(TARGET_RASPBERRY_PI)
+  if (CFile::Exists(SETTINGS_XML_FOLDER "rbp.xml") && !Initialize(SETTINGS_XML_FOLDER "rbp.xml"))
+    CLog::Log(LOGFATAL, "Unable to load rbp-specific settings definitions");
+  if (CFile::Exists(SETTINGS_XML_FOLDER "rbp2.xml") && !Initialize(SETTINGS_XML_FOLDER "rbp2.xml"))
+    CLog::Log(LOGFATAL, "Unable to load rbp2-specific settings definitions");
 #elif defined(TARGET_FREEBSD)
   if (CFile::Exists(SETTINGS_XML_FOLDER "freebsd.xml") && !Initialize(SETTINGS_XML_FOLDER "freebsd.xml"))
     CLog::Log(LOGFATAL, "Unable to load freebsd-specific settings definitions");
