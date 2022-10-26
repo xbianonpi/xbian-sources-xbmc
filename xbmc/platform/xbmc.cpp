@@ -23,6 +23,9 @@
 #include "platform/android/activity/XBMCApp.h"
 #endif
 
+#include "stdlib.h"
+#include "utils/log.h"
+
 extern "C" int XBMC_Run(bool renderGUI)
 {
   int status = -1;
@@ -67,6 +70,9 @@ extern "C" int XBMC_Run(bool renderGUI)
     pEnumerator = nullptr;
   }
 #endif
+
+  CLog::Log(LOGINFO, "XBian: notifying Upstart that I'm well");
+  system("sudo start -nq xbmc-loaded");
 
   status = g_application.Run();
 
