@@ -78,7 +78,7 @@ public:
   Logger GetLogger(const std::string& loggerName);
 
   template<typename... Args>
-  static inline void Log(int level, const std::string_view& format, Args&&... args)
+  static inline void Log(int level, const char* format, Args&&... args)
   {
     Log(MapLogLevel(level), format, std::forward<Args>(args)...);
   }
@@ -86,7 +86,7 @@ public:
   template<typename... Args>
   static inline void Log(int level,
                          uint32_t component,
-                         const std::string_view& format,
+                         const char* format,
                          Args&&... args)
   {
     if (!GetInstance().CanLogComponent(component))
@@ -97,7 +97,7 @@ public:
 
   template<typename... Args>
   static inline void Log(spdlog::level::level_enum level,
-                         const std::string_view& format,
+                         const char* format,
                          Args&&... args)
   {
     GetInstance().FormatAndLogInternal(level, format, std::forward<Args>(args)...);
@@ -106,7 +106,7 @@ public:
   template<typename... Args>
   static inline void Log(spdlog::level::level_enum level,
                          uint32_t component,
-                         const std::string_view& format,
+                         const char* format,
                          Args&&... args)
   {
     if (!GetInstance().CanLogComponent(component))
@@ -126,15 +126,13 @@ private:
 
   template<typename... Args>
   inline void FormatAndLogInternal(spdlog::level::level_enum level,
-                                   const std::string_view& format,
+                                   std::string format,
                                    Args&&... args)
   {
-    auto message = fmt::format(format, std::forward<Args>(args)...);
-
     // fixup newline alignment, number of spaces should equal prefix length
-    FormatLineBreaks(message);
+    FormatLineBreaks(format);
 
-    m_defaultLogger->log(level, message);
+    m_defaultLogger->log(level, format, std::forward<Args>(args)...);
   }
 
   Logger CreateLogger(const std::string& loggerName);
