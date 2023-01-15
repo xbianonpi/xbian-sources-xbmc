@@ -1,0 +1,264 @@
+From 26c200f3ecc1d8931e70cdfab3229224c293a645 Mon Sep 17 00:00:00 2001
+From: mkreisl <manfred.kreisl@nexgo.de>
+Date: Sun, 15 Jan 2023 16:28:32 +0100
+Subject: [PATCH] ffmpeg: use upstream mvc patches
+
+---
+ libavcodec/Makefile                |  1 +
+ libavcodec/codec_desc.c            |  7 +++++++
+ libavcodec/codec_id.h              |  3 +++
+ libavcodec/extract_extradata_bsf.c |  8 +++++---
+ libavcodec/h264_parser.c           | 34 +++++++++++++++++++++++++++++++---
+ libavcodec/parsers.c               |  1 +
+ libavcodec/profiles.c              |  1 +
+ libavcodec/remove_extradata_bsf.c  |  3 ++-
+ libavformat/Makefile               |  1 +
+ libavformat/mpegts.c               |  2 +-
+ 10 files changed, 53 insertions(+), 8 deletions(-)
+
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 457ec58..db0d952 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -19,6 +19,7 @@ HEADERS = ac3_parser.h                                                  \
+           jni.h                                                         \
+           mediacodec.h                                                  \
+           packet.h                                                      \
++          packet_internal.h                                             \
+           qsv.h                                                         \
+           vdpau.h                                                       \
+           version.h                                                     \
+diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
+index 44ad2d1..0697cc9 100644
+--- a/libavcodec/codec_desc.c
++++ b/libavcodec/codec_desc.c
+@@ -1893,6 +1893,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
+         .long_name = NULL_IF_CONFIG_SMALL("PHM (Portable HalfFloatMap) image"),
+         .props     = AV_CODEC_PROP_INTRA_ONLY | AV_CODEC_PROP_LOSSLESS,
+     },
++    {
++        .id        = AV_CODEC_ID_H264_MVC,
++        .type      = AVMEDIA_TYPE_VIDEO,
++        .name      = "h264_mvc",
++        .long_name = NULL_IF_CONFIG_SMALL("H264 MVC"),
++        .props     = AV_CODEC_PROP_LOSSY,
++    },
+ 
+     /* various PCM "codecs" */
+     {
+diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
+index 81fb316..563b10c 100644
+--- a/libavcodec/codec_id.h
++++ b/libavcodec/codec_id.h
+@@ -313,6 +313,8 @@ enum AVCodecID {
+     AV_CODEC_ID_QOI,
+     AV_CODEC_ID_PHM,
+ 
++    AV_CODEC_ID_H264_MVC,
++
+     /* various PCM "codecs" */
+     AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
+     AV_CODEC_ID_PCM_S16LE = 0x10000,
+@@ -632,3 +634,4 @@ enum AVCodecID av_get_pcm_codec(enum AVSampleFormat fmt, int be);
+  */
+ 
+ #endif // AVCODEC_CODEC_ID_H
++#define FF_PROFILE_H264_MULTIVIEW_HIGH_DEPTH 138
+diff --git a/libavcodec/extract_extradata_bsf.c b/libavcodec/extract_extradata_bsf.c
+index 329b1a6..59b3c96 100644
+--- a/libavcodec/extract_extradata_bsf.c
++++ b/libavcodec/extract_extradata_bsf.c
+@@ -138,7 +138,7 @@ static int extract_extradata_h2645(AVBSFContext *ctx, AVPacket *pkt,
+         HEVC_NAL_VPS, HEVC_NAL_SPS, HEVC_NAL_PPS,
+     };
+     static const int extradata_nal_types_h264[] = {
+-        H264_NAL_SPS, H264_NAL_PPS,
++        H264_NAL_SPS, H264_NAL_SUB_SPS, H264_NAL_PPS,
+     };
+ 
+     ExtractExtradataContext *s = ctx->priv_data;
+@@ -169,7 +169,7 @@ static int extract_extradata_h2645(AVBSFContext *ctx, AVPacket *pkt,
+                 if (nal->type == HEVC_NAL_SPS) has_sps = 1;
+                 if (nal->type == HEVC_NAL_VPS) has_vps = 1;
+             } else {
+-                if (nal->type == H264_NAL_SPS) has_sps = 1;
++                if (nal->type == H264_NAL_SPS || nal->type == H264_NAL_SUB_SPS) has_sps = 1;
+             }
+         } else if (s->remove) {
+             filtered_size += nal->raw_size + 3;
+@@ -178,7 +178,7 @@ static int extract_extradata_h2645(AVBSFContext *ctx, AVPacket *pkt,
+ 
+     if (extradata_size &&
+         ((ctx->par_in->codec_id == AV_CODEC_ID_HEVC && has_sps && has_vps) ||
+-         (ctx->par_in->codec_id == AV_CODEC_ID_H264 && has_sps))) {
++         ((ctx->par_in->codec_id == AV_CODEC_ID_H264 || ctx->par_in->codec_id == AV_CODEC_ID_H264_MVC) && has_sps))) {
+         AVBufferRef *filtered_buf = NULL;
+         PutByteContext pb_filtered_data, pb_extradata;
+         uint8_t *extradata;
+@@ -330,6 +330,7 @@ static const struct {
+     { AV_CODEC_ID_AVS3,       extract_extradata_mpeg4   },
+     { AV_CODEC_ID_CAVS,       extract_extradata_mpeg4   },
+     { AV_CODEC_ID_H264,       extract_extradata_h2645   },
++    { AV_CODEC_ID_H264_MVC,   extract_extradata_h2645   },
+     { AV_CODEC_ID_HEVC,       extract_extradata_h2645   },
+     { AV_CODEC_ID_MPEG1VIDEO, extract_extradata_mpeg12  },
+     { AV_CODEC_ID_MPEG2VIDEO, extract_extradata_mpeg12  },
+@@ -399,6 +400,7 @@ static const enum AVCodecID codec_ids[] = {
+     AV_CODEC_ID_AVS3,
+     AV_CODEC_ID_CAVS,
+     AV_CODEC_ID_H264,
++    AV_CODEC_ID_H264_MVC,
+     AV_CODEC_ID_HEVC,
+     AV_CODEC_ID_MPEG1VIDEO,
+     AV_CODEC_ID_MPEG2VIDEO,
+diff --git a/libavcodec/h264_parser.c b/libavcodec/h264_parser.c
+index 50810f1..7448442 100644
+--- a/libavcodec/h264_parser.c
++++ b/libavcodec/h264_parser.c
+@@ -64,6 +64,7 @@ typedef struct H264ParseContext {
+     int parse_last_mb;
+     int64_t reference_dts;
+     int last_frame_num, last_picture_structure;
++    int is_mvc;
+ } H264ParseContext;
+ 
+ static int find_start_code(const uint8_t *buf, int buf_size,
+@@ -121,14 +122,18 @@ static int h264_find_frame_end(H264ParseContext *p, const uint8_t *buf,
+         } else if (state <= 5) {
+             int nalu_type = buf[i] & 0x1F;
+             if (nalu_type == H264_NAL_SEI || nalu_type == H264_NAL_SPS ||
+-                nalu_type == H264_NAL_PPS || nalu_type == H264_NAL_AUD) {
++                nalu_type == H264_NAL_PPS || nalu_type == H264_NAL_AUD ||
++                nalu_type == H264_NAL_SUB_SPS) {
+                 if (pc->frame_start_found) {
+                     i++;
+                     goto found;
+                 }
+             } else if (nalu_type == H264_NAL_SLICE || nalu_type == H264_NAL_DPA ||
+-                       nalu_type == H264_NAL_IDR_SLICE) {
++                       nalu_type == H264_NAL_IDR_SLICE || (p->is_mvc && nalu_type == H264_NAL_EXTEN_SLICE)) {
+                 state += 8;
++
++                if (nalu_type == H264_NAL_EXTEN_SLICE)
++                    i += 3; // skip mvc extension
+                 continue;
+             }
+             state = 7;
+@@ -609,6 +614,9 @@ static int h264_parse(AVCodecParserContext *s,
+     } else {
+         next = h264_find_frame_end(p, buf, buf_size, avctx);
+ 
++        if (next == END_NOT_FOUND && pc->frame_start_found == 0)
++            s->fetch_timestamp = 1;
++
+         if (ff_combine_frame(pc, next, &buf, &buf_size) < 0) {
+             *poutbuf      = NULL;
+             *poutbuf_size = 0;
+@@ -621,7 +629,8 @@ static int h264_parse(AVCodecParserContext *s,
+         }
+     }
+ 
+-    parse_nal_units(s, avctx, buf, buf_size);
++    if (!p->is_mvc)
++        parse_nal_units(s, avctx, buf, buf_size);
+ 
+     if (avctx->framerate.num)
+         avctx->time_base = av_inv_q(av_mul_q(avctx->framerate, (AVRational){avctx->ticks_per_frame, 1}));
+@@ -692,3 +701,22 @@ const AVCodecParser ff_h264_parser = {
+     .parser_parse   = h264_parse,
+     .parser_close   = h264_close,
+ };
++
++static av_cold int init_mvc(AVCodecParserContext *s)
++{
++    H264ParseContext *p = s->priv_data;
++    int ret = init(s);
++    if (ret < 0)
++        return ret;
++
++    p->is_mvc = 1;
++    return 0;
++}
++
++AVCodecParser ff_h264_mvc_parser = {
++    .codec_ids      = { AV_CODEC_ID_H264_MVC },
++    .priv_data_size = sizeof(H264ParseContext),
++    .parser_init    = init_mvc,
++    .parser_parse   = h264_parse,
++    .parser_close   = h264_close,
++};
+diff --git a/libavcodec/parsers.c b/libavcodec/parsers.c
+index b593888..d3a5548 100644
+--- a/libavcodec/parsers.c
++++ b/libavcodec/parsers.c
+@@ -47,6 +47,7 @@ extern const AVCodecParser ff_g729_parser;
+ extern const AVCodecParser ff_gif_parser;
+ extern const AVCodecParser ff_gsm_parser;
+ extern const AVCodecParser ff_h261_parser;
++extern AVCodecParser ff_h264_mvc_parser;
+ extern const AVCodecParser ff_h263_parser;
+ extern const AVCodecParser ff_h264_parser;
+ extern const AVCodecParser ff_hevc_parser;
+diff --git a/libavcodec/profiles.c b/libavcodec/profiles.c
+index 7af7fbe..3173b48 100644
+--- a/libavcodec/profiles.c
++++ b/libavcodec/profiles.c
+@@ -71,6 +71,7 @@ const AVProfile ff_h264_profiles[] = {
+     { FF_PROFILE_H264_CAVLC_444,            "CAVLC 4:4:4"           },
+     { FF_PROFILE_H264_MULTIVIEW_HIGH,       "Multiview High"        },
+     { FF_PROFILE_H264_STEREO_HIGH,          "Stereo High"           },
++    { FF_PROFILE_H264_MULTIVIEW_HIGH_DEPTH, "Multiview High Depth"  },
+     { FF_PROFILE_UNKNOWN },
+ };
+ 
+diff --git a/libavcodec/remove_extradata_bsf.c b/libavcodec/remove_extradata_bsf.c
+index 66b7d00..b8151f1 100644
+--- a/libavcodec/remove_extradata_bsf.c
++++ b/libavcodec/remove_extradata_bsf.c
+@@ -76,7 +76,7 @@ static int h264_split(const uint8_t *buf, int buf_size)
+         if ((state & 0xFFFFFF00) != 0x100)
+             break;
+         nalu_type = state & 0x1F;
+-        if (nalu_type == H264_NAL_SPS) {
++        if (nalu_type == H264_NAL_SPS || nalu_type == H264_NAL_SUB_SPS) {
+             has_sps = 1;
+         } else if (nalu_type == H264_NAL_PPS)
+             has_pps = 1;
+@@ -204,6 +204,7 @@ static int remove_extradata(AVBSFContext *ctx, AVPacket *pkt)
+             i = mpeg4video_split(pkt->data, pkt->size);
+             break;
+         case AV_CODEC_ID_H264:
++        case AV_CODEC_ID_H264_MVC:
+             i = h264_split(pkt->data, pkt->size);
+             break;
+         case AV_CODEC_ID_HEVC:
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 6c6b779..c4111f1 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -3,6 +3,9 @@ DESC = FFmpeg container format library
+ 
+ HEADERS = avformat.h                                                    \
+           avio.h                                                        \
++          ../config.h                                                   \
++          internal.h                                                    \
++          os_support.h                                                  \
+           version.h                                                     \
+           version_major.h                                               \
+ 
+diff --git a/libavformat/mpegts.c b/libavformat/mpegts.c
+index 8a3436f..20833e3 100644
+--- a/libavformat/mpegts.c
++++ b/libavformat/mpegts.c
+@@ -807,7 +807,7 @@ static const StreamType ISO_types[] = {
+ #endif
+     { 0x1b, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_H264       },
+     { 0x1c, AVMEDIA_TYPE_AUDIO, AV_CODEC_ID_AAC        },
+-    { 0x20, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_H264       },
++    { 0x20, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_H264_MVC   },
+     { 0x21, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_JPEG2000   },
+     { 0x24, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_HEVC       },
+     { 0x42, AVMEDIA_TYPE_VIDEO, AV_CODEC_ID_CAVS       },
+-- 
+1.8.4.5
+
