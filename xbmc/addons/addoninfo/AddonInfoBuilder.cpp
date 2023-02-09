@@ -820,6 +820,8 @@ bool CAddonInfoBuilder::PlatformSupportsAddon(const AddonInfoPtr& addon)
     "linux",
 #if defined(__ARM_ARCH_7A__)
     "linux-armv7",
+#elif defined(__ARM_ARCH_8A__)
+    "linux-armv8",
 #elif defined(__aarch64__)
     "linux-aarch64",
 #elif defined(__i686__)
