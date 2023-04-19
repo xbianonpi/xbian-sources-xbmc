@@ -68,6 +68,7 @@ using namespace XFILE;
 
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEOMXPLAYER;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC;
 
 bool CSettings::Initialize()
 {
@@ -644,6 +645,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.clear();
   settingSet.insert(CSettings::SETTING_LOCALE_TIMEZONE);
   settingSet.insert(CSettings::SETTING_LOCALE_TIMEZONECOUNTRY);
+  settingSet.insert(CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC);
   GetSettingsManager()->RegisterCallback(&g_timezone, settingSet);
 #endif
 
