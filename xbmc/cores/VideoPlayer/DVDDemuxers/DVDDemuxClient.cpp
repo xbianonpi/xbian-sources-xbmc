@@ -132,7 +132,7 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
 
   if (stream->m_context == nullptr)
   {
-    const AVCodec* codec = avcodec_find_decoder(st->codec);
+    FFMPEG_FMT_CONST AVCodec* codec = avcodec_find_decoder(st->codec);
     if (codec == nullptr)
     {
       CLog::Log(LOGERROR, "{} - can't find decoder", __FUNCTION__);
@@ -164,6 +164,7 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
     avpkt->size = pkt->iSize;
     avpkt->dts = avpkt->pts = AV_NOPTS_VALUE;
 
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
     constexpr auto codecParDeleter = [](AVCodecParameters* p) { avcodec_parameters_free(&p); };
     auto codecPar = std::unique_ptr<AVCodecParameters, decltype(codecParDeleter)>(
         avcodec_parameters_alloc(), codecParDeleter);
@@ -175,6 +176,9 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
     }
 
     FFmpegExtraData retExtraData = GetPacketExtradata(avpkt, codecPar.get());
+#else
+    FFmpegExtraData retExtraData = GetPacketExtradata(avpkt, stream->m_parser, stream->m_context);
+#endif
     if (retExtraData)
     {
       st->changes++;
@@ -229,7 +233,12 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
       case STREAM_AUDIO:
       {
         CDemuxStreamClientInternalTpl<CDemuxStreamAudio>* sta = static_cast<CDemuxStreamClientInternalTpl<CDemuxStreamAudio>*>(st);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         int streamChannels = stream->m_context->ch_layout.nb_channels;
+#else
+        int streamChannels = stream->m_context->channels;
+#endif
         if (streamChannels != sta->iChannels && streamChannels != 0)
         {
           CLog::Log(LOGDEBUG, "CDVDDemuxClient::ParsePacket - ({}) channels changed from {} to {}",
