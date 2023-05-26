@@ -235,7 +235,7 @@ bool CDVDDemuxFFmpeg::Aborted()
 
 bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool fileinfo)
 {
-  const AVInputFormat* iformat = nullptr;
+  FFMPEG_FMT_CONST AVInputFormat* iformat = nullptr;
   std::string strFile;
   m_streaminfo = !pInput->IsRealtime() && !m_reopen;
   m_reopen = false;
@@ -420,7 +420,7 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
           // is present, we assume it is PCM audio.
           // AC3 is always wrapped in iec61937 (ffmpeg "spdif"), while DTS
           // may be just padded.
-          const AVInputFormat* iformat2 = av_find_input_format("spdif");
+          FFMPEG_FMT_CONST AVInputFormat* iformat2 = av_find_input_format("spdif");
           if (iformat2 && iformat2->read_probe(&pd) > AVPROBE_SCORE_MAX / 4)
           {
             iformat = iformat2;
@@ -540,6 +540,15 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
     m_streaminfo = true;
   }
 
+  // https://github.com/FFmpeg/FFmpeg/blob/56450a0ee4/doc/APIchanges#L18-L26
+#if LIBAVFORMAT_BUILD < AV_VERSION_INT(59, 0, 100)
+  if (iformat && (strcmp(iformat->name, "mov,mp4,m4a,3gp,3g2,mj2") == 0))
+  {
+    if (URIUtils::IsRemote(strFile))
+      m_pFormatContext->iformat->flags |= AVFMT_NOGENSEARCH;
+  }
+#endif
+
   // we need to know if this is matroska, avi or sup later
   m_bMatroska = strncmp(m_pFormatContext->iformat->name, "matroska", 8) == 0;	// for "matroska.webm"
   m_bAVI = strcmp(m_pFormatContext->iformat->name, "avi") == 0;
@@ -594,6 +603,12 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
   // if format can be nonblocking, let's use that
   m_pFormatContext->flags |= AVFMT_FLAG_NONBLOCK;
 
+  // https://github.com/FFmpeg/FFmpeg/blob/d682ae70b4/doc/APIchanges#L18-L21
+#if LIBAVFORMAT_BUILD < AV_VERSION_INT(57, 66, 105) && \
+    LIBAVCODEC_BUILD < AV_VERSION_INT(57, 83, 101)
+  m_pFormatContext->flags |= AVFMT_FLAG_KEEP_SIDE_DATA;
+#endif
+
 #if LIBAVCODEC_BUILD < AV_VERSION_INT(59, 37, 100) && \
     LIBAVUTIL_BUILD < AV_VERSION_INT(57, 28, 100)
   UpdateCurrentPTS();
@@ -637,6 +652,7 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
           {
             int idx = m_pFormatContext->programs[i]->stream_index[j];
             AVStream* st = m_pFormatContext->streams[idx];
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 3, 100)
             // Related to https://patchwork.ffmpeg.org/project/ffmpeg/patch/20210429143825.53040-1-jamrial@gmail.com/
             // has been replaced with AVSTREAM_EVENT_FLAG_NEW_PACKETS.
             if ((st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO &&
@@ -646,6 +662,14 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
               nProgram = i;
               break;
             }
+#else
+            if ((st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && st->codec_info_nb_frames > 0) ||
+                (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && st->codecpar->sample_rate > 0))
+            {
+              nProgram = i;
+              break;
+            }
+#endif
           }
         }
       }
@@ -1217,8 +1241,13 @@ DemuxPacket* CDVDDemuxFFmpeg::ReadInternal(bool keep)
     else if (stream->type == STREAM_AUDIO)
     {
       CDemuxStreamAudioFFmpeg* audiostream = dynamic_cast<CDemuxStreamAudioFFmpeg*>(stream);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
       int codecparChannels =
           m_pFormatContext->streams[pPacket->iStreamId]->codecpar->ch_layout.nb_channels;
+#else
+      int codecparChannels = m_pFormatContext->streams[pPacket->iStreamId]->codecpar->channels;
+#endif
       if (audiostream && (audiostream->iChannels != codecparChannels ||
                           audiostream->iSampleRate !=
                               m_pFormatContext->streams[pPacket->iStreamId]->codecpar->sample_rate))
@@ -1448,11 +1477,19 @@ void CDVDDemuxFFmpeg::UpdateCurrentPTS()
   {
     AVStream* stream = m_pFormatContext->streams[idx];
 
+#if LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 17, 100)
     if (stream && m_pkt.pkt.dts != (int64_t)AV_NOPTS_VALUE)
     {
       double ts = ConvertTimestamp(m_pkt.pkt.dts, stream->time_base.den, stream->time_base.num);
       m_currentPts = ts;
     }
+#else
+    if (stream && stream->cur_dts != (int64_t)AV_NOPTS_VALUE)
+    {
+      double ts = ConvertTimestamp(stream->cur_dts, stream->time_base.den, stream->time_base.num);
+      m_currentPts = ts;
+    }
+#endif
   }
 }
 
@@ -1662,8 +1699,14 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
       {
         CDemuxStreamAudioFFmpeg* st = new CDemuxStreamAudioFFmpeg(pStream);
         stream = st;
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         int codecparChannels = pStream->codecpar->ch_layout.nb_channels;
         int codecparChannelLayout = pStream->codecpar->ch_layout.u.mask;
+#else
+        int codecparChannels = pStream->codecpar->channels;
+        int codecparChannelLayout = pStream->codecpar->channel_layout;
+#endif
         st->iChannels = codecparChannels;
         st->iChannelLayout = codecparChannelLayout;
         st->iSampleRate = pStream->codecpar->sample_rate;
@@ -1672,10 +1715,15 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
         st->iBitsPerSample = pStream->codecpar->bits_per_raw_sample;
         char buf[32] = {};
         // https://github.com/FFmpeg/FFmpeg/blob/6ccc3989d15/doc/APIchanges#L50-L53
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         AVChannelLayout layout = {};
         av_channel_layout_from_mask(&layout, st->iChannelLayout);
         av_channel_layout_describe(&layout, buf, sizeof(buf));
         av_channel_layout_uninit(&layout);
+#else
+        av_get_channel_layout_string(buf, 31, st->iChannels, st->iChannelLayout);
+#endif
         st->m_channelLayoutName = buf;
         if (st->iBitsPerSample == 0)
           st->iBitsPerSample = pStream->codecpar->bits_per_coded_sample;
@@ -1722,6 +1770,18 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
                          pStream->codecpar->field_order == AV_FIELD_TB ||
                          pStream->codecpar->field_order == AV_FIELD_BT;
 
+#if LIBAVFORMAT_BUILD < AV_VERSION_INT(59, 3, 100)
+        if (pStream->codec_info_nb_frames > 0 &&
+            pStream->codec_info_nb_frames <= 2 &&
+            m_pInput->IsStreamType(DVDSTREAM_TYPE_DVD))
+        {
+          CLog::Log(LOGDEBUG, "{} - fps may be unreliable since ffmpeg decoded only {} frame(s)",
+                    __FUNCTION__, pStream->codec_info_nb_frames);
+          st->iFpsRate  = 0;
+          st->iFpsScale = 0;
+        }
+#endif
+
         st->iWidth = pStream->codecpar->width;
         st->iHeight = pStream->codecpar->height;
         st->fAspect = SelectAspect(pStream, st->bForcedAspect);
@@ -1743,7 +1803,11 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
         st->hdr_type = DetermineHdrType(pStream);
 
         // https://github.com/FFmpeg/FFmpeg/blob/release/5.0/doc/APIchanges
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 10, 100)
         size_t size = 0;
+#else
+        int size = 0;
+#endif
         uint8_t* side_data = nullptr;
 
         if (st->hdr_type == StreamHdrType::HDR_TYPE_DOLBYVISION)
@@ -2168,7 +2232,7 @@ std::string CDVDDemuxFFmpeg::GetStreamCodecName(int iStreamId)
       return strName;
     }
 
-    const AVCodec* codec = avcodec_find_decoder(stream->codec);
+    FFMPEG_FMT_CONST AVCodec* codec = avcodec_find_decoder(stream->codec);
     if (codec)
       strName = avcodec_get_name(codec->id);
   }
@@ -2223,7 +2287,12 @@ bool CDVDDemuxFFmpeg::IsProgramChange()
     if (m_pFormatContext->streams[idx]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
     {
       CDemuxStreamAudioFFmpeg* audiostream = dynamic_cast<CDemuxStreamAudioFFmpeg*>(stream);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
       int codecparChannels = m_pFormatContext->streams[idx]->codecpar->ch_layout.nb_channels;
+#else
+      int codecparChannels = m_pFormatContext->streams[idx]->codecpar->channels;
+#endif
       if (audiostream && codecparChannels != audiostream->iChannels)
       {
         return true;
@@ -2344,7 +2413,7 @@ void CDVDDemuxFFmpeg::ParsePacket(AVPacket* pkt)
 
       parser->second->m_parserCtx = av_parser_init(st->codecpar->codec_id);
 
-      const AVCodec* codec = avcodec_find_decoder(st->codecpar->codec_id);
+      FFMPEG_FMT_CONST AVCodec* codec = avcodec_find_decoder(st->codecpar->codec_id);
       if (codec == nullptr)
       {
         CLog::Log(LOGERROR, "{} - can't find decoder", __FUNCTION__);
@@ -2362,7 +2431,11 @@ void CDVDDemuxFFmpeg::ParsePacket(AVPacket* pkt)
         parser->second->m_parserCtx->parser &&
         !st->codecpar->extradata)
     {
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
       FFmpegExtraData retExtraData = GetPacketExtradata(pkt, st->codecpar);
+#else
+      FFmpegExtraData retExtraData = GetPacketExtradata(pkt, parser->second->m_parserCtx, parser->second->m_codecCtx);
+#endif
       if (retExtraData)
       {
         st->codecpar->extradata_size = retExtraData.GetSize();
@@ -2418,8 +2491,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
         {
           if (!m_startTime)
           {
+#if LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 17, 100)
             m_startTime =
                 av_rescale(m_pkt.pkt.dts, st->time_base.num, st->time_base.den) - 0.000001;
+#else
+            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+#endif
             m_seekStream = idx;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2444,8 +2521,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
         {
           if (!m_startTime)
           {
+#if LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 17, 100)
             m_startTime =
                 av_rescale(m_pkt.pkt.dts, st->time_base.num, st->time_base.den) - 0.000001;
+#else
+            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+#endif
             m_seekStream = i;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2489,8 +2570,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
         {
           if (!m_startTime)
           {
+#if LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 17, 100)
             m_startTime =
                 av_rescale(m_pkt.pkt.dts, st->time_base.num, st->time_base.den) - 0.000001;
+#else
+            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+#endif
             m_seekStream = idx;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2516,8 +2601,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
         {
           if (!m_startTime)
           {
+#if LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 17, 100)
             m_startTime =
                 av_rescale(m_pkt.pkt.dts, st->time_base.num, st->time_base.den) - 0.000001;
+#else
+            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+#endif
             m_seekStream = i;
           }
           return TRANSPORT_STREAM_STATE::READY;

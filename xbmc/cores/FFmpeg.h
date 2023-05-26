@@ -24,6 +24,13 @@ extern "C" {
 
 #include <tuple>
 
+// https://github.com/FFmpeg/FFmpeg/blob/56450a0ee4/doc/APIchanges#L18-L26
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
+#define FFMPEG_FMT_CONST const
+#else
+#define FFMPEG_FMT_CONST
+#endif
+
 namespace FFMPEG_HELP_TOOLS
 {
 
@@ -108,4 +115,8 @@ private:
   size_t m_size{};
 };
 
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
 FFmpegExtraData GetPacketExtradata(const AVPacket* pkt, const AVCodecParameters* codecPar);
+#else
+FFmpegExtraData GetPacketExtradata(const AVPacket* pkt, const AVCodecParserContext* parserCtx, AVCodecContext* codecCtx);
+#endif
