@@ -37,7 +37,10 @@ CAEEncoderFFmpeg::~CAEEncoderFFmpeg()
 {
   Reset();
   swr_free(&m_SwrCtx);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   av_channel_layout_uninit(&m_CodecCtx->ch_layout);
+#endif
   avcodec_free_context(&m_CodecCtx);
 }
 
@@ -93,7 +96,7 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
 
   bool ac3 = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_AUDIOOUTPUT_AC3PASSTHROUGH);
 
-  const AVCodec* codec = nullptr;
+  FFMPEG_FMT_CONST AVCodec* codec = nullptr;
 
   /* fallback to ac3 if we support it, we might not have DTS support */
   if (ac3)
@@ -114,8 +117,13 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
 
   m_CodecCtx->bit_rate = m_BitRate;
   m_CodecCtx->sample_rate = format.m_sampleRate;
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   av_channel_layout_uninit(&m_CodecCtx->ch_layout);
   av_channel_layout_from_mask(&m_CodecCtx->ch_layout, AV_CH_LAYOUT_5POINT1_BACK);
+#else
+  m_CodecCtx->channel_layout = AV_CH_LAYOUT_5POINT1_BACK;
+#endif
 
   /* select a suitable data format */
   if (codec->sample_fmts)
@@ -192,27 +200,43 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
           LOGERROR,
           "CAEEncoderFFmpeg::Initialize - Unable to find a suitable data format for the codec ({})",
           m_CodecName);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
       av_channel_layout_uninit(&m_CodecCtx->ch_layout);
+#endif
       avcodec_free_context(&m_CodecCtx);
       return false;
     }
   }
 
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   uint64_t mask = m_CodecCtx->ch_layout.u.mask;
   av_channel_layout_uninit(&m_CodecCtx->ch_layout);
   av_channel_layout_from_mask(&m_CodecCtx->ch_layout, mask);
   m_CodecCtx->ch_layout.nb_channels = BuildChannelLayout(mask, m_Layout);
+#else
+  m_CodecCtx->channels = BuildChannelLayout(m_CodecCtx->channel_layout, m_Layout);
+#endif
 
   /* open the codec */
   if (avcodec_open2(m_CodecCtx, codec, NULL))
   {
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
     av_channel_layout_uninit(&m_CodecCtx->ch_layout);
+#endif
     avcodec_free_context(&m_CodecCtx);
     return false;
   }
 
   format.m_frames = m_CodecCtx->frame_size;
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   int channels = m_CodecCtx->ch_layout.nb_channels;
+#else
+  int channels = m_CodecCtx->channels;
+#endif
   format.m_frameSize = channels * (CAEUtil::DataFormatToBits(format.m_dataFormat) >> 3);
   format.m_channelLayout = m_Layout;
 
@@ -223,14 +247,26 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
 
   if (m_NeedConversion)
   {
+#if LIBSWRESAMPLE_BUILD >= AV_VERSION_INT(4, 7, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
     int ret = swr_alloc_set_opts2(&m_SwrCtx, &m_CodecCtx->ch_layout, m_CodecCtx->sample_fmt,
                                   m_CodecCtx->sample_rate, &m_CodecCtx->ch_layout,
                                   AV_SAMPLE_FMT_FLT, m_CodecCtx->sample_rate, 0, NULL);
     if (ret || swr_init(m_SwrCtx) < 0)
+#else
+    m_SwrCtx = swr_alloc_set_opts(NULL,
+                      m_CodecCtx->channel_layout, m_CodecCtx->sample_fmt, m_CodecCtx->sample_rate,
+                      m_CodecCtx->channel_layout, AV_SAMPLE_FMT_FLT, m_CodecCtx->sample_rate,
+                      0, NULL);
+    if (!m_SwrCtx || swr_init(m_SwrCtx) < 0)
+#endif
     {
       CLog::Log(LOGERROR, "CAEEncoderFFmpeg::Initialize - Failed to initialise resampler.");
       swr_free(&m_SwrCtx);
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
       av_channel_layout_uninit(&m_CodecCtx->ch_layout);
+#endif
       avcodec_free_context(&m_CodecCtx);
       return false;
     }
@@ -284,9 +320,16 @@ int CAEEncoderFFmpeg::Encode(uint8_t *in, int in_size, uint8_t *out, int out_siz
 
     frame->nb_samples = m_CodecCtx->frame_size;
     frame->format = m_CodecCtx->sample_fmt;
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
     av_channel_layout_uninit(&frame->ch_layout);
     av_channel_layout_copy(&frame->ch_layout, &m_CodecCtx->ch_layout);
     int channelNum = m_CodecCtx->ch_layout.nb_channels;
+#else
+    frame->channel_layout = m_CodecCtx->channel_layout;
+    frame->channels = m_CodecCtx->channels;
+    int channelNum = m_CodecCtx->channels;
+#endif
 
     avcodec_fill_audio_frame(frame, channelNum, m_CodecCtx->sample_fmt, in, in_size, 0);
 
@@ -327,7 +370,10 @@ int CAEEncoderFFmpeg::Encode(uint8_t *in, int in_size, uint8_t *out, int out_siz
     CLog::Log(LOGERROR, "CAEEncoderFFmpeg::{} - {}", __func__, caught.what());
   }
 
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   av_channel_layout_uninit(&frame->ch_layout);
+#endif
 
   /* free temporary data */
   av_frame_free(&frame);
