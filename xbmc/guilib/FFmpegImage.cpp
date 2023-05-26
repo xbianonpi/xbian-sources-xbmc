@@ -52,7 +52,7 @@ struct ThumbDataManagement
   AVFrame* frame_temporary = nullptr;
   SwsContext* sws = nullptr;
   AVCodecContext* avOutctx = nullptr;
-  const AVCodec* codec = nullptr;
+  FFMPEG_FMT_CONST AVCodec* codec = nullptr;
   ~ThumbDataManagement()
   {
     av_free(intermediateBuffer);
@@ -205,7 +205,7 @@ bool CFFmpegImage::Initialize(unsigned char* buffer, size_t bufSize)
   constexpr char jpegFormat[] = "jpeg_pipe";
 #endif
 
-  const AVInputFormat* inp = nullptr;
+  FFMPEG_FMT_CONST AVInputFormat* inp = nullptr;
   if (is_jpeg)
     inp = av_find_input_format(jpegFormat);
   else if (m_strMimeType == "image/apng")
@@ -245,7 +245,7 @@ bool CFFmpegImage::Initialize(unsigned char* buffer, size_t bufSize)
     return false;
   }
   AVCodecParameters* codec_params = m_fctx->streams[0]->codecpar;
-  const AVCodec* codec = avcodec_find_decoder(codec_params->codec_id);
+  FFMPEG_FMT_CONST AVCodec* codec = avcodec_find_decoder(codec_params->codec_id);
   m_codec_ctx = avcodec_alloc_context3(codec);
   if (!m_codec_ctx)
   {
