@@ -17,7 +17,7 @@ download:
 $(PLATFORM): $(DEPS)
 	-rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)/build
 	cd $(PLATFORM); cp -a ../src/* .
-	cd $(PLATFORM)/build; $(CMAKE_FOR_BUILD) $(CMAKE_OPTIONS) ..
+	cd $(PLATFORM)/build; cmake -DCMAKE_INSTALL_PREFIX=$(NATIVEPREFIX) ..
 
 $(APP): $(PLATFORM)
 	$(MAKE) -C $(PLATFORM)/build
