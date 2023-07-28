@@ -12,7 +12,7 @@ download:
 .configured-$(PLATFORM): $(DEPS)
 	-rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)/build
 	cd $(PLATFORM); cp -a ../src/* .
-	cd $(PLATFORM)/build; $(CMAKE_FOR_BUILD) ..
+	cd $(PLATFORM)/build; cmake -DCMAKE_INSTALL_PREFIX=$(NATIVEPREFIX) ..
 	touch $@
 
 $(APP): .configured-$(PLATFORM)
