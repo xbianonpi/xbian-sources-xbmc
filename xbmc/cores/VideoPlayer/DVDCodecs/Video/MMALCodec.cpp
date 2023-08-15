@@ -25,6 +25,7 @@
 #include "utils/TimeUtils.h"
 #include "settings/MediaSettings.h"
 #include "settings/Settings.h"
+#include "xbmc/settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
 #include "messaging/ApplicationMessenger.h"
 #include "application/Application.h"
@@ -217,7 +218,7 @@ void CMMALVideo::dec_output_port_cb(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buf
       // we don't keep up when running at 60fps in the background so switch to half rate
       if (m_fps > 40.0f && !CServiceBroker::GetWinSystem()->GetGfxContext().IsFullScreenVideo() && !(m_num_decoded & 1))
         wanted = false;
-      if ((buffer->flags & MMAL_BUFFER_HEADER_FLAG_CORRUPTED))
+      if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_omxDecodeStartWithValidFrame && (buffer->flags & MMAL_BUFFER_HEADER_FLAG_CORRUPTED))
         wanted = false;
       m_num_decoded++;
       CLog::Log(LOGDEBUG, LOGVIDEO,
