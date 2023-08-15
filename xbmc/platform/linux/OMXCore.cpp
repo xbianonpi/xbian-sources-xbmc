@@ -10,6 +10,7 @@
 
 #include "utils/log.h"
 
+#include "OMXClock.h"
 #include "platform/linux/RBP.h"
 
 #include <cassert>
