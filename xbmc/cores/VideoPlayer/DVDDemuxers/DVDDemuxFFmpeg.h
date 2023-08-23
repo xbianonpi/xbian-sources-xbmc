@@ -131,6 +131,10 @@ protected:
   void ResetVideoStreams();
   AVDictionary* GetFFMpegOptionsFromInput();
   double ConvertTimestamp(int64_t pts, int den, int num);
+#if LIBAVCODEC_BUILD < AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD < AV_VERSION_INT(57, 28, 100)
+  void UpdateCurrentPTS();
+#endif
   bool IsProgramChange();
   unsigned int HLSSelectProgram();
 
