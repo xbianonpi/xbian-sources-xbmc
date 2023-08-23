@@ -594,6 +594,11 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
   // if format can be nonblocking, let's use that
   m_pFormatContext->flags |= AVFMT_FLAG_NONBLOCK;
 
+#if LIBAVCODEC_BUILD < AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD < AV_VERSION_INT(57, 28, 100)
+  UpdateCurrentPTS();
+#endif
+
   // select the correct program if requested
   m_initialProgramNumber = UINT_MAX;
   CVariant programProp(pInput->GetProperty("program"));
@@ -1355,10 +1360,18 @@ bool CDVDDemuxFFmpeg::SeekTime(double time, bool backwards, double* startpts)
     {
       if (m_pFormatContext->iformat->read_seek)
         m_seekToKeyFrame = true;
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
       m_currentPts = DVD_NOPTS_VALUE;
+#else
+
+      UpdateCurrentPTS();
+#endif
     }
   }
 
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   if (ret >= 0)
   {
     XbmcThreads::EndTime<> timer(1000ms);
@@ -1382,6 +1395,13 @@ bool CDVDDemuxFFmpeg::SeekTime(double time, bool backwards, double* startpts)
   else
     CLog::Log(LOGDEBUG, "{} - seek ended up on time {}", __FUNCTION__,
               (int)(m_currentPts / DVD_TIME_BASE * 1000));
+#else
+  if (m_currentPts == DVD_NOPTS_VALUE)
+    CLog::Log(LOGDEBUG, "{} - unknown position after seek", __FUNCTION__);
+  else
+    CLog::Log(LOGDEBUG, "{} - seek ended up on time {}", __FUNCTION__,
+              (int)(m_currentPts / DVD_TIME_BASE * 1000));
+#endif
 
   // in this case the start time is requested time
   if (startpts)
@@ -1404,7 +1424,12 @@ bool CDVDDemuxFFmpeg::SeekByte(int64_t pos)
   int ret = av_seek_frame(m_pFormatContext, -1, pos, AVSEEK_FLAG_BYTE);
 
   if (ret >= 0)
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
     m_currentPts = DVD_NOPTS_VALUE;
+#else
+    UpdateCurrentPTS();
+#endif
 
   m_pkt.result = -1;
   av_packet_unref(&m_pkt.pkt);
@@ -1412,6 +1437,26 @@ bool CDVDDemuxFFmpeg::SeekByte(int64_t pos)
   return (ret >= 0);
 }
 
+#if LIBAVCODEC_BUILD < AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD < AV_VERSION_INT(57, 28, 100)
+void CDVDDemuxFFmpeg::UpdateCurrentPTS()
+{
+  m_currentPts = DVD_NOPTS_VALUE;
+
+  int idx = av_find_default_stream_index(m_pFormatContext);
+  if (idx >= 0)
+  {
+    AVStream* stream = m_pFormatContext->streams[idx];
+
+    if (stream && m_pkt.pkt.dts != (int64_t)AV_NOPTS_VALUE)
+    {
+      double ts = ConvertTimestamp(m_pkt.pkt.dts, stream->time_base.den, stream->time_base.num);
+      m_currentPts = ts;
+    }
+  }
+}
+
+#endif
 int CDVDDemuxFFmpeg::GetStreamLength()
 {
   if (!m_pFormatContext)
@@ -2384,7 +2429,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
       st = m_pFormatContext->streams[idx];
       if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
       {
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         if (idx == m_pkt.pkt.stream_index && m_pkt.pkt.dts != AV_NOPTS_VALUE)
+#else
+        if (st->start_time != AV_NOPTS_VALUE)
+#endif
         {
           if (!m_startTime)
           {
@@ -2405,7 +2455,12 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
       st = m_pFormatContext->streams[i];
       if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
       {
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         if (static_cast<int>(i) == m_pkt.pkt.stream_index && m_pkt.pkt.dts != AV_NOPTS_VALUE)
+#else
+        if (st->start_time != AV_NOPTS_VALUE)
+#endif
         {
           if (!m_startTime)
           {
@@ -2419,8 +2474,11 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
       }
     }
   }
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   if (hasAudio && m_startTime)
     return TRANSPORT_STREAM_STATE::READY;
+#endif
 
   return (hasAudio) ? TRANSPORT_STREAM_STATE::NOTREADY : TRANSPORT_STREAM_STATE::NONE;
 }
@@ -2441,8 +2499,13 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
       st = m_pFormatContext->streams[idx];
       if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
       {
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         if (idx == m_pkt.pkt.stream_index && m_pkt.pkt.dts != AV_NOPTS_VALUE &&
             st->codecpar->extradata)
+#else
+        if (st->codecpar->extradata)
+#endif
         {
           if (!m_startTime)
           {
@@ -2463,8 +2526,13 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
       st = m_pFormatContext->streams[i];
       if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
       {
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
         if (static_cast<int>(i) == m_pkt.pkt.stream_index && m_pkt.pkt.dts != AV_NOPTS_VALUE &&
             st->codecpar->extradata)
+#else
+        if (st->codecpar->extradata)
+#endif
         {
           if (!m_startTime)
           {
@@ -2478,8 +2546,11 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
       }
     }
   }
+#if LIBAVCODEC_BUILD >= AV_VERSION_INT(59, 37, 100) && \
+    LIBAVUTIL_BUILD >= AV_VERSION_INT(57, 28, 100)
   if (hasVideo && m_startTime)
     return TRANSPORT_STREAM_STATE::READY;
+#endif
 
   return (hasVideo) ? TRANSPORT_STREAM_STATE::NOTREADY : TRANSPORT_STREAM_STATE::NONE;
 }
