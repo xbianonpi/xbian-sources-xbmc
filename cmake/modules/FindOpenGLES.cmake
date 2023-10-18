@@ -46,16 +46,10 @@ if(NOT TARGET OpenGL::GLES)
       endif()
     endif()
 
-    if(${OPENGLES_gl_LIBRARY} MATCHES ".+\.so$")
-      add_library(OpenGL::GLES SHARED IMPORTED)
-    else()
-      add_library(OpenGL::GLES UNKNOWN IMPORTED)
-    endif()
-
+    add_library(OpenGL::GLES UNKNOWN IMPORTED)
     set_target_properties(OpenGL::GLES PROPERTIES
                                        IMPORTED_LOCATION "${OPENGLES_gl_LIBRARY}"
-                                       INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES_INCLUDE_DIR}"
-                                       IMPORTED_NO_SONAME TRUE)
+                                       INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES_INCLUDE_DIR}")
 
     if(OPENGLES3_INCLUDE_DIR AND NOT CORE_PLATFORM_NAME STREQUAL rbpi)
       message(STATUS "GLES3 settings enabled (gbm)")
