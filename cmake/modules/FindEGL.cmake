@@ -8,16 +8,20 @@
 #   EGL::EGL   - The EGL library
 
 if(NOT TARGET EGL::EGL)
+if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+    set(_brcmprefix brcm)
+endif()
+
   find_package(PkgConfig)
   if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_EGL egl QUIET)
+    pkg_check_modules(PC_EGL ${_brcmprefix}egl QUIET)
   endif()
 
   find_path(EGL_INCLUDE_DIR EGL/egl.h
                             HINTS ${PC_EGL_INCLUDEDIR}
                             NO_CACHE)
 
-  find_library(EGL_LIBRARY NAMES EGL egl
+  find_library(EGL_LIBRARY NAMES ${_brcmprefix}EGL egl
                            HINTS ${PC_EGL_LIBDIR}
                            NO_CACHE)
 

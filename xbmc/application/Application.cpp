@@ -414,6 +414,13 @@ bool CApplication::Create()
   // application inbound service
   m_pAppPort = std::make_shared<CAppInboundProtocol>(*this);
   CServiceBroker::RegisterAppPort(m_pAppPort);
+/*
+#if defined(TARGET_RASPBERRY_PI)
+  m_pWinSystem = CWinSystemBase::CreateWinSystem();
+  CServiceBroker::RegisterWinSystem(m_pWinSystem.get());
+#endif
+*/
+
 
   if (!m_ServiceManager->InitStageTwo(
           settingsComponent->GetProfileManager()->GetProfileUserDataFolder()))
@@ -464,6 +471,11 @@ bool CApplication::CreateGUI()
   const auto appPower = GetComponent<CApplicationPowerHandling>();
   appPower->SetRenderGUI(true);
 
+#if defined(TARGET_RASPBERRY_PI)
+  m_pWinSystem = CWinSystemBase::CreateWinSystem();
+  CServiceBroker::RegisterWinSystem(m_pWinSystem.get());
+  if (!CServiceBroker::GetWinSystem()->InitWindowSystem())
+#else
   auto windowSystems = KODI::WINDOWING::CWindowSystemFactory::GetWindowSystems();
 
   const std::string& windowing = CServiceBroker::GetAppParams()->GetWindowing();
@@ -503,6 +515,7 @@ bool CApplication::CreateGUI()
   }
 
   if (!m_pWinSystem)
+#endif
   {
     CLog::Log(LOGFATAL, "CApplication::{} - unable to init windowing system", __FUNCTION__);
     CServiceBroker::UnregisterWinSystem();
@@ -1856,8 +1869,9 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
   if (processGUI && renderGUI)
   {
     m_skipGuiRender = false;
-
-    /*! @todo look into the possibility to use this for GBM
+    const auto& components = CServiceBroker::GetAppComponents();
+    const auto appPlayer = components.GetComponent<CApplicationPlayer>();
+#if defined(TARGET_RASPBERRY_PI)
     int fps = 0;
 
     // This code reduces rendering fps of the GUI layer when playing videos in fullscreen mode
@@ -1870,7 +1884,7 @@ void CApplication::FrameMove(bool processEvents, bool processGUI)
     auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastRenderTime).count();
     if (fps > 0 && frameTime * fps < 1000)
       m_skipGuiRender = true;
-    */
+#endif
 
     if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_guiSmartRedraw && m_guiRefreshTimer.IsTimePast())
     {
@@ -3682,6 +3696,7 @@ void CApplication::PrintStartupLog()
             g_sysinfo.GetBuildTargetCpuFamily(), g_sysinfo.GetXbmcBitness());
 
   std::string buildType;
+  std::string specialVersion;
 #if defined(_DEBUG)
   buildType = "Debug";
 #elif defined(NDEBUG)
@@ -3690,8 +3705,14 @@ void CApplication::PrintStartupLog()
   buildType = "Unknown";
 #endif
 
-  CLog::Log(LOGINFO, "Using {} {} x{}", buildType, CSysInfo::GetAppName(),
-            g_sysinfo.GetXbmcBitness());
+#if defined(TARGET_RASPBERRY_PI)
+  specialVersion = " build for Raspberry Pi";
+//#elif defined(some_ID) // uncomment for special version/fork
+//  specialVersion = " (version for XXXX)";
+#endif
+
+  CLog::Log(LOGINFO, "Using {} {} x{}{}", buildType, CSysInfo::GetAppName(),
+            g_sysinfo.GetXbmcBitness(), specialVersion);
   CLog::Log(LOGINFO, "{} compiled {} by {} for {} {} {}-bit {} ({})", CSysInfo::GetAppName(),
             CSysInfo::GetBuildDate(), g_sysinfo.GetUsedCompilerNameAndVer(),
             g_sysinfo.GetBuildTargetPlatformName(), g_sysinfo.GetBuildTargetCpuFamily(),
