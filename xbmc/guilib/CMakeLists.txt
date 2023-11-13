@@ -179,6 +179,11 @@ if(TARGET OpenGL::GL OR TARGET OpenGL::GLES)
 
 endif()
 
+#if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+#  list(APPEND SOURCES TexturePi.cpp)
+#  list(APPEND HEADERS TexturePi.h)
+#endif()
+
 if(CORE_SYSTEM_NAME STREQUAL windows OR CORE_SYSTEM_NAME STREQUAL windowsstore)
   list(APPEND SOURCES D3DResource.cpp
                       DirectXGraphics.cpp

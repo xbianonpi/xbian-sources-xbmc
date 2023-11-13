@@ -13,6 +13,9 @@
 #include "ServiceBroker.h"
 #include "cores/AudioEngine/Interfaces/AE.h"
 #include "cores/AudioEngine/Utils/AEUtil.h"
+#ifdef TARGET_RASPBERRY_PI
+#include "platform/linux/RBP.h"
+#endif
 #include "cores/VideoPlayer/Interface/DemuxPacket.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
@@ -21,9 +24,6 @@
 
 #include <mutex>
 
-#ifdef TARGET_RASPBERRY_PI
-#include "platform/linux/RBP.h"
-#endif
 
 #include <sstream>
 #include <iomanip>
