@@ -38,4 +38,15 @@ if(ADDONS_CONFIGURE_AT_STARTUP)
   add_compile_definitions(ADDONS_CONFIGURE_AT_STARTUP)
 endif()
 
+if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+  list(APPEND SOURCES RBP.cpp
+                      OMXCore.cpp
+                      ScreenshotSurfaceRBP.cpp)
+  list(APPEND HEADERS RBP.h
+                      DllBCM.h
+                      DllOMX.h
+                      OMXCore.h
+                      ScreenshotSurfaceRBP.h)
+endif()
+
 core_add_library(linuxsupport)

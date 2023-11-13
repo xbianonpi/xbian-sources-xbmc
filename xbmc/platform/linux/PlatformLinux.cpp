@@ -51,6 +51,10 @@
 #endif
 // clang-format on
 
+#if defined(TARGET_RASPBERRY_PI)
+#include "cores/AudioEngine/Sinks/AESinkPi.h"
+#endif
+
 #include <cstdlib>
 
 #ifndef TARGET_WEBOS
@@ -116,8 +120,17 @@ bool CPlatformLinux::InitStageOne()
     OPTIONALS::ALSARegister();
     OPTIONALS::PulseAudioRegister();
   }
+#if defined(TARGET_RASPBERRY_PI)
+  else if (sink == "pi")
+  {
+    CAESinkPi::Register();
+  }
+#endif
   else
   {
+#if defined(TARGET_RASPBERRY_PI)
+    CAESinkPi::Register();
+#endif
     if (!OPTIONALS::PipewireRegister())
     {
       if (!OPTIONALS::PulseAudioRegister())
