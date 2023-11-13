@@ -26,6 +26,9 @@
 #include "utils/log.h"
 
 #include <cstdlib>
+#ifdef TARGET_RASPBERRY_PI
+#include "cores/omxplayer/OMXImage.h"
+#endif
 #include <cstring>
 #include <exception>
 #include <utility>
@@ -123,6 +126,21 @@ bool CTextureCacheJob::CacheTexture(std::unique_ptr<CTexture>* out_texture)
       return true;
     }
   }
+
+#if defined(TARGET_RASPBERRY_PI)
+  if (COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
+  {
+    m_details.width = width;
+    m_details.height = height;
+    m_details.file = m_cachePath + ".jpg";
+    if (out_texture)
+      *out_texture = LoadImage(CTextureCache::GetCachedPath(m_details.file), width, height, "" /* already flipped */);
+    CLog::Log(LOGDEBUG, "Fast {} image '{}' to '{}': {:p}",
+              m_oldHash.empty() ? "Caching" : "Recaching", CURL::GetRedacted(image),
+              m_details.file, static_cast<void*>(out_texture));
+    return true;
+  }
+#endif
 
   std::unique_ptr<CTexture> texture = LoadImage(image, width, height, additional_info, true);
   if (texture)

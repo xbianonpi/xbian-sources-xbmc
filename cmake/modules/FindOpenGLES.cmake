@@ -8,12 +8,16 @@
 #   OpenGL::GLES - The OpenGLES IMPORTED library
 
 if(NOT TARGET OpenGL::GLES)
-  find_package(PkgConfig)
-  if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_OPENGLES glesv2 QUIET)
+  if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+     set(_brcmprefix brcm)
   endif()
 
-  find_library(OPENGLES_gl_LIBRARY NAMES GLESv2 OpenGLES
+  find_package(PkgConfig)
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_OPENGLES ${_brcmprefix}glesv2 QUIET)
+  endif()
+
+  find_library(OPENGLES_gl_LIBRARY NAMES ${_brcmprefix}GLESv2 OpenGLES
                                    HINTS ${PC_OPENGLES_LIBDIR} ${CMAKE_OSX_SYSROOT}/System/Library
                                    PATH_SUFFIXES Frameworks
                                    NO_CACHE)
