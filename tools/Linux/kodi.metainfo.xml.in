@@ -5,7 +5,7 @@
     <project_license>GPL-2.0-only GPL-2.0-or-later LGPL-2.1-or-later MIT BSD-3-Clause BSD-4-Clause</project_license>
     <metadata_license>CC0-1.0</metadata_license>
     <developer_name>Team Kodi</developer_name>
-    <summary>The ultimate entertainment center</summary>
+    <summary>Ultimate entertainment center</summary>
     <url type="homepage">https://kodi.tv/</url>
     <url type="donation">https://kodi.tv/contribute/donate</url>
     <url type="bugtracker">https://github.com/xbmc/xbmc/issues</url>
@@ -78,6 +78,7 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2024-01-09" version="20.3-Nexus" type="stable"><url>https://kodi.tv/article/kodi-20-3-nexus-release/</url></release>
         <release date="2023-06-29" version="20.2-Nexus" type="stable"><url>https://kodi.tv/article/kodi-20-2-nexus-release/</url></release>
         <release date="2023-03-11" version="20.1-Nexus" type="stable"><url>https://kodi.tv/article/kodi-20-1-nexus-release/</url></release>
         <release date="2023-01-15" version="20.0-Nexus" type="stable"><url>https://kodi.tv/article/kodi-20-0-nexus-release/</url></release>
