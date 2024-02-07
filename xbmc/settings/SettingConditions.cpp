@@ -440,6 +440,9 @@ void CSettingConditions::Initialize()
   m_simpleConditions.emplace("have_webos");
 #endif
 
+#if defined(HAVE_LIBMFX) || defined(TARGET_RASPBERRY_PI)
+  m_simpleConditions.insert("has_mvc");
+#endif
 #ifdef HAVE_LCMS2
   m_simpleConditions.emplace("have_lcms2");
 #endif
