@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "VNCServer.h"
 #include "VideoLayerBridge.h"
 #include "drm/DRMUtils.h"
 #include "threads/CriticalSection.h"
@@ -83,6 +84,8 @@ protected:
 
   std::shared_ptr<CDRMUtils> m_DRM;
   std::unique_ptr<CGBMUtils> m_GBM;
+
+  std::unique_ptr<CVNCServer> m_vnc;
   std::shared_ptr<CVideoLayerBridge> m_videoLayerBridge;
 
   CCriticalSection m_resourceSection;

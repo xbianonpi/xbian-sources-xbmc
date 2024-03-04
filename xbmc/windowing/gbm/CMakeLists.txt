@@ -23,4 +23,9 @@ if(TARGET OpenGL::GLES)
   list(APPEND HEADERS WinSystemGbmGLESContext.h)
 endif()
 
+if (LIBVNCSERVER_FOUND)
+  list(APPEND SOURCES VNCServer.cpp)
+  list(APPEND HEADERS VNCServer.h)
+endif()
+
 core_add_library(windowing_gbm)

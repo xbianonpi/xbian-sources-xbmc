@@ -86,10 +86,8 @@ constexpr auto ColorimetryMap = make_map<KODI::UTILS::Colorimetry, std::string_v
 });
 } // namespace
 
-CWinSystemGbm::CWinSystemGbm() :
-  m_DRM(nullptr),
-  m_GBM(new CGBMUtils),
-  m_libinput(new CLibInputHandler)
+CWinSystemGbm::CWinSystemGbm()
+  : m_DRM(nullptr), m_GBM(new CGBMUtils), m_libinput(new CLibInputHandler), m_vnc(nullptr)
 {
   m_dpms = std::make_shared<CGBMDPMSSupport>();
   m_libinput->Start();
@@ -302,6 +300,7 @@ void CWinSystemGbm::FlipPage(bool rendered, bool videoLayer, bool async)
   if (rendered)
   {
     bo = m_GBM->GetDevice().GetSurface().LockFrontBuffer().Get();
+    m_vnc->UpdateFrameBuffer();
   }
 
   m_DRM->FlipPage(bo, rendered, videoLayer, async);
