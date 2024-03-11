@@ -34,7 +34,7 @@ if(NOT TARGET dav1d::dav1d)
     set(INSTALL_COMMAND ${NINJA_EXECUTABLE} install)
 
     BUILD_DEP_TARGET()
-  else()
+  elseif(NOT CORE_PLATFORM_NAME STREQUAL rbpi)
     find_package(PkgConfig)
     # Do not use pkgconfig on windows
     if(PKG_CONFIG_FOUND AND NOT WIN32)
