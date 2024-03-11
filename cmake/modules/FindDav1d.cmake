@@ -34,7 +34,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     set(INSTALL_COMMAND ${NINJA_EXECUTABLE} install)
 
     BUILD_DEP_TARGET()
-  else()
+  elseif(NOT CORE_PLATFORM_NAME STREQUAL rbpi)
     find_package(PkgConfig)
     # Do not use pkgconfig on windows
     if(PKG_CONFIG_FOUND AND NOT WIN32)
