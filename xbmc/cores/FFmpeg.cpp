@@ -213,13 +213,20 @@ uint8_t* FFmpegExtraData::TakeData()
   return tmp;
 }
 
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
 FFmpegExtraData GetPacketExtradata(const AVPacket* pkt, const AVCodecParameters* codecPar)
+#else
+FFmpegExtraData GetPacketExtradata(const AVPacket* pkt,
+                                             const AVCodecParserContext* parserCtx,
+                                             AVCodecContext* codecCtx)
+#endif
 {
   constexpr int FF_MAX_EXTRADATA_SIZE = ((1 << 28) - AV_INPUT_BUFFER_PADDING_SIZE);
 
   if (!pkt)
     return {};
 
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
   /* extract_extradata bitstream filter is implemented only
    * for certain codecs, as noted in discussion of PR#21248
    */
@@ -335,6 +342,35 @@ FFmpegExtraData GetPacketExtradata(const AVPacket* pkt, const AVCodecParameters*
 
   av_bsf_free(&bsf);
   av_packet_free(&dstPkt);
+#else
+  FFmpegExtraData extraData;
+  int extraDataSize;
+  if (codecCtx && parserCtx && parserCtx->parser && parserCtx->parser->split)
+  {
+    extraDataSize = parserCtx->parser->split(codecCtx, pkt->data, pkt->size);
+    if (extraDataSize > 0 && extraDataSize < FF_MAX_EXTRADATA_SIZE)
+    {
+      try
+      {
+        extraData = FFmpegExtraData(pkt->data, extraDataSize);
+      }
+      catch (const std::bad_alloc&)
+      {
+        CLog::LogF(LOGERROR, "failed to allocate {} bytes for extradata", extraDataSize);
+        return {};
+      }
+
+      CLog::LogF(LOGDEBUG, "fetching extradata, extradata_size({})", extraDataSize);
+    }
+    else
+    {
+      CLog::LogF(LOGDEBUG, "fetched extradata of weird size {}", extraDataSize);
+      return {};
+    }
+  }
+  else
+    return {};
+#endif
 
   return extraData;
 }
