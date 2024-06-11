@@ -40,6 +40,8 @@ ifeq ($(OS),darwin_embedded)
 endif
 	cd $(PLATFORM); patch -p1 -i ../002-darwin-dlopen_searchpath.patch
 ifeq ($(TARGET_PLATFORM),appletvos)
+	cd $(PLATFORM); patch -p1 < ../libbluray-01-bump_to_Nevcairiel_vL20170904.patch
+	cd $(PLATFORM); patch -p1 < ../libbluray-02-install-extra-MVC-headers.patch
 	cd $(PLATFORM); patch -p1 -i ../tvos.patch
 endif
 	cd $(PLATFORM); patch -p1 -i ../003-all-java21-buildsupport.patch
