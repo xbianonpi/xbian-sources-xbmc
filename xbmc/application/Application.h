@@ -183,6 +183,8 @@ public:
 
   void SetLoggingIn(bool switchingProfiles);
 
+  bool ScreenSaverDisablesAutoScrolling();
+
   std::unique_ptr<CServiceManager> m_ServiceManager;
 
   /*!
