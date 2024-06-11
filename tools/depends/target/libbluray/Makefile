@@ -51,6 +51,8 @@ endif
 	cd $(PLATFORM); patch -p1 -i ../002-darwin-dlopen_searchpath.patch
 	cd $(PLATFORM); patch -p1 -i ../003-all-libxml_searchname.patch
 ifeq ($(TARGET_PLATFORM),appletvos)
+	cd $(PLATFORM); patch -p1 < ../libbluray-01-bump_to_Nevcairiel_vL20170904.patch
+	cd $(PLATFORM); patch -p1 < ../libbluray-02-install-extra-MVC-headers.patch
 	cd $(PLATFORM); patch -p1 -i ../tvos.patch
 endif
 ifeq ($(TARGET_PLATFORM),windows)
