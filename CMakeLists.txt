@@ -247,6 +247,7 @@ set(optional_deps Alsa>=1.0.27
                   Bluetooth
                   Bluray>=0.9.3
                   CAP
+                  LibVncServer
                   CEC>=4.0.0
                   Dav1d
                   DBus
