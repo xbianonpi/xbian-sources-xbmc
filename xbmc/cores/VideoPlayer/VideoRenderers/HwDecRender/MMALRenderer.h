@@ -16,6 +16,7 @@
 #include "threads/IRunnable.h"
 #include "threads/Thread.h"
 #include "utils/Geometry.h"
+#include "platform/linux/RBP.h"
 #include "windowing/GraphicContext.h"
 
 #include <vector>
