@@ -23,4 +23,9 @@ if(TARGET ${APP_NAME_LC}::OpenGLES)
   list(APPEND HEADERS WinSystemGbmGLESContext.h)
 endif()
 
+if(TARGET ${APP_NAME_LC}::LibVncServer)
+  list(APPEND SOURCES VNCServer.cpp)
+  list(APPEND HEADERS VNCServer.h)
+endif()
+
 core_add_library(windowing_gbm)
