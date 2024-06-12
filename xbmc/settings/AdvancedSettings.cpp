@@ -393,6 +393,7 @@ void CAdvancedSettings::Initialize()
 #if defined(TARGET_DARWIN)
   // default for osx is fullscreen always on top
   m_alwaysOnTop = true;
+  m_libAssCache = 0;
 #else
   // default for windows is not always on top
   m_alwaysOnTop = false;
@@ -1077,6 +1078,10 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
 
   XMLUtils::GetUInt(pRootElement, "fanartres", m_fanartRes, 0, 9999);
   XMLUtils::GetUInt(pRootElement, "imageres", m_imageRes, 0, 9999);
+
+  XMLUtils::GetUInt(pRootElement, "libasscache", m_libAssCache, 0, 1024);
+
+
   if (XMLUtils::GetString(pRootElement, "imagescalingalgorithm", tmp))
     m_imageScalingAlgorithm = CPictureScalingAlgorithm::FromString(tmp);
   XMLUtils::GetUInt(pRootElement, "imagequalityjpeg", m_imageQualityJpeg, 0, 21);
