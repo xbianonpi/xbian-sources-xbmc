@@ -78,6 +78,7 @@ void CDVDStreamInfo::Clear()
   channellayout = 0;
 
   orientation = 0;
+  workaround_bugs = 0;
   bitdepth = 0;
 }
 
@@ -244,6 +245,7 @@ void CDVDStreamInfo::Assign(const CDVDStreamInfo& right, bool withextradata)
   blockalign    = right.blockalign;
   bitrate       = right.bitrate;
   bitspersample = right.bitspersample;
+  workaround_bugs = right.workaround_bugs;
   channellayout = right.channellayout;
 
   // SUBTITLE
@@ -304,6 +306,7 @@ void CDVDStreamInfo::Assign(const CDemuxStream& right, bool withextradata)
     masteringMetadata = stream->masteringMetaData;
     contentLightMetadata = stream->contentLightMetaData;
     stereo_mode = stream->stereo_mode;
+    workaround_bugs = stream->workaround_bugs;
     dovi = stream->dovi;
   }
   else if (right.type == STREAM_SUBTITLE)
