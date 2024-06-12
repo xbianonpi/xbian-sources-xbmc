@@ -24,7 +24,7 @@ std::map<std::string, std::string> CSpecialProtocol::m_pathMap;
 #include "filesystem/ZipManager.h"
 
 CLangCodeExpander g_LangCodeExpander;
-#ifdef TARGET_RASPBERRY_PI
+#ifdef HAVE_MMAL
 #include "platform/linux/RBP.h"
 #endif
 
@@ -40,7 +40,7 @@ CAlarmClock g_alarmClock;
 CSectionLoader g_sectionLoader;
 
 CZipManager g_ZipManager;
-#ifdef TARGET_RASPBERRY_PI
+#ifdef HAVE_MMAL
   CRBP               g_RBP;
 #endif
 

@@ -17,6 +17,13 @@
 #include "cores/VideoPlayer/Process/gbm/ProcessInfoGBM.h"
 #include "cores/VideoPlayer/VideoRenderers/HwDecRender/RendererDRMPRIME.h"
 #include "cores/VideoPlayer/VideoRenderers/HwDecRender/RendererDRMPRIMEGLES.h"
+#ifdef HAVE_MMAL
+#include "ServiceBroker.h"
+#include "settings/Settings.h"
+#include "settings/SettingsComponent.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/MMALFFmpeg.h"
+#include "cores/VideoPlayer/DVDCodecs/Video/MMALCodec.h"
+#endif
 #include "cores/VideoPlayer/VideoRenderers/LinuxRendererGLES.h"
 #include "cores/VideoPlayer/VideoRenderers/RenderFactory.h"
 #include "rendering/gles/GuiCompositeShaderGLES.h"
@@ -62,6 +69,9 @@ bool CWinSystemGbmGLESContext::InitWindowSystem()
 {
   VIDEOPLAYER::CRendererFactory::ClearRenderer();
   CDVDFactoryCodec::ClearHWAccels();
+#ifdef HAVE_MMAL
+  // CDVDFactoryCodec::ClearHWVideoCodecs(); **KM**
+#endif
   CLinuxRendererGLES::Register();
   RETRO::CRPProcessInfoGbm::Register();
   RETRO::CRPProcessInfoGbm::RegisterRendererFactory(new RETRO::CRendererFactoryDMAOpenGLES);
@@ -91,6 +101,14 @@ bool CWinSystemGbmGLESContext::InitWindowSystem()
   CRendererDRMPRIME::Register();
   CDVDVideoCodecDRMPRIME::Register();
   VIDEOPLAYER::CProcessInfoGBM::Register();
+#ifdef HAVE_MMAL
+  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_VIDEOPLAYER_USEMMAL))
+  {
+    MMAL::CDecoder::Register();
+    MMAL::CMMALRenderer::Register();
+    MMAL::CMMALVideo::Register();
+  }
+#endif
 
   CScreenshotSurfaceGLES::Register();
 
