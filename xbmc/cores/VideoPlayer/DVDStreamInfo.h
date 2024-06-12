@@ -77,6 +77,7 @@ public:
   AVColorPrimaries colorPrimaries;
   AVColorTransferCharacteristic colorTransferCharacteristic;
   std::shared_ptr<AVMasteringDisplayMetadata> masteringMetadata;
+  int workaround_bugs; // info for decoder
   std::shared_ptr<AVContentLightMetadata> contentLightMetadata;
   std::string stereo_mode; // stereoscopic 3d mode
   AVDOVIDecoderConfigurationRecord dovi{};

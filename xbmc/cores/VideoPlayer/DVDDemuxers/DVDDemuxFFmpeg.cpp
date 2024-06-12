@@ -63,6 +63,9 @@ extern "C"
 #include <libavutil/pixdesc.h>
 }
 
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
+#include <libavformat/internal.h>
+#endif
 using namespace std::chrono_literals;
 
 struct StereoModeConversionMap
@@ -1813,6 +1816,13 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
           st->bPTSInvalid = true;
 
         AVRational r_frame_rate = pStream->r_frame_rate;
+#if LIBAVFORMAT_BUILD >= AV_VERSION_INT(59, 0, 100)
+        FFStream *sti = ffstream(pStream);
+        AVCodecContext *c = sti->avctx;
+#else
+        AVCodecContext *c = (AVCodecContext *)(((uint32_t *)pStream->internal)[3]); /* Eek! */
+#endif
+        st->workaround_bugs = c->workaround_bugs;
 
         //average fps is more accurate for mkv files
         if (m_bMatroska && pStream->avg_frame_rate.den && pStream->avg_frame_rate.num)
