@@ -105,7 +105,9 @@ private:
   DllBcmHost *m_DllBcmHost;
   bool       m_initialized;
   bool       m_omx_initialized;
+#ifdef TARGET_RASPBERRY_PI
   bool       m_omx_image_init;
+#endif
   int        m_arm_mem;
   int        m_gpu_mem;
   int        m_gui_resolution_limit;
