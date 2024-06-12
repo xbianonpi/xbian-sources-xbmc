@@ -20,8 +20,10 @@
 #include "imagefiles/ImageFileURL.h"
 #include "imagefiles/SpecialImageLoaderFactory.h"
 #include "pictures/Picture.h"
+#include "ServiceBroker.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
+#include "settings/Settings.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/log.h"
@@ -118,7 +120,7 @@ bool CTextureCacheJob::CacheTexture(std::unique_ptr<CTexture>* out_texture)
   }
 
 #if defined(TARGET_RASPBERRY_PI_BROKEN)
-  if (COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
+  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool("videoplayer.acceleratedjpegs") && COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
   {
     m_details.width = width;
     m_details.height = height;
