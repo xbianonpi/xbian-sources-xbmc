@@ -128,6 +128,7 @@ void CGUIControl::DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyreg
   if (Animate(currentTime))
     MarkDirtyRegion();
 
+#if !defined(TARGET_RASPBERRY_PI) && !defined(HAS_GLES)
   // if the control changed culling state from true to false, mark it
   const bool culled = m_transform.alpha <= 0.01f;
   if (m_isCulled != culled)
@@ -136,6 +137,7 @@ void CGUIControl::DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyreg
     MarkDirtyRegion();
   }
   m_isCulled = culled;
+#endif
 
   if (IsVisible())
   {
@@ -184,7 +186,11 @@ void CGUIControl::DoRender()
       !m_renderRegion.Intersects(CServiceBroker::GetWinSystem()->GetGfxContext().GetScissors()))
     return;
 
+#if defined(TARGET_RASPBERRY_PI) || defined(HAS_GLES)
+  if (IsVisible())
+#else
   if (IsVisible() && !m_isCulled)
+#endif
   {
     bool hasStereo =
         m_stereo != 0.0f &&
@@ -418,7 +424,11 @@ bool CGUIControl::CanFocus() const
 
 bool CGUIControl::IsVisible() const
 {
+#if defined(TARGET_RASPBERRY_PI) || defined(HAS_GLES)
+  if (m_forceHidden || m_transform.alpha <= 0.01f)
+#else
   if (m_forceHidden)
+#endif
     return false;
   return m_visible == VISIBLE;
 }
@@ -495,9 +505,11 @@ void CGUIControl::AssignDepth()
 
 void CGUIControl::MarkDirtyRegion(const unsigned int dirtyState)
 {
+#if !defined(TARGET_RASPBERRY_PI) && !defined(HAS_GLES)
   // if the control is culled, bail
   if (dirtyState == DIRTY_STATE_CONTROL && m_isCulled)
     return;
+#endif
   if (!m_controlDirtyState && m_parentControl)
     m_parentControl->MarkDirtyRegion(DIRTY_STATE_CHILD);
 
