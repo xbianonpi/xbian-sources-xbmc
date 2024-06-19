@@ -7614,7 +7614,16 @@ msgctxt "#13457"
 msgid "Prefer VAAPI render method"
 msgstr ""
 
-#empty strings from id 13458 to 13459
+#: system/settings/settings.xml
+msgctxt "#13458"
+msgid "Allow hardware acceleration - OMXPlayer"
+msgstr ""
+
+#. Description of setting with label #13457 "Allow hardware acceleration (OMXPlayer)"
+#: system/settings/settings.xml
+msgctxt "#13459"
+msgid "Use OMXPlayer for decoding of video files."
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#13460"
