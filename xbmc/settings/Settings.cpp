@@ -66,6 +66,7 @@ using namespace XFILE;
 
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEOMXPLAYER;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC;
 
 bool CSettings::Initialize()
 {
@@ -633,6 +634,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.insert(CSettings::SETTING_ADDONS_SHOW_RUNNING);
   settingSet.insert(CSettings::SETTING_ADDONS_MANAGE_DEPENDENCIES);
   settingSet.insert(CSettings::SETTING_ADDONS_REMOVE_ORPHANED_DEPENDENCIES);
+  settingSet.insert(CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC);
   settingSet.insert(CSettings::SETTING_ADDONS_ALLOW_UNKNOWN_SOURCES);
   GetSettingsManager()->RegisterCallback(&ADDON::CAddonSystemSettings::GetInstance(), settingSet);
 
