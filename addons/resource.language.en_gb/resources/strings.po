@@ -7724,6 +7724,16 @@ msgstr ""
 #empty strings from id 13477 to 13504
 
 #: system/settings/settings.xml
+msgctxt "#13500"
+msgid "Only allow acceleration for AVC/HEVC"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#13501"
+msgid "This option disables acceleration for other codecs as they don't currently support seeking with V4L2"
+msgstr ""
+
+#: system/settings/settings.xml
 msgctxt "#13505"
 msgid "Resample quality"
 msgstr ""
