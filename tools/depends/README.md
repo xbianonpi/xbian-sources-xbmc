@@ -55,6 +55,9 @@ Paths below are examples. If you want to build Kodi, follow our **[build guides]
 **webos (buildroot-nc4)**
 `./configure --with-toolchain=/opt/toolchains/arm-webos-linux-gnueabi_sdk-buildroot --prefix=/opt/xbmc-deps --host=arm-webos-linux-gnueabi`
 
+**Raspberry Pi**  
+`./configure --with-platform=raspberry-pi --host=arm-linux-gnueabihf --prefix=/opt/xbmc-deps --with-tarballs=/opt/xbmc-tarballs --with-toolchain=/opt/rbp-dev/tools/arm-bcm
+
 **Native**
 `./configure --with-toolchain=/usr --prefix=/opt/xbmc-deps --host=x86_64-linux-gnu --with-rendersystem=gl`
 
