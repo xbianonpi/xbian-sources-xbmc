@@ -30,16 +30,11 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
                                     REQUIRED_VARS OPENGLES_gl_LIBRARY OPENGLES_INCLUDE_DIR)
 
   if(OPENGLES_FOUND)
-    if(${OPENGLES_gl_LIBRARY} MATCHES ".+\.so$")
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} SHARED IMPORTED)
-    else()
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-    endif()
+    add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
 
     set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                      IMPORTED_LOCATION "${OPENGLES_gl_LIBRARY}"
-                                                                     INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES_INCLUDE_DIR}"
-                                                                     IMPORTED_NO_SONAME TRUE)
+                                                                     INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES_INCLUDE_DIR}")
 
     if(OPENGLES3_INCLUDE_DIR AND NOT CORE_PLATFORM_NAME STREQUAL rbpi)
       message(STATUS "GLES3 settings enabled (gbm)")
