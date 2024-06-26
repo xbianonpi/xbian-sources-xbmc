@@ -1378,6 +1378,14 @@ constexpr std::array<InfoMap, 7> weather = {{
 ///     @return **True** if Kodi is running on a linux/unix based computer.
 ///     <p>
 ///   }
+///   \table_row3{   <b>`System.Platform.Linux.RaspberryPi`</b>,
+///                  \anchor System_PlatformLinuxRaspberryPi
+///                  _boolean_,
+///     @return **True** if Kodi is running on a Raspberry Pi.
+///     <p><hr>
+///     @skinning_v13 **[New Boolean Condition]** \link System_PlatformLinuxRaspberryPi
+///     `System.Platform.Linux.RaspberryPi`\endlink <p>
+///   }
 ///   \table_row3{   <b>`System.Platform.Windows`</b>,
 ///                  \anchor System_PlatformWindows
 ///                  _boolean_,
@@ -10288,11 +10296,6 @@ constexpr std::array<InfoMap, 63> slideshow = {{
 ///   - `Player.DisplayAfterSeek` - use \link Player_HasPerformedSeek `Player.HasPerformedSeek(interval)`\endlink instead
 ///
 /// <hr>
-/// \subsection modules_rm_infolabels_booleans_v19 Kodi v19 (Matrix)
-/// @skinning_v19 **[Removed Infolabels]** The following infolabels have been removed:
-///   - `System.Platform.Linux.RaspberryPi` - use \link System_Platform_Linux `System.Platform.Linux`\endlink instead
-///
-/// <hr>
 /// \subsection modules_rm_infolabels_booleans_v18 Kodi v18 (Leia)
 ///
 /// @skinning_v18 **[Removed Infolabels]** The following infolabels have been removed:
@@ -11083,7 +11086,15 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
     { //! @todo replace with a single system.platform
       std::string platform = info[2].Name();
       if (platform == "linux")
-        return SYSTEM_PLATFORM_LINUX;
+      {
+        if (info.size() == 4)
+        {
+          std::string device = info[3].Name();
+          if (device == "raspberrypi")
+            return SYSTEM_PLATFORM_LINUX_RASPBERRY_PI;
+        }
+        else return SYSTEM_PLATFORM_LINUX;
+      }
       else if (platform == "windows")
         return SYSTEM_PLATFORM_WINDOWS;
       else if (platform == "uwp")
