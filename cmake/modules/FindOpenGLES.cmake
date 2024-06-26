@@ -41,12 +41,14 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
                                                                      INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES_INCLUDE_DIR}"
                                                                      IMPORTED_NO_SONAME TRUE)
 
-    if(OPENGLES3_INCLUDE_DIR)
+    if(OPENGLES3_INCLUDE_DIR AND NOT CORE_PLATFORM_NAME STREQUAL rbpi)
+      message(STATUS "GLES3 settings enabled (gbm)")
       set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
                                                                             INTERFACE_INCLUDE_DIRECTORIES "${OPENGLES3_INCLUDE_DIR}")
       set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                        INTERFACE_COMPILE_DEFINITIONS HAS_GLES=3)
     else()
+      message(STATUS "GLES2 settings for legacy Raspberry Pi (rbpi)")
       set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                        INTERFACE_COMPILE_DEFINITIONS HAS_GLES=2)
     endif()
