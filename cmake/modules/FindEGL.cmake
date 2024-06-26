@@ -39,17 +39,11 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     check_include_files("EGL/egl.h;EGL/eglext.h;EGL/eglext_angle.h" HAVE_EGLEXTANGLE)
     unset(CMAKE_REQUIRED_INCLUDES)
 
-    if(${EGL_LIBRARY} MATCHES ".+\.so$")
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} SHARED IMPORTED)
-    else()
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-    endif()
-
+    add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
     set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                      IMPORTED_LOCATION "${EGL_LIBRARY}"
                                                                      INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}"
-                                                                     INTERFACE_COMPILE_DEFINITIONS HAS_EGL
-                                                                     IMPORTED_NO_SONAME TRUE)
+                                                                     INTERFACE_COMPILE_DEFINITIONS HAS_EGL)
 
     if(HAVE_EGLEXTANGLE)
       set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
