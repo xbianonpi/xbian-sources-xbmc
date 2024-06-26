@@ -350,6 +350,10 @@ void CGUIDialogVideoSettings::InitializeSettings()
   entries.emplace_back(16320, VS_INTERLACEMETHOD_DXVA_AUTO);
 
   /* remove unsupported methods */
+  entries.push_back(TranslatableIntegerSettingOption(39330, VS_INTERLACEMETHOD_MMAL_ADVANCED));
+  entries.push_back(TranslatableIntegerSettingOption(39331, VS_INTERLACEMETHOD_MMAL_ADVANCED_HALF));
+  entries.push_back(TranslatableIntegerSettingOption(39332, VS_INTERLACEMETHOD_MMAL_BOB));
+  entries.push_back(TranslatableIntegerSettingOption(39333, VS_INTERLACEMETHOD_MMAL_BOB_HALF));
   for (TranslatableIntegerSettingOptions::iterator it = entries.begin(); it != entries.end(); )
   {
     if (appPlayer->Supports(static_cast<EINTERLACEMETHOD>(it->value)))

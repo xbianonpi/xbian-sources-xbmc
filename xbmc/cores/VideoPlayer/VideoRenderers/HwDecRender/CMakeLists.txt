@@ -41,6 +41,11 @@ if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
   endif()
 endif()
 
+if(TARGET ${APP_NAME_LC}::MMAL)
+  list(APPEND SOURCES MMALRenderer.cpp)
+  list(APPEND HEADERS MMALRenderer.h)
+endif()
+
 if(CORE_SYSTEM_NAME STREQUAL android)
   list(APPEND SOURCES RendererMediaCodec.cpp
                       RendererMediaCodecSurface.cpp)

@@ -323,6 +323,10 @@ if(TARGET ${APP_NAME_LC}::Alsa AND TARGET ${APP_NAME_LC}::PulseAudio)
   list(APPEND AUDIO_BACKENDS_LIST "alsa+pulseaudio")
 endif()
 
+if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+  list(APPEND AUDIO_BACKENDS_LIST "pi")
+endif()
+
 # Compile Info
 add_custom_command(OUTPUT ${CORE_BUILD_DIR}/xbmc/CompileInfo.cpp
                    COMMAND ${CMAKE_COMMAND} -DCORE_SOURCE_DIR=${CMAKE_SOURCE_DIR}

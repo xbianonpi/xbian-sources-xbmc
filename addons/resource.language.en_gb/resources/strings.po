@@ -21659,7 +21659,15 @@ msgctxt "#36541"
 msgid "Allows volume control from AirPlay clients."
 msgstr ""
 
-#empty strings from id 36542 to 36543
+#: system/settings/rbp.xml
+msgctxt "#36542"
+msgid "Output to both analogue (headphones) and HDMI"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#36543"
+msgid "Enable this to make dialogue louder compared to background sounds when downmixing multichannel audio"
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#36544"
@@ -22210,7 +22218,19 @@ msgctxt "#36642"
 msgid "No orphaned add-ons to remove."
 msgstr ""
 
-#empty strings from id 36643 to 36898
+#empty strings from id 36643 to 36896
+
++#: system/settings/rbp.xml
++msgctxt "#36897"
++msgid "Use higher quality textures for covers and fanart (uses more memory)"
++msgstr ""
++
++#: system/settings/rbp.xml
++#: system/settings/gbm.xml
++msgctxt "#36898"
++msgid "Limits resolution of GUI to save memory. Does not affect video playback. Requires restart."
++msgstr ""
+
 
 #. Description of setting with label #729 "Enable SSL"
 #: system/settings/settings.xml
@@ -22370,9 +22390,24 @@ msgctxt "#37016"
 msgid "Select this option if your receiver is capable of decoding Dolby Digital Plus (E-AC3) streams."
 msgstr ""
 
-#empty strings from id 37017 to 37020
+#: system/settings/rbp.xml
+msgctxt "#37017"
+msgid "Dual audio output"
+msgstr ""
 
-#: system/settings/android.xml
+#: system/settings/rbp.xml
+msgctxt "#37018"
+msgid "Boost centre channel when downmixing"
+msgstr ""
+
+#empty string with id 37019
+
+#: system/settings/rbp.xml
+msgctxt "#37020"
+msgid "Enable higher colour depth artwork"
+msgstr ""
+
+#: system/settings/rbp.xml
 #: system/settings/gbm.xml
 msgctxt "#37021"
 msgid "Set GUI resolution limit"
@@ -22388,7 +22423,10 @@ msgctxt "#37023"
 msgid "Do you wish to stop playback on the remote device?"
 msgstr ""
 
-#empty string with id 37024
+#: system/settings/rbp.xml
+msgctxt "#37024"
+msgid "Select this if the audio out connection only supports multichannel audio as Dolby Digital 5.1 (AC3), this allows multichannel audio such as AAC 5.1 or FLAC 5.1 to b
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#37025"
@@ -22747,7 +22785,12 @@ msgctxt "#37133"
 msgid "Limits the maximum memory usage for the video queue. The amount of memory used depends on the video bitrate and the length of the queue. If the memory limit is reached, the queue time is reduced as necessary."
 msgstr ""
 
-#empty strings from id 37134 to 38010
+#empty strings from id 37134 to 38009
+
+#: system/settings/rbp.xml
+msgctxt "#38010"
+msgid "GPU accelerated"
+msgstr ""
 
 #. Setting #38011 "Show All Items entry"
 #: system/settings/settings.xml
@@ -22828,7 +22871,27 @@ msgctxt "#38026"
 msgid "Appearances"
 msgstr ""
 
-#empty strings from id 38027 to 38030
+#: system/settings/rbp.xml
+msgctxt "#38027"
+msgid "Decode the stereo stream from 3D files"
+msgstr ""
+
+#. Description of setting with label #38027 "Decode the stereo stream from 3D files"
+#: system/settings/rbp.xml
+msgctxt "#38028"
+msgid "If enabled, videos created in Multiview Video Coding (MVC) format can also be watched in stereoscopic 3D. MVC format is typically found on 3D Blu-rays.[CR]Note: Processing of this data may reduce playback performance, so only enable if you require stereoscopic 3D support."
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38029"
+msgid "Enable Full HD HDMI modes for stereoscopic 3D"
+msgstr ""
+
+#. Description of setting "Enable Full HD HDMI modes for stereoscopic 3D" with label #38029
+#: system/settings/rbp.xml
+msgctxt "#38030"
+msgid "This option uses frame-packing to output full resolution for 3D through HDMI.[CR]Enabling this improves quality of Multiview Video Coding (MVC) videos, but may not be supported by all displays."
+msgstr ""
 
 #. Label for an option to select the video stream to play if current video has more than one video stream
 #: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
@@ -23081,6 +23144,16 @@ msgstr ""
 
 #empty strings from id 38084 to 38099
 #strings 38084 to 38099 reserved for music library
+
+#: system/settings/rbp.xml
+msgctxt "#38114"
+msgid "Use GPU for jpeg acceleration"
+msgstr ""
+
+#: system/settings/rbp.xml
+msgctxt "#38115"
+msgid "This option uses the GPU for encoding and decoding jpegs"
+msgstr ""
 
 #. Description of section #14200 "Player""
 #: system/settings/settings.xml
@@ -23746,6 +23819,7 @@ msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#39127"
+msgstr ""
 msgid "Use all local image files as artwork"
 msgstr ""
 
@@ -24138,6 +24212,42 @@ msgstr ""
 #: system/settings/settings.xml
 msgctxt "#39195"
 msgid "Enable this option for the best picture quality. Disabling reduces the load on resource-limited systems."
+msgstr ""
+
+#. Description of OSD video settings for deinterlace method with label #39330
+#: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
+msgctxt "#39330"
+msgid "MMAL - Advanced"
+msgstr ""
+
+#. Description of OSD video settings for deinterlace method with label #39331
+#: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
+msgctxt "#39331"
+msgid "MMAL - Advanced (half)"
+msgstr ""
+
+#. Description of OSD video settings for deinterlace method with label #39332
+#: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
+msgctxt "#39332"
+msgid "MMAL - Bob"
+msgstr ""
+
+#. Description of OSD video settings for deinterlace method with label #39333
+#: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
+msgctxt "#39333"
+msgid "MMAL - Bob (half)"
+msgstr ""
+
+#. Description of setting "Enable MMAL hardware decoding of video files"
+#: system/settings/settings.xml
+msgctxt "#39434"
+msgid "Allow hardware acceleration - MMAL"
+msgstr ""
+
+#. Description of setting "Enable MMAL hardware decoding of video files"
+#: system/settings/settings.xml
+msgctxt "#39435"
+msgid "Use VideoPlayer for decoding of video files with MMAL acceleration."
 msgstr ""
 
 #. Title of Dolby Vision RPU conversion setting
