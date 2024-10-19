@@ -5993,6 +5993,16 @@ void CVideoPlayer::GetVideoStreamInfo(int streamId, VideoStreamInfo& info) const
   }
   info.fpsRate = s.fpsRate;
   info.fpsScale = s.fpsScale;
+
+  if (info.stereoMode.empty())
+  {
+    CGUIComponent *gui = CServiceBroker::GetGUI();
+    if (gui != nullptr)
+    {
+      const CStereoscopicsManager &stereoscopicsManager = gui->GetStereoscopicsManager();
+      info.stereoMode = stereoscopicsManager.DetectStereoModeByString(s.filename);
+    }
+  }
 }
 
 int CVideoPlayer::GetVideoStreamCount() const
