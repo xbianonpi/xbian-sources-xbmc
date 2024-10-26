@@ -107,7 +107,7 @@ bool CDRMLegacy::QueueFlip(struct gbm_bo* bo)
   return true;
 }
 
-void CDRMLegacy::FlipPage(struct gbm_bo* bo, bool rendered, bool videoLayer, bool async)
+void CDRMLegacy::FlipPage(struct gbm_bo *bo, bool rendered, bool videoLayer)
 {
   if (rendered || videoLayer)
   {
