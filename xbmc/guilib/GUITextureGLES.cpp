@@ -10,7 +10,6 @@
 
 #include "ServiceBroker.h"
 #include "Texture.h"
-#include "guilib/TextureFormats.h"
 #include "rendering/gles/RenderSystemGLES.h"
 #include "utils/GLUtils.h"
 #include "utils/MathUtils.h"
@@ -36,9 +35,6 @@ CGUITextureGLES::CGUITextureGLES(
   : CGUITexture(posX, posY, width, height, texture)
 {
   m_renderSystem = dynamic_cast<CRenderSystemGLES*>(CServiceBroker::GetRenderSystem());
-  unsigned int major, minor;
-  m_renderSystem->GetRenderVersion(major, minor);
-  m_isGLES20 = major == 2;
 }
 
 CGUITextureGLES* CGUITextureGLES::Clone() const
@@ -52,6 +48,8 @@ void CGUITextureGLES::Begin(KODI::UTILS::COLOR::Color color)
   texture->LoadToGPU();
   if (m_diffuse.size())
     m_diffuse.m_textures[0]->LoadToGPU();
+
+  texture->BindToUnit(0);
 
   // Setup Colors
   m_col[0] = KODI::UTILS::GL::GetChannelFromARGB(KODI::UTILS::GL::ColorChannel::R, color);
@@ -67,63 +65,33 @@ void CGUITextureGLES::Begin(KODI::UTILS::COLOR::Color color)
   }
 
   bool hasAlpha = m_texture.m_textures[m_currentFrame]->HasAlpha() || m_col[3] < 255;
-  const bool hasBlendColor =
-      m_col[0] != 255 || m_col[1] != 255 || m_col[2] != 255 || m_col[3] != 255;
 
   if (m_diffuse.size())
   {
-    if (m_isGLES20 && (texture->GetSwizzle() == KD_TEX_SWIZ_111R ||
-                       m_diffuse.m_textures[0]->GetSwizzle() == KD_TEX_SWIZ_111R))
+    if (m_col[0] == 255 && m_col[1] == 255 && m_col[2] == 255 && m_col[3] == 255 )
     {
-      if (texture->GetSwizzle() == KD_TEX_SWIZ_111R &&
-          m_diffuse.m_textures[0]->GetSwizzle() == KD_TEX_SWIZ_111R)
-        m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI_111R_111R_BLENDCOLOR);
-      else if (hasBlendColor)
-        m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI_RGBA_111R_BLENDCOLOR);
-      else
-        m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI_RGBA_111R);
-    }
-    else if (hasBlendColor)
-    {
-      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI_BLENDCOLOR);
+      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI);
     }
     else
     {
-      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI);
+      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_MULTI_BLENDCOLOR);
     }
 
     hasAlpha |= m_diffuse.m_textures[0]->HasAlpha();
 
-    // We don't need a 111R_RGBA version of the GLES 2.0 shaders, so in the
-    // unlikely event of having an alpha-only texture, switch with the
-    // diffuse.
-    if (texture->GetSwizzle() == KD_TEX_SWIZ_111R)
-    {
-      texture->BindToUnit(1);
-      m_diffuse.m_textures[0]->BindToUnit(0);
-    }
-    else
-    {
-      texture->BindToUnit(0);
-      m_diffuse.m_textures[0]->BindToUnit(1);
-    }
+    m_diffuse.m_textures[0]->BindToUnit(1);
+
   }
   else
   {
-    if (m_isGLES20 && texture->GetSwizzle() == KD_TEX_SWIZ_111R)
-    {
-      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_TEXTURE_111R);
-    }
-    else if (hasBlendColor)
-    {
-      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_TEXTURE);
-    }
-    else
+    if (m_col[0] == 255 && m_col[1] == 255 && m_col[2] == 255 && m_col[3] == 255)
     {
       m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_TEXTURE_NOBLEND);
     }
-
-    texture->BindToUnit(0);
+    else
+    {
+      m_renderSystem->EnableGUIShader(ShaderMethodGLES::SM_TEXTURE);
+    }
   }
 
   if ( hasAlpha )
@@ -157,8 +125,6 @@ void CGUITextureGLES::End()
 
     if(m_diffuse.size())
     {
-      if (m_texture.m_textures[m_currentFrame]->GetSwizzle() == KD_TEX_SWIZ_111R)
-        std::swap(tex0Loc, tex1Loc);
       glVertexAttribPointer(tex1Loc, 2, GL_FLOAT, 0, sizeof(PackedVertex),
                             (char*)m_packedVertices.data() + offsetof(PackedVertex, u2));
       glEnableVertexAttribArray(tex1Loc);
