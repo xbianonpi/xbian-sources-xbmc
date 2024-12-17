@@ -812,7 +812,7 @@ bool CDVDVideoCodecDRMPRIME::FilterOpen(const std::string& filters, AVPixelForma
 
   memset(par, 0, sizeof(*par));
   par->format = AV_PIX_FMT_NONE;
-  par->hw_frames_ctx = m_pCodecContext->hw_device_ctx;
+  par->hw_frames_ctx = m_pFrame->hw_frames_ctx;
 
   result = av_buffersrc_parameters_set(m_pFilterIn, par);
   if (result < 0)
