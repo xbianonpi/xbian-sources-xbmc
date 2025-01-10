@@ -317,12 +317,6 @@ public:
     const bool isLSameSubLang = g_LangCodeExpander.CompareISO639Codes(lh.language, m_subLang);
     const bool isRSameSubLang = g_LangCodeExpander.CompareISO639Codes(rh.language, m_subLang);
 
-    // "is included" is used to not consider forced and impaired
-    const bool isLincluded =
-        (lh.flags & FLAG_FORCED) == 0 && (lh.flags & FLAG_HEARING_IMPAIRED) == 0;
-    const bool isRincluded =
-        (rh.flags & FLAG_FORCED) == 0 && (rh.flags & FLAG_HEARING_IMPAIRED) == 0;
-
     if (m_isPrefHearingImp)
     {
       if (m_isPrefOriginal)
@@ -347,6 +341,12 @@ public:
 
     if (m_isPrefOriginal)
     {
+      // "is included" is used to not consider forced and impaired
+      const bool isLincluded =
+          (lh.flags & FLAG_FORCED) == 0 && (lh.flags & FLAG_HEARING_IMPAIRED) == 0;
+      const bool isRincluded =
+          (rh.flags & FLAG_FORCED) == 0 && (rh.flags & FLAG_HEARING_IMPAIRED) == 0;
+
       // try find original (default) in audio language
       const int checkFlags = FLAG_ORIGINAL | FLAG_DEFAULT;
       PREDICATE_RETURN(isLincluded && (lh.flags & checkFlags) == checkFlags && isLSameSubLang,
@@ -377,6 +377,12 @@ public:
       // its just listitem pre-selection courtesy, in any case the sub will be not enabled
     }
 
+    // "is included" is used to not consider forced and impaired
+    const bool isLincluded =
+        (lh.flags & FLAG_FORCED) == 0 && (lh.flags & FLAG_HEARING_IMPAIRED) == 0;
+    const bool isRincluded =
+        (rh.flags & FLAG_FORCED) == 0 && (rh.flags & FLAG_HEARING_IMPAIRED) == 0;
+
     // try find regular (default)
     PREDICATE_RETURN(isLincluded && lh.flags & FLAG_DEFAULT && isLSameSubLang,
                      isRincluded && rh.flags & FLAG_DEFAULT && isRSameSubLang);
@@ -384,12 +390,10 @@ public:
     PREDICATE_RETURN(isLincluded && isLSameSubLang, isRincluded && isRSameSubLang);
 
     // if all previous conditions do not match, allow fallback to "unknown" language
-    if (!m_isPrefForced)
+    if (!m_isPrefForced && isLincluded && (lh.language.empty() || lh.language == "und"))
     {
-      PREDICATE_RETURN(isLincluded && (lh.language.empty() || lh.language == "und"),
-                       isRincluded && (rh.language.empty() || rh.language == "und"));
+      return true;
     }
-
     return false;
   }
 };
