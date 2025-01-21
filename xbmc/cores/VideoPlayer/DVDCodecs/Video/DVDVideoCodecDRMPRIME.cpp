@@ -615,6 +615,7 @@ void CDVDVideoCodecDRMPRIME::SetPictureParams(VideoPicture* pVideoPicture)
 
   pVideoPicture->iRepeatPicture = 0;
   pVideoPicture->iFlags = 0;
+  pVideoPicture->iFlags |= !(m_pFrame->flags & AV_FRAME_FLAG_CORRUPT) ? 0 : DVP_FLAG_DROPPED;
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   pVideoPicture->iFlags |= m_pFrame->flags & AV_FRAME_FLAG_INTERLACED ? DVP_FLAG_INTERLACED : 0;
   pVideoPicture->iFlags |=
