@@ -1,3 +1,43 @@
+--- FFmpeg-4.3.2-Matrix-19.2/libavcodec/mmaldec.c-orig  2021-06-12 17:35:46.000000000 +0200
++++ FFmpeg-4.3.2-Matrix-19.2/libavcodec/mmaldec.c       2025-04-08 13:54:32.283211330 +0200
+@@ -650,7 +650,7 @@
+         av_image_fill_arrays(src, linesize,
+                              buffer->data + buffer->type->video.offset[0],
+                              avctx->pix_fmt, w, h, 1);
+-        av_image_copy(frame->data, frame->linesize, src, linesize,
++        av_image_copy(frame->data, frame->linesize, (const uint8_t **)src, linesize,
+                       avctx->pix_fmt, avctx->width, avctx->height);
+     }
+ 
+--- FFmpeg-4.3.2-Matrix-19.2/libavcodec/arm/mlpdsp_armv5te.S-orig       2021-06-12 17:35:46.000000000 +0200
++++ FFmpeg-4.3.2-Matrix-19.2/libavcodec/arm/mlpdsp_armv5te.S    2025-04-08 13:58:34.108716360 +0200
+@@ -229,7 +229,7 @@
+   .endif
+ 
+         // Begin loop
+-01:
++1:
+   .if TOTAL_TAPS == 0
+         // Things simplify a lot in this case
+         // In fact this could be pipelined further if it's worth it...
+@@ -241,7 +241,7 @@
+         str     ST0, [PST, #-4]!
+         str     ST0, [PST, #4 * (MAX_BLOCKSIZE + MAX_FIR_ORDER)]
+         str     ST0, [PSAMP], #4 * MAX_CHANNELS
+-        bne     01b
++        bne     1b
+   .else
+     .if \fir_taps & 1
+       .set LOAD_REG, 1
+@@ -333,7 +333,7 @@
+         str     ST3, [PST, #-4]!
+         str     ST2, [PST, #4 * (MAX_BLOCKSIZE + MAX_FIR_ORDER)]
+         str     ST3, [PSAMP], #4 * MAX_CHANNELS
+-        bne     01b
++        bne     1b
+   .endif
+         b       99f
+ 
 diff --git a/.gitignore b/.gitignore
 index 2450ee8fc5..4bcc3ae643 100644
 --- a/.gitignore
