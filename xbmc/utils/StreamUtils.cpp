@@ -7,12 +7,7 @@
  */
 
 #include "StreamUtils.h"
-
-extern "C"
-{
-#include <libavcodec/avcodec.h>
-#include <libavcodec/defs.h>
-}
+#include "cores/FFmpeg.h"
 
 int StreamUtils::GetCodecPriority(const std::string &codec)
 {
@@ -94,7 +89,7 @@ std::string StreamUtils::GetCodecName(int codecId, int profile)
     return "truehd_atmos";
 
 #endif
-  const AVCodec* codec = avcodec_find_decoder(static_cast<AVCodecID>(codecId));
+  FFMPEG_FMT_CONST AVCodec* codec = avcodec_find_decoder(static_cast<AVCodecID>(codecId));
   if (codec)
     codecName = avcodec_get_name(codec->id);
 

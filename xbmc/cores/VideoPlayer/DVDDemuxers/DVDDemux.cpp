@@ -143,6 +143,10 @@ std::string CDemuxStreamAudio::GetStreamType()
       break;
   }
 
+#if !defined(AV_CODEC_ID_PCM_SGA)
+#define AV_CODEC_ID_PCM_SGA AV_CODEC_ID_PCM_VIDC
+#endif
+
   if (codec >= AV_CODEC_ID_PCM_S16LE && codec <= AV_CODEC_ID_PCM_SGA)
     strInfo = "PCM";
 
