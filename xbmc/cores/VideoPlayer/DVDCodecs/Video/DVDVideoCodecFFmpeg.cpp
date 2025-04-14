@@ -793,12 +793,20 @@ CDVDVideoCodec::VCReturn CDVDVideoCodecFFmpeg::GetPicture(VideoPicture* pVideoPi
   }
   m_dropCtrl.Process(framePTS, m_pCodecContext->skip_frame > AVDISCARD_DEFAULT);
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   if (m_pDecodedFrame->flags & AV_FRAME_FLAG_KEY)
+#else
+  if (m_pDecodedFrame->key_frame)
+#endif
   {
     m_started = true;
     m_iLastKeyframe = m_pCodecContext->has_b_frames + 2;
   }
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   if (m_pDecodedFrame->flags & AV_FRAME_FLAG_INTERLACED)
+#else
+  if (m_pDecodedFrame->interlaced_frame)
+#endif
     m_interlaced = true;
   else
     m_interlaced = false;
@@ -1014,9 +1022,14 @@ bool CDVDVideoCodecFFmpeg::GetPictureCommon(VideoPicture* pVideoPicture)
 
   pVideoPicture->iRepeatPicture = 0.5 * m_pFrame->repeat_pict;
   pVideoPicture->iFlags = 0;
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   pVideoPicture->iFlags |= m_pFrame->flags & AV_FRAME_FLAG_INTERLACED ? DVP_FLAG_INTERLACED : 0;
   pVideoPicture->iFlags |=
       m_pFrame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST ? DVP_FLAG_TOP_FIELD_FIRST : 0;
+#else
+  pVideoPicture->iFlags |= m_pFrame->interlaced_frame ? DVP_FLAG_INTERLACED : 0;
+  pVideoPicture->iFlags |= m_pFrame->top_field_first ? DVP_FLAG_TOP_FIELD_FIRST: 0;
+#endif
 
   if (m_codecControlFlags & DVD_CODEC_CTRL_DROP)
   {

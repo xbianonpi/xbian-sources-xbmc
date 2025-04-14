@@ -13,6 +13,7 @@
 #include "settings/lib/ISettingCallback.h"
 #include "settings/lib/ISettingsHandler.h"
 #include "utils/SortUtils.h"
+#include <libavcodec/version.h>
 
 #include <cstdint>
 #include <string>
@@ -127,6 +128,9 @@ class CAdvancedSettings : public ISettingCallback, public ISettingsHandler
 
     std::string m_audioDefaultPlayer;
     float m_audioPlayCountMinimumPercent;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(61, 12, 100)
+    bool m_VideoPlayerIgnoreDTSinWAV;
+#endif
     float m_limiterHold;
     float m_limiterRelease;
 

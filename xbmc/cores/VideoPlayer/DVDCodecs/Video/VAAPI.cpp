@@ -3070,10 +3070,15 @@ bool CFFmpegPostproc::AddPicture(CVaapiDecodedPicture &inPic)
   m_pFilterFrameIn->height = m_config.vidHeight;
   m_pFilterFrameIn->linesize[0] = image.pitches[0];
   m_pFilterFrameIn->linesize[1] = image.pitches[1];
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   if (inPic.DVDPic.iFlags & DVP_FLAG_INTERLACED)
     m_pFilterFrameIn->flags |= AV_FRAME_FLAG_INTERLACED;
   if (inPic.DVDPic.iFlags & DVP_FLAG_TOP_FIELD_FIRST)
     m_pFilterFrameIn->flags |= AV_FRAME_FLAG_TOP_FIELD_FIRST;
+#else
+  m_pFilterFrameIn->interlaced_frame = (inPic.DVDPic.iFlags & DVP_FLAG_INTERLACED) ? 1 : 0;
+  m_pFilterFrameIn->top_field_first = (inPic.DVDPic.iFlags & DVP_FLAG_TOP_FIELD_FIRST) ? 1 : 0;
+#endif
 
   if (inPic.DVDPic.pts == DVD_NOPTS_VALUE)
     m_pFilterFrameIn->pts = AV_NOPTS_VALUE;

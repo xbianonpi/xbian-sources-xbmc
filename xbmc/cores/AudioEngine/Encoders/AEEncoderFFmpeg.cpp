@@ -117,6 +117,7 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
   av_channel_layout_uninit(&m_CodecCtx->ch_layout);
   av_channel_layout_from_mask(&m_CodecCtx->ch_layout, AV_CH_LAYOUT_5POINT1_BACK);
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   const AVSampleFormat* sampleFmts = nullptr;
   int numFmts = 0;
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
@@ -128,8 +129,13 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
     ;
 #endif
 
+#endif
   /* select a suitable data format */
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   if (sampleFmts)
+#else
+  if (codec->sample_fmts)
+#endif
   {
     bool hasFloat  = false;
     bool hasDouble = false;
@@ -139,9 +145,17 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
     bool hasFloatP = false;
     bool hasUnknownFormat = false;
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
     for (int i = 0; i < numFmts; ++i)
+#else
+    for(int i = 0; codec->sample_fmts[i] != AV_SAMPLE_FMT_NONE; ++i)
+#endif
     {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
       switch (sampleFmts[i])
+#else
+      switch (codec->sample_fmts[i])
+#endif
       {
         case AV_SAMPLE_FMT_FLT: hasFloat  = true; break;
         case AV_SAMPLE_FMT_DBL: hasDouble = true; break;
@@ -154,8 +168,12 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
           else
             hasUnknownFormat = true;
           break;
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
         case AV_SAMPLE_FMT_NONE:
           continue;
+#else
+        case AV_SAMPLE_FMT_NONE: return false;
+#endif
         default: hasUnknownFormat = true; break;
       }
     }
@@ -192,7 +210,11 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
     }
     else if (hasUnknownFormat)
     {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
       m_CodecCtx->sample_fmt = sampleFmts[0];
+#else
+      m_CodecCtx->sample_fmt = codec->sample_fmts[0];
+#endif
       format.m_dataFormat = AE_FMT_FLOAT;
       m_NeedConversion = true;
       CLog::Log(LOGINFO,

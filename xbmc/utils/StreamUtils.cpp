@@ -45,10 +45,12 @@ std::string StreamUtils::GetCodecName(int codecId, int profile)
   {
     if (profile == AV_PROFILE_DTS_HD_MA)
       codecName = "dtshd_ma";
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
     else if (profile == AV_PROFILE_DTS_HD_MA_X)
       codecName = "dtshd_ma_x";
     else if (profile == AV_PROFILE_DTS_HD_MA_X_IMAX)
       codecName = "dtshd_ma_x_imax";
+#endif
     else if (profile == AV_PROFILE_DTS_HD_HRA)
       codecName = "dtshd_hra";
     else
@@ -84,12 +86,14 @@ std::string StreamUtils::GetCodecName(int codecId, int profile)
     return codecName;
   }
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   if (codecId == AV_CODEC_ID_EAC3 && profile == AV_PROFILE_EAC3_DDP_ATMOS)
     return "eac3_ddp_atmos";
 
   if (codecId == AV_CODEC_ID_TRUEHD && profile == AV_PROFILE_TRUEHD_ATMOS)
     return "truehd_atmos";
 
+#endif
   const AVCodec* codec = avcodec_find_decoder(static_cast<AVCodecID>(codecId));
   if (codec)
     codecName = avcodec_get_name(codec->id);

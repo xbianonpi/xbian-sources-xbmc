@@ -33,7 +33,11 @@ public:
   bool Close() override;
 
 private:
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
   static int avio_write_callback(void* opaque, const uint8_t* buf, int buf_size);
+#else
+  static int avio_write_callback(void* opaque, uint8_t* buf, int buf_size);
+#endif
   static int64_t avio_seek_callback(void* opaque, int64_t offset, int whence);
 
   void SetTag(const std::string& tag, const std::string& value);
