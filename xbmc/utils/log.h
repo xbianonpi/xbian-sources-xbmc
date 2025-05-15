@@ -41,6 +41,9 @@ namespace spdlog::sinks
 class sink;
 
 template<typename Mutex>
+class syslog_sink;
+
+template<typename Mutex>
 class dist_sink;
 } // namespace spdlog::sinks
 
@@ -168,11 +171,13 @@ private:
 
   std::unique_ptr<IPlatformLog> m_platform;
   std::shared_ptr<spdlog::sinks::dist_sink<std::mutex>> m_sinks;
+  std::shared_ptr<spdlog::sinks::syslog_sink<std::mutex>> m_syslogSink;
   Logger m_defaultLogger;
 
   std::shared_ptr<spdlog::sinks::sink> m_fileSink;
 
   int m_logLevel{LOG_LEVEL_DEBUG};
+  int m_logType;
 
   bool m_componentLogEnabled{false};
   uint32_t m_componentLogLevels{0};
