@@ -128,7 +128,7 @@ public:
 
   // public CEC methods
   void ActivateSource(void);
-  void StandbyDevices(void);
+  void StandbyDevices(bool forceStandby = false);
   bool ToggleDeviceState(CecStateChange mode = STATE_SWITCH_TOGGLE, bool forceType = false);
 
 private:
@@ -198,6 +198,7 @@ private:
   CEC::libcec_configuration m_configuration;
   bool m_bActiveSourcePending;
   bool m_bStandbyPending;
+  bool m_bStandbyForce;
   CDateTime m_preventActivateSourceOnPlay;
   bool m_bActiveSourceBeforeStandby;
   bool m_bOnPlayReceived;
@@ -238,3 +239,4 @@ protected:
 } // namespace PERIPHERALS
 
 #endif
+
