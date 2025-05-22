@@ -63,6 +63,7 @@ using namespace XFILE;
 
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEOMXPLAYER;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC;
 
 bool CSettings::Initialize()
 {
@@ -635,6 +636,7 @@ void CSettings::InitializeISettingCallbacks()
                                          {CSettings::SETTING_ADDONS_SHOW_RUNNING,
                                           CSettings::SETTING_ADDONS_MANAGE_DEPENDENCIES,
                                           CSettings::SETTING_ADDONS_REMOVE_ORPHANED_DEPENDENCIES,
+                                          CSettings::SETTING_VIDEOPLAYER_DISABLE_NON_HEVC,
                                           CSettings::SETTING_ADDONS_ALLOW_UNKNOWN_SOURCES});
 
   GetSettingsManager()->RegisterCallback(&CWakeOnAccess::GetInstance(),
