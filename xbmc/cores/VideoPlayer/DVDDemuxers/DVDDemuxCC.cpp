@@ -14,7 +14,6 @@
 #include "ServiceBroker.h"
 #include "cores/VideoPlayer/DVDCodecs/Overlay/contrib/cc_decoder708.h"
 #include "cores/VideoPlayer/Interface/TimingConstants.h"
-#include "resources/LocalizeStrings.h"
 #include "resources/ResourcesComponent.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
@@ -235,8 +234,7 @@ void CDVDDemuxCC::Handler(int service, void *userdata)
   {
     CDemuxStreamSubtitle stream;
     stream.source = STREAM_SOURCE_VIDEOMUX;
-    stream.name = CServiceBroker::GetResourcesComponent().GetLocalizeStrings().Get(
-        39206); // Closed Caption "CC"
+    stream.name = "CC";
     stream.language = "und";
 
     auto settings = CServiceBroker::GetSettingsComponent()->GetSettings();
