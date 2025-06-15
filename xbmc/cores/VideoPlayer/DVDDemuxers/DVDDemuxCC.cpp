@@ -9,11 +9,8 @@
 #include "DVDDemuxCC.h"
 
 #include "DVDDemuxUtils.h"
-#include "ServiceBroker.h"
 #include "cores/VideoPlayer/DVDCodecs/Overlay/contrib/cc_decoder708.h"
 #include "cores/VideoPlayer/Interface/TimingConstants.h"
-#include "settings/Settings.h"
-#include "settings/SettingsComponent.h"
 #include "utils/ColorUtils.h"
 #include "utils/StringUtils.h"
 
@@ -405,13 +402,8 @@ void CDVDDemuxCC::Handler(int service, void *userdata)
   {
     CDemuxStreamSubtitle stream;
     stream.source = STREAM_SOURCE_VIDEOMUX;
-    stream.name = "CC";
-    stream.language = "und";
-
-    auto settings = CServiceBroker::GetSettingsComponent()->GetSettings();
-    if (settings->GetBool(CSettings::SETTING_SUBTITLES_CAPTIONSIMPAIRED))
-      stream.flags = FLAG_HEARING_IMPAIRED;
-
+    stream.language = "cc";
+    stream.flags = FLAG_HEARING_IMPAIRED;
     stream.codec = AV_CODEC_ID_TEXT;
     stream.uniqueId = service;
     ctx->m_streams.push_back(std::move(stream));
