@@ -1,0 +1,47 @@
+From 70b61fd709cfa39c878f432cdf4dae8de2b68a26 Mon Sep 17 00:00:00 2001
+From: mkreisl <manfred.kreisl@nexgo.de>
+Date: Fri, 10 Oct 2025 15:23:46 +0200
+Subject: [PATCH] mpeg4video: Signal unsupported GMC with more than one warp
+
+---
+ libavcodec/avcodec.h       | 1 +
+ libavcodec/mpeg4videodec.c | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
+index 108df5a..e9bf7d4 100644
+--- a/libavcodec/avcodec.h
++++ b/libavcodec/avcodec.h
+@@ -1340,6 +1340,7 @@ typedef struct AVCodecContext {
+ #define FF_BUG_MS               8192 ///< Work around various bugs in Microsoft's broken decoders.
+ #define FF_BUG_TRUNCATED       16384
+ #define FF_BUG_IEDGE           32768
++#define FF_BUG_GMC_UNSUPPORTED (1<<30)
+ 
+     /**
+      * strictly follow the standard (MPEG-4, ...).
+diff --git a/libavcodec/mpeg4videodec.c b/libavcodec/mpeg4videodec.c
+index bc2c926..0d203d0 100644
+--- a/libavcodec/mpeg4videodec.c
++++ b/libavcodec/mpeg4videodec.c
+@@ -3177,6 +3177,9 @@ void ff_mpeg4_workaround_bugs(AVCodecContext *avctx)
+ 
+         if (ctx->divx_version >= 0)
+             h->c.workaround_bugs |= FF_BUG_HPEL_CHROMA;
++
++        if (ctx->num_sprite_warping_points > 1)
++            h->c.workaround_bugs |= FF_BUG_GMC_UNSUPPORTED;
+     }
+ 
+     if (h->c.workaround_bugs & FF_BUG_STD_QPEL) {
+@@ -3201,6 +3204,7 @@ void ff_mpeg4_workaround_bugs(AVCodecContext *avctx)
+                h->c.workaround_bugs, ctx->lavc_build, ctx->xvid_build,
+                ctx->divx_version, ctx->divx_build, h->divx_packed ? "p" : "");
+ 
++    avctx->workaround_bugs = h->c.workaround_bugs;
+     if (CONFIG_MPEG4_DECODER && ctx->xvid_build >= 0 &&
+         avctx->idct_algo == FF_IDCT_AUTO && !h->c.studio_profile) {
+         switch_to_xvid_idct(avctx, &h->c);
+-- 
+1.8.4.5
+

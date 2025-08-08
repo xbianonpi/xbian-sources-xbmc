@@ -150,7 +150,7 @@ public:
 class CDemuxStreamVideo : public CDemuxStream
 {
 public:
-  CDemuxStreamVideo() : CDemuxStream(StreamType::VIDEO) {}
+  CDemuxStreamVideo() : CDemuxStream(StreamType::VIDEO) { workaround_bugs = 0; }
 
   ~CDemuxStreamVideo() override = default;
   int iFpsScale = 0; // scale of 1000 and a rate of 29970 will result in 29.97 fps
@@ -177,6 +177,7 @@ public:
 
   std::string stereo_mode; // expected stereo mode
   StreamHdrType hdr_type = StreamHdrType::HDR_TYPE_NONE; // type of HDR for this stream (hdr10, etc)
+  int workaround_bugs; // info for decoder
   AVDOVIDecoderConfigurationRecord dovi{};
 };
 
