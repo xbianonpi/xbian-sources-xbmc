@@ -20,8 +20,10 @@
 #include "imagefiles/ImageFileURL.h"
 #include "imagefiles/SpecialImageLoaderFactory.h"
 #include "pictures/Picture.h"
+#include "ServiceBroker.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
+#include "settings/Settings.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/log.h"
@@ -118,13 +120,13 @@ bool CTextureCacheJob::CacheTexture(std::unique_ptr<CTexture>* out_texture)
   }
 
 #if defined(TARGET_RASPBERRY_PI)
-  if (COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
+  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool("videoplayer.acceleratedjpegs") && COMXImage::CreateThumb(image, 0, 0, imageURL.flipped, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
   {
-    m_details.width = width;
-    m_details.height = height;
+    m_details.width = 0; // width;
+    m_details.height = 0; // height;
     m_details.file = m_cachePath + ".jpg";
     if (out_texture)
-      *out_texture = LoadImage(CTextureCache::GetCachedPath(m_details.file), width, height, "" /* already flipped */);
+      *out_texture = LoadImage(CTextureCache::GetCachedPath(m_details.file));//, 0, 0, "" /* already flipped */);
     CLog::Log(LOGDEBUG, "Fast {} image '{}' to '{}': {:p}",
               m_oldHash.empty() ? "Caching" : "Recaching", CURL::GetRedacted(image),
               m_details.file, static_cast<void*>(out_texture));
