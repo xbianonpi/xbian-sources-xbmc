@@ -476,6 +476,13 @@ bool VideoPlayerCodec::NeedConvert(AEDataFormat fmt)
   }
 }
 
+#if !defined(FF_PROFILE_DTS_HD_MA_X)
+  #define FF_PROFILE_DTS_HD_MA_X 61
+#endif
+#if !defined(FF_PROFILE_DTS_HD_MA_X_IMAX)
+  #define FF_PROFILE_DTS_HD_MA_X_IMAX 61
+#endif
+
 CAEStreamInfo::DataType VideoPlayerCodec::GetPassthroughStreamType(AVCodecID codecId,
                                                                    int samplerate,
                                                                    int profile)

@@ -72,6 +72,7 @@ Used Operating system:
  - [ ] tvOS
  - [ ] Linux
  - [ ] macOS
+ - [ ] Raspberry-Pi
  - [ ] Windows
  - [ ] Windows UWP
 

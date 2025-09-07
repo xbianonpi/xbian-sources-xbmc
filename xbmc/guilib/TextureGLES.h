@@ -12,6 +12,18 @@
 
 #include "system_gl.h"
 
+#if !defined(GL_RED)
+#define GL_RED 0x1903
+#endif
+
+#if !defined(GL_GREEN)
+#define GL_GREEN 0x1904
+#endif
+
+#if !defined(GL_BLUE)
+#define GL_BLUE 0x1905
+#endif
+
 struct TextureFormat
 {
   GLenum internalFormat{GL_FALSE};

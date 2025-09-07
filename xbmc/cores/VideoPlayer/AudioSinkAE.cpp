@@ -340,6 +340,13 @@ double CAudioSinkAE::GetClockSpeed()
     return 1.0;
 }
 
+#if !defined(FF_PROFILE_DTS_HD_MA_X)
+  #define FF_PROFILE_DTS_HD_MA_X 61
+#endif
+#if !defined(FF_PROFILE_DTS_HD_MA_X_IMAX)
+  #define FF_PROFILE_DTS_HD_MA_X_IMAX 61
+#endif
+
 CAEStreamInfo::DataType CAudioSinkAE::GetPassthroughStreamType(AVCodecID codecId,
                                                                int samplerate,
                                                                int profile)

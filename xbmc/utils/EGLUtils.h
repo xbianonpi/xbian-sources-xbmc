@@ -21,6 +21,10 @@
 
 #include <EGL/eglext.h>
 
+#if !defined(PFNEGLSETDAMAGEREGIONKHRPROC)
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLSETDAMAGEREGIONKHRPROC) (EGLDisplay dpy, EGLSurface surface, EGLint *rects, EGLint n_rects);
+#endif
+
 class CEGLUtils
 {
 public:

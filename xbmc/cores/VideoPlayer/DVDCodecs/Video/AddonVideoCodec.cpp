@@ -67,15 +67,19 @@ AVPixelFormat ConvertToPixelFormat(const VIDEOCODEC_FORMAT videoFormat)
     case VIDEOCODEC_FORMAT_XRGB8888:
       // BGR0 in ffmpeg = bytes B,G,R,X = DRM_FORMAT_XRGB8888
       return AV_PIX_FMT_BGR0;
+#if defined (AV_PIX_FMT_X2RGB10LE)
     case VIDEOCODEC_FORMAT_XRGB2101010:
       return AV_PIX_FMT_X2RGB10LE;
+#endif
     case VIDEOCODEC_FORMAT_XRGB16161616:
       // ffmpeg has no X variant for 16-bit RGB; RGBA64 is the closest match.
       // The alpha bytes are unused (X) for our purposes.
       return AV_PIX_FMT_RGBA64LE;
+#if defined (AV_PIX_FMT_RGBAF16LE)
     case VIDEOCODEC_FORMAT_XRGB16161616F:
       // Same situation for half-float RGB.
       return AV_PIX_FMT_RGBAF16LE;
+#endif
     case VIDEOCODEC_FORMAT_UNKNOWN:
       // Addon did not opt in to videoFormat; preserve pre-PR default.
       return AV_PIX_FMT_YUV420P;

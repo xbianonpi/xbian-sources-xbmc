@@ -6,7 +6,7 @@ if(TARGET ${APP_NAME_LC}::LircClient)
   list(APPEND HEADERS LIRC.h)
 endif()
 
-if("gbm" IN_LIST CORE_PLATFORM_NAME_LC)
+if("gbm" IN_LIST CORE_PLATFORM_NAME_LC OR CORE_PLATFORM_NAME_LC STREQUAL rbpi)
   if(TARGET ${APP_NAME_LC}::LibInput)
     list(APPEND SOURCES LibInputHandler.cpp
                         LibInputKeyboard.cpp

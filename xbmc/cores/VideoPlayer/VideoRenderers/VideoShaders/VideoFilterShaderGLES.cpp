@@ -91,6 +91,10 @@ ConvolutionFilterShader::ConvolutionFilterShader(ESCALINGMETHOD method, bool dit
     shadername = "gles_convolution-6x6.frag";
   }
 
+#if !defined(GL_RGBA16F_EXT)
+#define GL_RGBA16F_EXT 0x881A
+#endif
+
   if (m_floattex)
   {
     m_internalformat = GL_RGBA16F_EXT;

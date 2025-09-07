@@ -18,6 +18,13 @@
 
 #include <regex>
 
+#if !defined(GL_RGBA32F)
+#define GL_RGBA32F 0x8814
+#endif
+#if !defined(GL_SRGB8_ALPHA8)
+#define GL_SRGB8_ALPHA8 0x8C43
+#endif
+
 using namespace KODI::SHADER;
 
 CShaderPresetGLES::CShaderPresetGLES(RETRO::CRenderContext& context,

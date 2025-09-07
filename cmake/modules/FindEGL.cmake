@@ -8,15 +8,19 @@
 #   ${APP_NAME_LC}::EGL   - The EGL library
 
 if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
+  if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
+   set(_brcmprefix brcm)
+  endif()
+
   find_package(PkgConfig ${SEARCH_QUIET})
   if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_EGL egl ${SEARCH_QUIET})
+    pkg_check_modules(PC_EGL ${_brcmprefix}egl ${SEARCH_QUIET})
   endif()
 
   find_path(EGL_INCLUDE_DIR EGL/egl.h
                             HINTS ${PC_EGL_INCLUDEDIR})
 
-  find_library(EGL_LIBRARY NAMES EGL egl
+  find_library(EGL_LIBRARY NAMES ${_brcmprefix}EGL egl
                            HINTS ${PC_EGL_LIBDIR})
   if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # Emscripten exposes EGL as a link name instead of a filesystem library.

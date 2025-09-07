@@ -494,6 +494,7 @@ constexpr uint32_t SYSTEM_FREE_SPACE_PERCENT         = 683;
 constexpr uint32_t SYSTEM_ADDON_IS_ENABLED           = 703;
 constexpr uint32_t SYSTEM_GET_BOOL                   = 704;
 constexpr uint32_t SYSTEM_GET_CORE_USAGE             = 705;
+#define SYSTEM_PLATFORM_LINUX_RASPBERRY_PI 740
 constexpr uint32_t SYSTEM_HAS_CORE_ID                = 706;
 constexpr uint32_t SYSTEM_RENDER_VENDOR              = 707;
 constexpr uint32_t SYSTEM_RENDER_RENDERER            = 708;
