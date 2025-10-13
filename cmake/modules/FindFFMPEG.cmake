@@ -142,13 +142,13 @@ macro(buildFFMPEG)
                                -DENABLE_VDPAU=${FFMPEG_VDPAU}
                                -DEXTRA_FLAGS=${FFMPEG_EXTRA_FLAGS})
 
-    if(KODI_DEPENDSBUILD OR (NOT APPLE AND CMAKE_CROSSCOMPILING))
+    #if(KODI_DEPENDSBUILD OR (NOT APPLE AND CMAKE_CROSSCOMPILING))
       set(CROSS_ARGS -DDEPENDS_PATH=${DEPENDS_PATH}
                      -DPKG_CONFIG_EXECUTABLE=${PKG_CONFIG_EXECUTABLE}
                      -DCROSSCOMPILING=${CMAKE_CROSSCOMPILING}
                      -DOS=${OS}
                      -DCMAKE_AR=${CMAKE_AR})
-    endif()
+    #endif()
 
     if(USE_LTO)
       list(APPEND FFMPEG_OPTIONS -DUSE_LTO=ON)
