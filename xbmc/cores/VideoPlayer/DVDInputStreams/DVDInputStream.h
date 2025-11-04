@@ -49,6 +49,7 @@ namespace XFILE
 
 struct DemuxPacket;
 class CDemuxStream;
+class CDVDDemux;
 class CStreamDetails;
 struct SPlayerState;
 
@@ -155,6 +156,17 @@ public:
                                     unsigned int maxHeight)
     {
     }
+  };
+
+  class IExtentionStream
+  {
+    public:
+    virtual ~IExtentionStream() {}
+    virtual bool HasExtention() = 0;
+    virtual bool AreEyesFlipped() = 0;
+    virtual CDVDDemux* GetExtentionDemux() = 0;
+    virtual void DisableExtention() = 0;
+    virtual bool OpenNextStream() = 0;
   };
 
   enum ENextStream
