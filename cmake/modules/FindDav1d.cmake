@@ -7,7 +7,7 @@
 #
 #   LIBRARY::Dav1d   - The dav1d library
 
-if(NOT TARGET LIBRARY::${CMAKE_FIND_PACKAGE_NAME})
+if(NOT TARGET LIBRARY::${CMAKE_FIND_PACKAGE_NAME} AND NOT CORE_PLATFORM_NAME STREQUAL rbpi)
 
   include(cmake/scripts/common/ModuleHelpers.cmake)
 
