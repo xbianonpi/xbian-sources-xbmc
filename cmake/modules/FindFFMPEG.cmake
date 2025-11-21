@@ -47,6 +47,45 @@ macro(buildFFMPEG)
 
   set(${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC ffmpeg)
 
+  set (FFMPEG_PATCH_LIBPOSTPROC ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/001-ffmpeg-all-libpostproc-plugin.patch)
+  message(STATUS "### Core system type: PLATFORM_NAME ${PLATFORM_NAME} USE_PLATFORM ${USE_PLATFORM} ###")
+  if(CORE_PLATFORM_NAME STREQUAL rbpi OR USE_PLATFORM MATCHES "raspberry")
+    message(STATUS "### Building for Raspberry PI ###")
+    if(CORE_PLATFORM_NAME STREQUAL rbpi)
+      execute_process(COMMAND sed -i "s%VERSION=.*%BASE_URL=https://github.com/xbianonpi/xbian-sources-xbmc/releases/download/ffmpeg-4.3.2-Piers-22.0\\nVERSION=4.3.2-Piers-22.0%g;s%tar.xz%tar.gz%g" FFMPEG-VERSION
+                      COMMAND sed -i "s/SHA512=.*/SHA512=4ae860e13d00eb84ca37608412ce2f4e8332b95a2f77de60823734b27d7af0695364815151229875643cb255d60acdef369c467d2ecb100b00c077a337954275/g" FFMPEG-VERSION
+                      COMMAND truncate --size 0 ${FFMPEG_PATCH_LIBPOSTPROC}
+                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg)
+      set (FFMPEG_PATCH_HEVC ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/pfcd_hevc_optimisations.patch)
+      set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch)
+      set (FFMPEG_PATCH_2 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-ffmpeg-Call-get_format-to-fix-an-issue-with-MMAL-ren.patch)
+      set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches.patch)
+      set (FFMPEG_HEVC_MSG pfcd_hevc_optimisations.patch)
+    else()
+      execute_process(COMMAND sed -i "s%VERSION=.*%VERSION=7.1.1%g;s%tar.xz%tar.gz%g" FFMPEG-VERSION
+                      COMMAND sed -i "s/SHA512=.*/SHA512=332763b3230c68c0d5329ac455fb1964174e30d53bd043035ea201d6e22c55f29d63a59cff421fed7a3707ddc7e29ff44d267114defc1ffbc521504cd0e3e552/g" FFMPEG-VERSION
+                      COMMAND truncate --size 0 ${FFMPEG_PATCH_LIBPOSTPROC}
+                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg)
+      set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one.patch)
+      set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches-7.1.patch)
+      set (FFMPEG_PATCH_HEVC ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-rpi-Add-hevc-acceleration-7.1.patch)
+#      execute_process(COMMAND rm -f ${FFMPEG_PATCH_LIBPOSTPROC}
+#                      COMMAND touch ${FFMPEG_PATCH_LIBPOSTPROC}
+#                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg)
+      #set (FFMPEG_PATCH_HEVC ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-rpi-Add-hevc-acceleration-8.0.patch)
+      #set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-mpeg4video-Signal-unsupported-GMC-with-more-than-one-8.0.patch)
+      set (FFMPEG_PATCH_2 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/0001-ffmpeg-Call-get_format-to-fix-an-issue-with-MMAL-ren-6.0-8.0.patch)
+      #set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches-8.0.patch)
+      set (FFMPEG_HEVC_MSG ffmpeg/0001-rpi-Add-hevc-acceleration.patch)
+    endif()
+  else()
+    set (FFMPEG_PATCH_0 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/added_upstream_mvc_patches-8.0.patch)
+    set (FFMPEG_PATCH_1 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-libreelec-6.0.patch)        #### ToDo ###
+    set (FFMPEG_PATCH_2 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-v4l2-drmprime-6.0.patch)    #### ToDo ###
+    set (FFMPEG_PATCH_3 ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/ffmpeg-001-v4l2-request-6.0.patch)     #### ToDo ###
+    set (FFMPEG_HEVC_MSG None)
+  endif()
+
   SETUP_BUILD_VARS()
 
   message(STATUS "Building ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}: \(version \"${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER}\"\)")
@@ -140,6 +179,7 @@ macro(buildFFMPEG)
                                -DCCACHE_PROGRAM=${CCACHE_PROGRAM}
                                -DENABLE_VAAPI=${FFMPEG_VAAPI}
                                -DENABLE_VDPAU=${FFMPEG_VDPAU}
+                               -DENABLE_MMAL=${ENABLE_MMAL}
                                -DEXTRA_FLAGS=${FFMPEG_EXTRA_FLAGS})
 
     #if(KODI_DEPENDSBUILD OR (NOT APPLE AND CMAKE_CROSSCOMPILING))
@@ -177,10 +217,15 @@ macro(buildFFMPEG)
                    -DDISABLE_FFMPEG_SOURCE_PLUGINS=${DISABLE_FFMPEG_SOURCE_PLUGINS}
                    ${CROSS_ARGS}
                    ${FFMPEG_OPTIONS}
-                   -DPKG_CONFIG_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/pkgconfig)
+                   -DPKG_CONFIG_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
     set(PATCH_COMMAND ${CMAKE_COMMAND} -E copy
                       ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/CMakeLists.txt
-                      <SOURCE_DIR>
+                      <SOURCE_DIR> &&
+                      patch -p1 -F3 < ${FFMPEG_PATCH_1} &&
+                      patch -p1 -F3 < ${FFMPEG_PATCH_2} &&
+                      patch -p1 -F3 < ${FFMPEG_PATCH_3} &&
+                      patch -p1 < ${FFMPEG_PATCH_HEVC} &&
+                      echo "###################### ffmpeg HEVC patch applied: ${FFMPEG_HEVC_MSG} ######################"
                       COMMAND ${CMAKE_COMMAND} -E copy
                       ${CMAKE_SOURCE_DIR}/tools/depends/target/ffmpeg/002-ffmpeg-libavutil-common-h-cpp11-constant-macros.patch
                       <SOURCE_DIR>
