@@ -1,7 +1,7 @@
 include ../../Makefile.include GIFLIB-VERSION ../../download-files.include
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
-DEPS = ../../Makefile.include GIFLIB-VERSION Makefile ../../download-files.include \
+DEPS = ../../Makefile.include GIFLIB-VERSION Makefile ../../download-files.include 01-reallocarray.patch \
                           01-static-lib.patch
 
 # configuration settings
@@ -16,6 +16,7 @@ all: .installed-$(PLATFORM)
 	-rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../01-static-lib.patch
+	cd $(PLATFORM); patch -p1 -i ../01-reallocarray.patch
 	touch $@
 
 $(LIBDYLIB): .configured-$(PLATFORM)
