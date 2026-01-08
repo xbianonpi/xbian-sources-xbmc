@@ -7924,7 +7924,18 @@ msgctxt "#13525"
 msgid "When enabled, use the original year of release rather than the album release year (if available)."
 msgstr ""
 
-#empty strings from id 13526 to 13549
+#empty strings from id 13526 to 13547
+
+#: system/settings/settings.xml
+msgctxt "#13548"
+msgid "Allow hardware acceleration - OMXPlayer"
+msgstr ""
+
+#. Description of setting with label #13547 "Allow hardware acceleration (OMXPlayer)"
+#: system/settings/settings.xml
+msgctxt "#13549"
+msgid "Use OMXPlayer for decoding of video files."
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#13550"

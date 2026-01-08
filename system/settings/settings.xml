@@ -179,7 +179,7 @@
           </updates>
           <control type="toggle" />
         </setting>
-        <setting id="videoplayer.usedecoderfilter" type="boolean" label="13458" help="13459">
+        <setting id="videoplayer.usedecoderfilter" type="boolean" label="13548" help="13549">
           <requirement>HAS_MEDIACODEC</requirement>
           <level>3</level>
           <default>true</default>
@@ -190,6 +190,12 @@
         </setting>
         <setting id="videoplayer.usedxva2" type="boolean" label="13427" help="36158">
           <requirement>HasDXVA2</requirement>
+          <level>2</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="videoplayer.useomxplayer" type="boolean" label="13458" help="13459">
+          <requirement>HAS_OMXPLAYER</requirement>
           <level>2</level>
           <default>true</default>
           <control type="toggle" />

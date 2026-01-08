@@ -62,6 +62,7 @@ using namespace KODI;
 using namespace XFILE;
 
 constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEMMAL;
+constexpr const char* CSettings::SETTING_VIDEOPLAYER_USEOMXPLAYER;
 
 bool CSettings::Initialize()
 {
