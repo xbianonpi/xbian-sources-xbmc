@@ -279,7 +279,16 @@ if(WITH_FFMPEG)
 else()
   # We track multiple versions due to API changes. For dependsbuild or windows, we always
   # have latest version to properly track rebuiling.
-  if(KODI_DEPENDSBUILD OR (WIN32 OR WINDOWS_STORE))
+  if(CORE_PLATFORM_NAME STREQUAL rbpi)
+    set(REQUIRED_FFMPEG_VERSION 4.4.1)
+    set(_avcodec_ver ">=58.134.100")
+    set(_avfilter_ver ">=7.110.100")
+    set(_avformat_ver ">=58.76.100")
+    set(_avutil_ver ">=56.70.100")
+    set(_postproc_ver ">=55.9.100")
+    set(_swresample_ver ">=3.9.100")
+    set(_swscale_ver ">=5.9.100")
+  elseif(KODI_DEPENDSBUILD OR (WIN32 OR WINDOWS_STORE))
     # required ffmpeg library versions - tools/depends/target/ffmpeg versions
     set(REQUIRED_FFMPEG_VERSION 8.1.1)
     set(_avutil_ver "=60.26.101")
