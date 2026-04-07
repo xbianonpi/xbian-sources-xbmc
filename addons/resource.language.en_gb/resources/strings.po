@@ -7494,7 +7494,10 @@ msgctxt "#13427"
 msgid "Allow hardware acceleration - DXVA2"
 msgstr ""
 
-#empty string with id 13428
+#: system/settings/settings.xml
+msgctxt "#13428"
+msgid "Allow hardware acceleration - CrystalHD"
+msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#13429"

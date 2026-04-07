@@ -196,7 +196,11 @@ CDVDVideoCodec::VCReturn CDecoder::Decode(AVCodecContext* avctx, AVFrame* frame)
 
   if(frame)
   {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 12, 100)
     if (frame->flags & AV_FRAME_FLAG_INTERLACED)
+#else
+    if (frame->interlaced_frame)
+#endif
       return CDVDVideoCodec::VC_FATAL;
 
     if (m_renderBuffer)

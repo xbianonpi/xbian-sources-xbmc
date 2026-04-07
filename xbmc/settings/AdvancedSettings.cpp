@@ -187,6 +187,9 @@ void CAdvancedSettings::Initialize()
     return;
 
   m_audioApplyDrc = -1.0f;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(61, 12, 100)
+  m_VideoPlayerIgnoreDTSinWAV = false; 
+#endif
 
   //default hold time of 25 ms, this allows a 20 hertz sine to pass undistorted
   m_limiterHold = 0.025f;
@@ -658,6 +661,9 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
       GetCustomRegexps(pAudioExcludes, m_audioExcludeFromScanRegExps);
 
     XMLUtils::GetFloat(pElement, "applydrc", m_audioApplyDrc);
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(61, 12, 100)
+    XMLUtils::GetBoolean(pElement, "VideoPlayerignoredtsinwav", m_VideoPlayerIgnoreDTSinWAV);
+#endif
 
     XMLUtils::GetFloat(pElement, "limiterhold", m_limiterHold, 0.0f, 100.0f);
     XMLUtils::GetFloat(pElement, "limiterrelease", m_limiterRelease, 0.001f, 100.0f);

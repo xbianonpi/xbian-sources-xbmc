@@ -194,6 +194,9 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
       if (!avcodec_open2(stream->m_context, stream->m_context->codec, nullptr))
       {
         avcodec_send_packet(stream->m_context, avpkt);
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(61, 12, 100)
+        avcodec_close(stream->m_context);
+#endif
       }
     }
     av_packet_free(&avpkt);
