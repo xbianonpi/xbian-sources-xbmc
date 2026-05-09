@@ -9,6 +9,9 @@
 #pragma once
 
 #include "DRMUtils.h"
+#ifdef HAVE_MMAL
+#include "platform/linux/RBP.h"
+#endif
 #include "utils/log.h"
 
 #include <cstdint>
@@ -41,6 +44,9 @@ private:
 
   bool m_need_modeset;
   bool m_active = true;
+#ifdef HAVE_MMAL
+  DISPMANX_ELEMENT_HANDLE_T m_dispman_display = 0;
+#endif
 
   class CDRMAtomicRequest
   {
