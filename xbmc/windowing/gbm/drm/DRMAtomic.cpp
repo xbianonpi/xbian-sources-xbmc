@@ -89,17 +89,23 @@ void CDRMAtomic::DrmAtomicCommit(int fb_id, int flags, bool rendered, bool video
   // Pick whichever is live.
   CDRMPlane* outputPlane = m_gui_plane ? m_gui_plane : m_video_plane;
 
+  uint32_t srcw = m_width;
+  uint32_t dstw = m_mode->hdisplay;
+  double scalex = (double)srcw / (double)dstw;
+  dstw -= 1;
+  srcw = (uint32_t)(srcw - 1.0 * scalex + 0.5);
+
   if (rendered)
   {
     AddProperty(outputPlane, "FB_ID", fb_id);
     AddProperty(outputPlane, "CRTC_ID", m_crtc->GetCrtcId());
     AddProperty(outputPlane, "SRC_X", 0);
     AddProperty(outputPlane, "SRC_Y", 0);
-    AddProperty(outputPlane, "SRC_W", m_width << 16);
+    AddProperty(outputPlane, "SRC_W", srcw << 16);
     AddProperty(outputPlane, "SRC_H", m_height << 16);
     AddProperty(outputPlane, "CRTC_X", 0);
     AddProperty(outputPlane, "CRTC_Y", 0);
-    AddProperty(outputPlane, "CRTC_W", m_mode->hdisplay);
+    AddProperty(outputPlane, "CRTC_W", dstw);
     AddProperty(outputPlane, "CRTC_H", m_mode->vdisplay);
 
     if (m_inFenceFd != -1)
