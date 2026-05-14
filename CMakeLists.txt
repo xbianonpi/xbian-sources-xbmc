@@ -270,6 +270,7 @@ set(optional_deps Alsa>=1.0.27
                   Bluetooth
                   Bluray>=0.9.3
                   CAP
+                  LibVncServer
                   CEC>=4.0.0
                   DBus
                   Iso9660pp>=2.1.0
